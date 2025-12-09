@@ -59,7 +59,8 @@
 <div class="flex justify-center items-center min-h-[calc(100vh-80px)] px-4 py-10">
     <div class="w-full max-w-lg py-8 px-6 md:px-10 rounded-3xl bg-gray-800 text-white shadow-lg">
 
-        <h2 class="text-2xl md:text-3xl text-center font-bold mb-6">Register as Admin</h2>
+        <h2 class="text-2xl md:text-3xl text-center font-bold mb-6">Register as Staff</h2>
+        <h3 class="text-1xl text-center mb-6 text-red-500">Subject to Approval</h3>
 
         <form action="admin_register_logic.php" method="post">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -124,11 +125,10 @@
             </button>
 
             <p class="text-center text-gray-300">
-                <!-- Already have an admin account? 
-                <a class="text-blue-500 underline hover:text-blue-400" href="admin_login.php">Sign In</a><br> -->
-                Not an admin? 
-                <a class="text-blue-500 underline hover:text-blue-400" href="register.php">Register as a normal user</a>
+                Not part of the administration?
+                <a class="text-blue-500 underline hover:text-blue-400" href="register.php">Register as a user</a>
             </p>
+
 
 
         </form>

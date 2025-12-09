@@ -124,11 +124,10 @@
             </button>
 
             <p class="text-center text-gray-300">
-                <!-- Already have an account? 
-                <a class="text-blue-500 underline hover:text-blue-400" href="login.php">Sign In</a><br> -->
-                Are you an admin? 
+                Part of the administration?
                 <a class="text-blue-500 underline hover:text-blue-400" href="admin_register.php">Register here</a>
             </p>
+
 
         </form>
     </div>

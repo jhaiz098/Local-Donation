@@ -24,6 +24,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($password)) $errors[] = "Password is required.";
     if ($password !== $confirm_password) $errors[] = "Passwords do not match.";
 
+    // Password checks
+    if (!empty($password)) {
+        if (strlen($password) < 6) {
+            $errors[] = "Password must be at least 6 characters long.";
+        }
+
+        if ($password !== $confirm_password) {
+            $errors[] = "Passwords do not match.";
+        }
+    }
+
+    // ✅ Age validation (18+)
+    if (!empty($date_of_birth)) {
+        $birthDate = new DateTime($date_of_birth);
+        $today = new DateTime();
+        $age = $today->diff($birthDate)->y;
+
+        if ($age < 18) {
+            $errors[] = "You must be at least 18 years old to register.";
+        }
+    }
+
     // Check if email exists
     $stmt = $conn->prepare("SELECT user_id FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);

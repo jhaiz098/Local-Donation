@@ -57,8 +57,8 @@
 <!-- Login Form Section -->
 <div class="flex justify-center items-center min-h-[calc(100vh-80px)] px-4">
     <div class="w-full max-w-md py-8 px-6 md:px-10 rounded-3xl bg-gray-800 text-white shadow-lg">
-        <h2 class="text-2xl md:text-3xl text-center font-bold mb-6">Login as Admin</h2>
-        <form action="login_logic.php" method="post">
+        <h2 class="text-2xl md:text-3xl text-center font-bold mb-6">Administrative Login</h2>
+        <form action="admin_login_logic.php" method="post">
             <!-- Email -->
             <div class="mb-4">
                 <label class="block mb-2">Email</label>
@@ -83,8 +83,10 @@
                 Login
             </button>
             <p class="text-center text-gray-300">
-                Not an admin? <a class="text-blue-500 underline hover:text-blue-400" href="login.php">Login as user</a>
+                Not an admin?
+                <a class="text-blue-500 underline hover:text-blue-400" href="login.php">Login as a user</a>
             </p>
+
 
         </form>
     </div>

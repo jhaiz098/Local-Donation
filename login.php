@@ -84,7 +84,7 @@
             </button>
             <p class="text-center text-gray-300">
                 <!-- New user? <a class="text-blue-500 underline hover:text-blue-400" href="register.php">Sign Up</a><br> -->
-                Are you an admin? <a class="text-blue-500 underline hover:text-blue-400" href="admin_login.php">Login here</a>
+                Administrative access? <a class="text-blue-500 underline hover:text-blue-400" href="admin_login.php">Login here</a>
             </p>
         </form>
     </div>
