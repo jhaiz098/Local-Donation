@@ -1,0 +1,16 @@
+.align-items-center {
+    align-items: center;
+}
+.w-100 {
+    width:100%
+}
+/* Disabled Link Styles */
+.disabled-link {
+    pointer-events: none;  /* Prevents clicks */
+    color: #b0b0b0;        /* Gray text color */
+    cursor: not-allowed;   /* Change cursor to not-allowed */
+}
+
+.disabled-link:hover {
+    background-color: transparent; /* Remove hover effect */
+}
