@@ -1,15 +1,9 @@
 <?php
 include 'db_connect.php';
 
-$recent_sql = "SELECT f.*, u.first_name, p.profile_name, p.profile_type 
-               FROM feedback f
-               LEFT JOIN users u ON f.user_id = u.user_id
-               LEFT JOIN profiles p ON f.profile_id = p.profile_id
-               ORDER BY f.created_at DESC
-               LIMIT 3";
+$recent_sql = "SELECT * FROM view_recent_feedback LIMIT 3";
 $recent_result = $conn->query($recent_sql);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
