@@ -218,8 +218,8 @@ while($row = $result->fetch_assoc()) {
                 <input type="text" name="zip_code" id="zip" required placeholder="ZIP Code" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" value="<?= htmlspecialchars($user['zip_code'] ?? '') ?>">
             </div>
             <div>
-                <label for="phone" class="block text-gray-700 font-medium mb-1">Phone Number (Optional)</label>
-                <input type="text" name="phone_number" pattern="[0-9]{11}" id="phone" placeholder="09123456789" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" value="<?= htmlspecialchars($user['phone_number'] ?? '') ?>">
+                <label for="phone" class="block text-gray-700 font-medium mb-1">Phone Number <span class="text-red-500">*</span></label>
+                <input type="text" name="phone_number" required pattern="[0-9]{11}" id="phone" placeholder="09123456789" class="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500" value="<?= htmlspecialchars($user['phone_number'] ?? '') ?>">
             </div>
         </div>
 
