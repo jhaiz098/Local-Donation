@@ -79,6 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         (first_name, middle_name, last_name, date_of_birth, gender, email, password) 
         VALUES (?, ?, ?, ?, ?, ?, ?)
     ");
+
+    if (!$stmt) {
+        die("Prepare failed: " . $conn->error);
+    }
+
     $stmt->bind_param(
         "sssssss",
         $first_name,
@@ -98,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 . " (" . $email . ")";
 
     $auditStmt = $conn->prepare("
-        INSERT INTO audit_trails (user_id, profile_id, description)
+        INSERT INTO audit_logs (user_id, profile_id, description)
         VALUES (NULL, NULL, ?)
     ");
     $auditStmt->bind_param("s", $description);
