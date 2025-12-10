@@ -154,45 +154,173 @@
     </div>
 
     <!-- ================= EXISTING LOCATIONS TABLE ================= -->
-    <div class="bg-white rounded-xl shadow-md p-4 overflow-x-auto">
-        <h3 class="text-lg font-semibold mb-3">Existing Locations</h3>
-        <table class="w-full text-xs border-collapse">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="p-1 text-left">Region</th>
-                    <th class="p-1 text-left">Province</th>
-                    <th class="p-1 text-left">City / Municipality</th>
-                    <th class="p-1 text-left">Barangay</th>
-                    <th class="p-1 text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="text-gray-700">
-                <!-- Example Row -->
-                <tr>
-                    <td class="p-1 font-semibold">Region 1</td>
-                    <td class="p-1 font-medium">Province A</td>
-                    <td class="p-1">City X</td>
-                    <td class="p-1">
-                        Barangay 1, Barangay 2, Barangay 3
-                    </td>
-                    <td class="p-1 text-center space-x-1">
-                        <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-[10px]">Edit</button>
-                        <button class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px]">Delete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="p-1 font-semibold">Region 1</td>
-                    <td class="p-1 font-medium">Province B</td>
-                    <td class="p-1">City Y</td>
-                    <td class="p-1">Barangay 4</td>
-                    <td class="p-1 text-center space-x-1">
-                        <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-[10px]">Edit</button>
-                        <button class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px]">Delete</button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="grid grid-cols-4 gap-4">
+
+    <!-- Regions -->
+    <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+        <h3 class="font-bold mb-2 text-lg">Regions</h3>
+        <ul id="regions" class="space-y-2">
+        <li class="flex justify-between items-center p-2 rounded cursor-pointer hover:bg-blue-100 transition">
+            <span onclick="selectRegion('Region 1')">Region 1</span>
+            <div class="flex gap-1">
+            <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('Region 1', 'region')">Edit</button>
+            <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('Region 1', 'region')">Delete</button>
+            </div>
+        </li>
+        <li class="flex justify-between items-center p-2 rounded cursor-pointer hover:bg-blue-100 transition">
+            <span onclick="selectRegion('Region 2')">Region 2</span>
+            <div class="flex gap-1">
+            <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('Region 2', 'region')">Edit</button>
+            <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('Region 2', 'region')">Delete</button>
+            </div>
+        </li>
+        </ul>
     </div>
+
+    <!-- Provinces -->
+    <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+        <h3 class="font-bold mb-2 text-lg">Provinces</h3>
+        <ul id="provinces" class="space-y-2">
+        <li class="text-gray-400 italic">Select a region first</li>
+        </ul>
+    </div>
+
+    <!-- Cities/Municipalities -->
+    <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+        <h3 class="font-bold mb-2 text-lg">Cities / Municipalities</h3>
+        <ul id="cities" class="space-y-2">
+        <li class="text-gray-400 italic">Select a province first</li>
+        </ul>
+    </div>
+
+    <!-- Barangays -->
+    <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+        <h3 class="font-bold mb-2 text-lg">Barangays</h3>
+        <ul id="barangays" class="space-y-1 text-sm">
+        <li class="text-gray-400 italic">Select a city/municipality first</li>
+        </ul>
+    </div>
+
+    </div>
+
+    <script>
+    const data = {
+    "Region 1": {
+        "Province A": { "City X": ["Barangay 1", "Barangay 2"], "City Y": ["Barangay 3"] },
+        "Province B": { "City Z": ["Barangay 4"] }
+    },
+    "Region 2": {
+        "Province C": { "City W": ["Barangay 5", "Barangay 6"] }
+    }
+    };
+
+    let selectedRegion = null;
+    let selectedProvince = null;
+    let selectedCity = null;
+
+    function selectRegion(region){
+    selectedRegion = region;
+    highlightSelection('regions', region);
+    updateProvinces(region);
+    }
+
+    function selectProvince(region, province){
+    selectedProvince = province;
+    highlightSelection('provinces', province);
+    updateCities(region, province);
+    }
+
+    function selectCity(region, province, city){
+    selectedCity = city;
+    highlightSelection('cities', city);
+    updateBarangays(region, province, city);
+    }
+
+    // Highlight selected item
+    function highlightSelection(listId, value){
+    const list = document.getElementById(listId).children;
+    for(let li of list){
+        if(li.querySelector('span') && li.querySelector('span').textContent === value){
+        li.classList.add('bg-blue-300', 'font-semibold');
+        } else {
+        li.classList.remove('bg-blue-300', 'font-semibold');
+        }
+    }
+    }
+
+    // Update lists
+    function updateProvinces(region){
+    const provincesEl = document.getElementById('provinces');
+    const citiesEl = document.getElementById('cities');
+    const barangaysEl = document.getElementById('barangays');
+    
+    provincesEl.innerHTML = '';
+    citiesEl.innerHTML = '<li class="text-gray-400 italic">Select a province first</li>';
+    barangaysEl.innerHTML = '<li class="text-gray-400 italic">Select a city/municipality first</li>';
+    
+    Object.keys(data[region]).forEach(prov => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center p-2 rounded cursor-pointer hover:bg-green-100 transition';
+        li.innerHTML = `<span onclick="selectProvince('${region}', '${prov}')">${prov}</span>
+                        <div class="flex gap-1">
+                        <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('${prov}', 'province')">Edit</button>
+                        <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('${prov}', 'province')">Delete</button>
+                        </div>`;
+        provincesEl.appendChild(li);
+    });
+    }
+
+    function updateCities(region, province){
+    const citiesEl = document.getElementById('cities');
+    const barangaysEl = document.getElementById('barangays');
+    
+    citiesEl.innerHTML = '';
+    barangaysEl.innerHTML = '<li class="text-gray-400 italic">Select a city/municipality first</li>';
+    
+    Object.keys(data[region][province]).forEach(city => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center p-2 rounded cursor-pointer hover:bg-yellow-100 transition';
+        li.innerHTML = `<span onclick="selectCity('${region}', '${province}', '${city}')">${city}</span>
+                        <div class="flex gap-1">
+                        <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('${city}', 'city')">Edit</button>
+                        <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('${city}', 'city')">Delete</button>
+                        </div>`;
+        citiesEl.appendChild(li);
+    });
+    }
+
+    function updateBarangays(region, province, city){
+    const barangaysEl = document.getElementById('barangays');
+    barangaysEl.innerHTML = '';
+    
+    data[region][province][city].forEach(brgy => {
+        const li = document.createElement('li');
+        li.className = 'flex justify-between items-center p-1 rounded bg-blue-100 text-blue-800 text-xs';
+        li.innerHTML = `<span>${brgy}</span>
+                        <div class="flex gap-1">
+                        <button class="px-1 py-0.5 bg-yellow-500 text-white rounded text-[10px]" onclick="editItem('${brgy}', 'barangay')">Edit</button>
+                        <button class="px-1 py-0.5 bg-red-500 text-white rounded text-[10px]" onclick="deleteItem('${brgy}', 'barangay')">Delete</button>
+                        </div>`;
+        barangaysEl.appendChild(li);
+    });
+    }
+
+    // Edit item
+    function editItem(name, type){
+    const newName = prompt(`Edit ${type} name:`, name);
+    if(newName){
+        alert(`${type} "${name}" renamed to "${newName}" (simulate backend update)`);
+    }
+    }
+
+    // Delete item
+    function deleteItem(name, type){
+    if(confirm(`Are you sure you want to delete ${type} "${name}"?`)){
+        alert(`${type} "${name}" deleted (simulate backend update)`);
+    }
+    }
+    </script>
+
 
 </main>
 
