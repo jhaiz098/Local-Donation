@@ -72,9 +72,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: register.php?status=success");
             exit();
         } else {
+            header("Location: register.php?status=error&message=" . urlencode($stmt->error));
             $stmt->close();
             $conn->close();
-            header("Location: register.php?status=error&message=" . urlencode($stmt->error));
             exit();
         }
     } else {
