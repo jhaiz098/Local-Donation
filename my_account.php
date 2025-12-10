@@ -293,7 +293,9 @@ const barangay = document.getElementById("barangay");
 function disableSelect(selectElement) {
     selectElement.disabled = true;
     selectElement.classList.add("bg-gray-200");
-    selectElement.innerHTML = `<option value="">Select ${selectElement.name.charAt(0).toUpperCase() + selectElement.name.slice(1)}</option>`;
+    if(selectElement.name == 'province_id') selectElement.innerHTML = `<option value="">Select Province</option>`;
+    if(selectElement.name == 'city_id') selectElement.innerHTML = `<option value="">Select City/Municipality</option>`;
+    if(selectElement.name == 'barangay_id') selectElement.innerHTML = `<option value="">Select Barangay</option>`;
 }
 
 function enableSelect(selectElement) {
@@ -308,7 +310,9 @@ function loadOptions(url, selectElement, selectedID = null) {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            selectElement.innerHTML = `<option value="">Select ${selectElement.name.charAt(0).toUpperCase() + selectElement.name.slice(1)}</option>`;
+            if(selectElement.name == 'province_id') selectElement.innerHTML = `<option value="">Select Province</option>`;
+            if(selectElement.name == 'city_id') selectElement.innerHTML = `<option value="">Select City/Municipality</option>`;
+            if(selectElement.name == 'barangay_id') selectElement.innerHTML = `<option value="">Select Barangay</option>`;
             data.forEach(item => {
                 const option = document.createElement('option');
                 option.value = item.id;

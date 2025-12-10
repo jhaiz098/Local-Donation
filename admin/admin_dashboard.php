@@ -18,8 +18,8 @@
     </h1>
 
     <!-- Mobile Hamburger -->
-    <button id="hamburger" class="block md:hidden p-2 rounded bg-blue-100 hover:bg-blue-200">
-        <svg class="w-6 h-6 text-blue-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <button id="hamburger" class="block md:hidden p-2 rounded bg-gray-100 hover:bg-gray-200">
+        <svg class="w-6 h-6 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
@@ -34,32 +34,32 @@
             <!-- Core -->
             <li class="uppercase text-xs px-2 mt-2">Core</li>
             <li>
-                <a href="dashboard.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">
+                <a href="admin_dashboard.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">
                     Dashboard
                 </a>
             </li>
 
             <!-- Accounts -->
             <li class="uppercase text-xs px-2 mt-4">Accounts</li>
-            <li><a href="my_account.php" class="block px-4 py-2 rounded hover:bg-gray-200">My Account</a></li>
-            <li><a href="users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a></li>
+            <li><a href="admin_myAccount.php" class="block px-4 py-2 rounded hover:bg-gray-200">My Account</a></li>
+            <li><a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a></li>
 
             <!-- Operations -->
             <li class="uppercase text-xs px-2 mt-4">Operations</li>
-            <li><a href="profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a></li>
-            <li><a href="donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a></li>
-            <li><a href="feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a></li>
+            <li><a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a></li>
+            <li><a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a></li>
+            <li><a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a></li>
 
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
-            <li><a href="locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a></li>
-            <li><a href="activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
-            <li><a href="audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
-            <li><a href="settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Settings</a></li>
+            <li><a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a></li>
+            <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
+            <li><a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
+            <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Settings</a></li>
 
             <!-- Support -->
             <li class="uppercase text-xs px-2 mt-4">Support</li>
-            <li><a href="help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a></li>
+            <li><a href="admin_help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a></li>
 
             <!-- Logout -->
             <li class="mt-6">
@@ -74,9 +74,9 @@
 
 <!-- ================= MOBILE SIDE MENU ================= -->
 <div id="side-menu"
-    class="fixed inset-0 bg-blue-900 text-white z-30 transform -translate-x-full transition-transform duration-300 md:hidden pt-20 overflow-y-auto">
+    class="fixed inset-0 bg-white z-30 transform -translate-x-full transition-transform duration-300 md:hidden pt-20 overflow-y-auto">
 
-    <button id="close-btn" class="absolute top-4 right-4 p-2 rounded bg-blue-700 hover:bg-blue-600">
+    <button id="close-btn" class="absolute top-4 right-4 p-2 rounded bg-gray-200 hover:bg-gray-300">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M6 18L18 6M6 6l12 12"></path>
@@ -84,14 +84,14 @@
     </button>
 
     <ul class="flex flex-col gap-1 px-6">
-        <li><a href="dashboard.php" class="block px-4 py-2 rounded bg-blue-700">Dashboard</a></li>
-        <li><a href="my_account.php" class="block px-4 py-2 rounded hover:bg-blue-800">My Account</a></li>
-        <li><a href="users.php" class="block px-4 py-2 rounded hover:bg-blue-800">Users</a></li>
-        <li><a href="profiles.php" class="block px-4 py-2 rounded hover:bg-blue-800">Profiles</a></li>
-        <li><a href="donations.php" class="block px-4 py-2 rounded hover:bg-blue-800">Donations / Requests</a></li>
-        <li><a href="feedback.php" class="block px-4 py-2 rounded hover:bg-blue-800">Feedback</a></li>
-        <li><a href="settings.php" class="block px-4 py-2 rounded hover:bg-blue-800">Settings</a></li>
-        <li><a href="help.php" class="block px-4 py-2 rounded hover:bg-blue-800">Help / FAQ</a></li>
+        <li><a href="admin_dashboard.php" class="block px-4 py-2 rounded hover:bg-gray-200">Dashboard</a></li>
+        <li><a href="admin_myAccount.php" class="block px-4 py-2 rounded hover:bg-gray-200">My Account</a></li>
+        <li><a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a></li>
+        <li><a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a></li>
+        <li><a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a></li>
+        <li><a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a></li>
+        <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Settings</a></li>
+        <li><a href="admin_help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a></li>
         <li><a href="admin_logout.php" class="block px-4 py-2 rounded bg-red-600 hover:bg-red-500">Logout</a></li>
     </ul>
 </div>
