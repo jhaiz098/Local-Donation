@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Feedback</title>
+    <title>Location Management</title>
 
     <script src="../src/tailwind.js"></script>
     <link rel="stylesheet" href="../src/style.css">
@@ -98,55 +98,96 @@
 <!-- ================= MAIN CONTENT ================= -->
 <main class="pt-24 p-6 md:ml-64">
 
-    <h2 class="text-2xl font-bold mb-6">Feedback Management</h2>
+    <h2 class="text-2xl font-bold mb-6">Location Management</h2>
 
-    <!-- ================= FEEDBACK TABLE ================= -->
-    <div class="bg-white rounded-xl shadow-md overflow-x-auto">
-        <table class="w-full min-w-[800px] border-collapse text-sm">
-            <thead class="bg-gray-100 text-left">
+    <!-- ================= ADD LOCATION FORMS ================= -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+        <!-- Add Region -->
+        <div class="bg-white rounded-xl shadow-md p-4">
+            <h3 class="text-lg font-semibold mb-2">Add Region</h3>
+            <form class="flex gap-2">
+                <input type="text" placeholder="Region Name" class="flex-1 p-1 text-sm border rounded">
+                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            </form>
+        </div>
+
+        <!-- Add Province -->
+        <div class="bg-white rounded-xl shadow-md p-4">
+            <h3 class="text-lg font-semibold mb-2">Add Province</h3>
+            <form class="flex gap-2">
+                <select class="p-1 text-sm border rounded flex-1">
+                    <option>Select Region</option>
+                    <option>Region 1</option>
+                </select>
+                <input type="text" placeholder="Province Name" class="flex-1 p-1 text-sm border rounded">
+                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            </form>
+        </div>
+
+        <!-- Add City -->
+        <div class="bg-white rounded-xl shadow-md p-4">
+            <h3 class="text-lg font-semibold mb-2">Add City / Municipality</h3>
+            <form class="flex gap-2">
+                <select class="p-1 text-sm border rounded flex-1">
+                    <option>Select Province</option>
+                    <option>Province A</option>
+                </select>
+                <input type="text" placeholder="City Name" class="flex-1 p-1 text-sm border rounded">
+                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            </form>
+        </div>
+
+        <!-- Add Barangay -->
+        <div class="bg-white rounded-xl shadow-md p-4">
+            <h3 class="text-lg font-semibold mb-2">Add Barangay</h3>
+            <form class="flex gap-2">
+                <select class="p-1 text-sm border rounded flex-1">
+                    <option>Select City / Municipality</option>
+                    <option>City X</option>
+                </select>
+                <input type="text" placeholder="Barangay Name" class="flex-1 p-1 text-sm border rounded">
+                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- ================= EXISTING LOCATIONS TABLE ================= -->
+    <div class="bg-white rounded-xl shadow-md p-4 overflow-x-auto">
+        <h3 class="text-lg font-semibold mb-3">Existing Locations</h3>
+        <table class="w-full text-xs border-collapse">
+            <thead class="bg-gray-100">
                 <tr>
-                    <th class="p-3">ID</th>
-                    <th class="p-3">User / Profile</th>
-                    <th class="p-3">Feedback</th>
-                    <th class="p-3">Submitted At</th>
-                    <th class="p-3 text-center">Actions</th>
+                    <th class="p-1 text-left">Region</th>
+                    <th class="p-1 text-left">Province</th>
+                    <th class="p-1 text-left">City / Municipality</th>
+                    <th class="p-1 text-left">Barangay</th>
+                    <th class="p-1 text-center">Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">1</td>
-                    <td class="p-3">Juan M. Dela Cruz</td>
-                    <td class="p-3 truncate max-w-[300px]">Great platform! Very helpful and easy to use.</td>
-                    <td class="p-3">2025-12-06 14:30</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
+            <tbody class="text-gray-700">
+                <!-- Example Row -->
+                <tr>
+                    <td class="p-1 font-semibold">Region 1</td>
+                    <td class="p-1 font-medium">Province A</td>
+                    <td class="p-1">City X</td>
+                    <td class="p-1">
+                        Barangay 1, Barangay 2, Barangay 3
+                    </td>
+                    <td class="p-1 text-center space-x-1">
+                        <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-[10px]">Edit</button>
+                        <button class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px]">Delete</button>
                     </td>
                 </tr>
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">2</td>
-                    <td class="p-3">Family: Santos</td>
-                    <td class="p-3 truncate max-w-[300px]">Request for more community events in our area.</td>
-                    <td class="p-3">2025-12-05 10:12</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">3</td>
-                    <td class="p-3">Organization: Bayanihan Community</td>
-                    <td class="p-3 truncate max-w-[300px]">Feedback on improving donation requests visibility.</td>
-                    <td class="p-3">2025-12-04 09:45</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
+                <tr>
+                    <td class="p-1 font-semibold">Region 1</td>
+                    <td class="p-1 font-medium">Province B</td>
+                    <td class="p-1">City Y</td>
+                    <td class="p-1">Barangay 4</td>
+                    <td class="p-1 text-center space-x-1">
+                        <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-[10px]">Edit</button>
+                        <button class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px]">Delete</button>
                     </td>
                 </tr>
             </tbody>
@@ -154,6 +195,7 @@
     </div>
 
 </main>
+
 
 <!-- ================= JS ================= -->
 <script>
