@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Profiles</title>
+    <title>Manage Donations / Requests</title>
 
     <script src="../src/tailwind.js"></script>
     <link rel="stylesheet" href="../src/style.css">
@@ -97,69 +97,61 @@
 
 <!-- ================= MAIN CONTENT ================= -->
 <main class="pt-24 p-6 md:ml-64">
-    <h2 class="text-2xl font-bold mb-6">Profile Management</h2>
+    <h2 class="text-2xl font-bold mb-6">Donations / Requests Management</h2>
 
     <!-- ================= FILTER TABS ================= -->
     <div class="flex flex-wrap gap-2 mb-6">
-        <button class="px-4 py-2 rounded bg-blue-600 text-white font-semibold">All Profiles</button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Individual</button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Family</button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Community Institution</button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Organization</button>
+        <button class="px-4 py-2 rounded bg-blue-600 text-white font-semibold">All</button>
+        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Offers</button>
+        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Requests</button>
     </div>
 
-    <!-- ================= PROFILE TABLE ================= -->
+    <!-- ================= DONATION / REQUEST TABLE ================= -->
     <div class="bg-white rounded-xl shadow-md overflow-x-auto">
         <table class="w-full min-w-[900px] border-collapse text-sm">
             <thead class="bg-gray-100 text-left">
                 <tr>
-                    <th class="p-3">Profile ID</th>
-                    <th class="p-3">Profile Name</th>
+                    <th class="p-3">Entry ID</th>
+                    <th class="p-3">Profile</th>
                     <th class="p-3">Type</th>
-                    <th class="p-3">Owner</th>
-                    <th class="p-3">Contact</th>
-                    <th class="p-3">Location</th>
+                    <th class="p-3">Details</th>
+                    <th class="p-3">Target Area</th>
                     <th class="p-3">Created At</th>
+                    <th class="p-3">Updated At</th>
                     <th class="p-3 text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Sample Profile -->
+                <!-- Sample Offer -->
                 <tr class="border-t hover:bg-gray-50">
                     <td class="p-3">1</td>
-                    <td class="p-3 truncate max-w-[180px]">Juan Dela Cruz</td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 rounded bg-gray-200 text-xs">Individual</span>
-                    </td>
                     <td class="p-3">Juan Dela Cruz</td>
-                    <td class="p-3">09123456789</td>
-                    <td class="p-3 truncate max-w-[180px]">Tacloban City, Leyte</td>
-                    <td class="p-3">2025-01-12</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded bg-green-200 text-xs">Offer</span></td>
+                    <td class="p-3 truncate max-w-[200px]">500kg of rice for donation</td>
+                    <td class="p-3">Tacloban City, Leyte</td>
+                    <td class="p-3">2025-03-01</td>
+                    <td class="p-3">2025-03-02</td>
                     <td class="p-3 text-center">
                         <div class="flex gap-1 justify-center whitespace-nowrap">
                             <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
+                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
                         </div>
                     </td>
                 </tr>
 
-                <!-- Another Sample Profile -->
+                <!-- Sample Request -->
                 <tr class="border-t hover:bg-gray-50">
                     <td class="p-3">2</td>
-                    <td class="p-3 truncate max-w-[180px]">Santos Family</td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 rounded bg-green-200 text-xs">Family</span>
-                    </td>
-                    <td class="p-3">Maria Santos</td>
-                    <td class="p-3">09987654321</td>
-                    <td class="p-3 truncate max-w-[180px]">Cebu City, Cebu</td>
-                    <td class="p-3">2025-02-02</td>
+                    <td class="p-3">Santos Family</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded bg-yellow-200 text-xs">Request</span></td>
+                    <td class="p-3 truncate max-w-[200px]">Looking for medical supplies</td>
+                    <td class="p-3">—</td>
+                    <td class="p-3">2025-04-10</td>
+                    <td class="p-3">2025-04-10</td>
                     <td class="p-3 text-center">
                         <div class="flex gap-1 justify-center whitespace-nowrap">
                             <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
+                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
                         </div>
                     </td>
                 </tr>
