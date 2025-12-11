@@ -1,5 +1,3 @@
-<!-- profile_edit_modal.php -->
-
 <?php
 // Include database connection
 include "../db_connect.php";
@@ -85,16 +83,17 @@ if ($profile_id > 0) {
             <?php endif; ?>
 
             <div class="mb-4">
-            <button id="closeModalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save Changes</button>
-        </div>
+                <button id="closeModalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save Changes</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
     // Function to close the modal
     function closeModal() {
-        const modal = document.getElementById('profileEditModal');
+        const modal = document.getElementById('profileModal');
         if (modal) {
             modal.style.display = 'none';  // Hide the modal
         }
@@ -113,9 +112,24 @@ if ($profile_id > 0) {
     });
 
     // Close modal when the user clicks outside the modal content (clicks the overlay)
-    document.getElementById('profileEditModal').addEventListener('click', function(event) {
+    document.getElementById('profileModal').addEventListener('click', function(event) {
         if (event.target === this) {
             closeModal();
         }
+    });
+</script>
+
+<script>
+    // Modal Toggle Functionality
+    const profileModal = document.getElementById('profileModal');
+    const openProfileModalBtn = document.getElementById('openProfileModalBtn'); // Assuming you have a button with this ID to open the modal
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    openProfileModalBtn.addEventListener('click', function() {
+        profileModal.style.display = 'flex'; // Show the modal
+    });
+
+    closeModalBtn.addEventListener('click', function() {
+        profileModal.style.display = 'none'; // Hide the modal
     });
 </script>
