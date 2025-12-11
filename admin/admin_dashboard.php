@@ -1,3 +1,35 @@
+<?php
+require '../db_connect.php';
+
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header("Location: ../login.php");
+    exit();
+}
+
+// Count all users by role
+$sql = "SELECT 
+            COUNT(*) AS total_users,
+            SUM(role='User') AS user_count,
+            SUM(role='Staff') AS staff_count,
+            SUM(role='Admin') AS admin_count,
+            SUM(role='Superuser') AS superuser_count
+        FROM users";
+$result = $conn->query($sql);
+$counts = $result->fetch_assoc();
+
+// Count pending admin requests
+$pending_requests_sql = "SELECT COUNT(*) AS total_pending FROM pending_admins";
+$pending_result = $conn->query($pending_requests_sql);
+$pending = $pending_result->fetch_assoc();
+$pending_requests = $pending['total_pending'];
+
+// Count feedback received
+$feedback_sql = "SELECT COUNT(*) AS total_feedback FROM feedback";
+$feedback_result = $conn->query($feedback_sql);
+$feedback = $feedback_result->fetch_assoc();
+$feedback_received = $feedback['total_feedback'];
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -104,36 +136,40 @@
     <!-- Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div class="bg-white p-6 rounded-xl shadow-md">
-            <h3 class="text-lg font-semibold mb-2">Total Users</h3>
-            <p class="text-3xl font-bold text-blue-600">150</p>
+            <h3 class="text-lg font-semibold mb-2">Total Users (All Roles)</h3>
+            <p class="text-3xl font-bold text-blue-600"><?= $counts['total_users'] ?></p><br>
+            <p class="text-sm text-gray-500">
+                Users: <?= $counts['user_count'] ?> | Staff: <?= $counts['staff_count'] ?> | Admin: <?= $counts['admin_count'] ?> | Superusers: <?= $counts['superuser_count'] ?>
+            </p>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-md">
             <h3 class="text-lg font-semibold mb-2">Pending Requests</h3>
-            <p class="text-3xl font-bold text-yellow-600">12</p>
+            <p class="text-3xl font-bold text-yellow-600"><?= $pending_requests ?></p>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-md">
             <h3 class="text-lg font-semibold mb-2">Feedback Received</h3>
-            <p class="text-3xl font-bold text-green-600">8</p>
+            <p class="text-3xl font-bold text-green-600"><?= $feedback_received ?></p>
         </div>
     </div>
 
+
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a href="users.php" class="block bg-blue-100 p-6 rounded-xl shadow-md hover:bg-blue-200 transition">
+        <a href="admin_users.php" class="block bg-blue-100 p-6 rounded-xl shadow-md hover:bg-blue-200 transition">
             <h4 class="font-semibold text-lg mb-1">Manage Users</h4>
             <p>View and control user accounts.</p>
         </a>
 
-        <a href="donations.php" class="block bg-green-100 p-6 rounded-xl shadow-md hover:bg-green-200 transition">
+        <a href="admin_donations.php" class="block bg-green-100 p-6 rounded-xl shadow-md hover:bg-green-200 transition">
             <h4 class="font-semibold text-lg mb-1">Donations</h4>
             <p>Monitor donation activity.</p>
         </a>
 
-        <a href="feedback.php" class="block bg-yellow-100 p-6 rounded-xl shadow-md hover:bg-yellow-200 transition">
+        <a href="admin_feedback.php" class="block bg-yellow-100 p-6 rounded-xl shadow-md hover:bg-yellow-200 transition">
             <h4 class="font-semibold text-lg mb-1">Feedback</h4>
-            <p>Check system feedback.</p>
+            <p>Check user feedback.</p>
         </a>
     </div>
 
