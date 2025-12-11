@@ -147,6 +147,20 @@ $feedback_received = $feedback['total_feedback'];
     // endif; 
     ?>
 
+    <?php 
+    // if ($isAdmin && !$hasAllPermissions): 
+    ?>
+        <div class="mb-6 bg-blue-100 border-l-4 border-blue-600 p-4 rounded">
+            <p class="text-blue-700 font-medium">ℹ Limited admin access detected.</p>
+            <p class="text-blue-700 text-sm">
+                Some admin permissions are missing. Contact the system administrator if this is unexpected.
+            </p>
+        </div>
+    <?php 
+    // endif;
+    ?>
+
+
 
     <h2 class="text-2xl font-bold mb-6">Admin Dashboard</h2>
 
