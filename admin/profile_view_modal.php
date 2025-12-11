@@ -68,6 +68,24 @@ if ($profile_id > 0) {
             }
         }
 
+        // Fetch members if profile type is not 'individual'
+        $members = [];
+        if ($profileType !== 'individual') {
+            $queryMembers = "SELECT pm.user_id, u.first_name, u.last_name, pm.role
+                             FROM profile_members pm
+                             JOIN users u ON pm.user_id = u.user_id
+                             WHERE pm.profile_id = ?";
+            $stmtMembers = $conn->prepare($queryMembers);
+            $stmtMembers->bind_param("i", $profile_id);
+            $stmtMembers->execute();
+            $membersResult = $stmtMembers->get_result();
+
+            // Add members to the array
+            while ($member = $membersResult->fetch_assoc()) {
+                $members[] = $member;
+            }
+        }
+
     } else {
         echo "Profile not found.";
         exit();
@@ -131,6 +149,34 @@ if ($profile_id > 0) {
             <p><strong>Email:</strong> <?= htmlspecialchars($profileDetails['email']) ?></p>
             <p><strong>Registration Number:</strong> <?= htmlspecialchars($profileDetails['registration_number']) ?></p>
         <?php endif; ?>
+
+        <!-- Display Members if Profile Type is not 'individual' -->
+        <?php if (!empty($members)): ?>
+            <div class="mt-4">
+                <h4 class="font-semibold">Profile Members:</h4>
+                <div class="overflow-y-auto max-h-64 mt-2"> <!-- Added a wrapper with scroll functionality -->
+                    <table class="min-w-full border-collapse text-sm">
+                        <thead>
+                            <tr>
+                                <th class="p-2 border">User ID</th>
+                                <th class="p-2 border">Name</th>
+                                <th class="p-2 border">Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($members as $member): ?>
+                                <tr>
+                                    <td class="p-2 border"><?= htmlspecialchars($member['user_id']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($member['first_name'] . ' ' . $member['last_name']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($member['role']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <?php endif; ?>
+
 
         <div class="mt-4 flex justify-end">
             <button onclick="closeModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>

@@ -15,6 +15,7 @@ $q = "%$q%";
 $sql = "SELECT u.user_id, u.email
         FROM users u
         WHERE u.email LIKE ?
+        AND u.role = 'User'  -- Only users with role 'User'
         AND u.user_id NOT IN (SELECT user_id FROM profile_members WHERE profile_id = ?)";
 
 $stmt = $conn->prepare($sql);
