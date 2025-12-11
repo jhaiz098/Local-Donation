@@ -244,13 +244,19 @@ if($result->num_rows > 0){
                 <!-- Location -->
                 <td class="p-3 max-w-[180px] break-words">
                     <?php
-                    $location = ($user['region_name'] && $user['province_name'] && $user['city_name'] && $user['barangay_name'])
-                        ? $user['region_name'].' / '.$user['province_name'].' / '.$user['city_name'].' / '.$user['barangay_name']
-                        : '-';
+                    if ($filter == 'pending') {
+                        // If the user is pending, set location as '-'
+                        $location = '-';
+                    } else {
+                        // For regular users, check if all location fields are set
+                        $location = ($user['region_name'] && $user['province_name'] && $user['city_name'] && $user['barangay_name'])
+                            ? $user['region_name'].' / '.$user['province_name'].' / '.$user['city_name'].' / '.$user['barangay_name']
+                            : '-';
+                    }
                     ?>
-                    <?= $filter == 'pending' ? '-' : $location ?>
-
+                    <?= $location ?>
                 </td>
+
 
                 <!-- Joined / Requested Date -->
                 <td class="p-3"><?= $user['created_at'] ?></td>
