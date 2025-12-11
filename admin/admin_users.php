@@ -292,7 +292,11 @@ if($result->num_rows > 0){
                                     data-barangay="<?= $user['barangay_id'] ?>"
                                 >Edit</button>
 
-                                <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Remove</button>
+                                <button 
+                                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 remove-btn"
+                                    data-user_id="<?= $user['user_id'] ?>">
+                                    Remove
+                                </button>
                             <?php endif; ?>
                     </div>
                 </td>
@@ -346,6 +350,41 @@ if($result->num_rows > 0){
 <script>
     // Initialize edit buttons after modal is included
     initEditButtons();
+</script>
+
+<script>
+document.querySelectorAll('.remove-btn').forEach(button => {
+    button.addEventListener('click', function () {
+
+        const userID = this.getAttribute("data-user_id");
+
+        // Confirm delete
+        if (!confirm("Are you sure you want to remove this user?")) {
+            return;
+        }
+
+        // AJAX POST to user_remove.php
+        fetch("user_remove.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "user_id=" + userID
+        })
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message);
+
+            if (data.status === "success") {
+                location.reload();
+            }
+        })
+        .catch(err => {
+            alert("Error connecting to server.");
+        });
+
+    });
+});
 </script>
 
 

@@ -8,8 +8,12 @@
             <div class="col-span-2 mt-4 flex flex-col items-center">
                 <strong>Profile Picture:</strong>
                 <img id="editModalProfilePic" class="w-24 h-24 rounded-full mt-2 mb-3 object-cover">
-                <input type="file" id="editProfilePicInput" class="mt-2 w-full text-sm" accept="image/*">
+                <button type="button" id="changeProfileBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                    Change Profile
+                </button>
+                <input type="file" id="editProfilePicInput" class="hidden" accept="image/*">
             </div>
+
 
             <hr class="col-span-2 w-full">
 
@@ -51,29 +55,23 @@
                 <label class="block font-semibold">Email</label>
                 <input type="email" id="editEmail" name="email" class="border rounded w-full px-2 py-1">
             </div>
+
+            <!-- Location Dropdowns -->
             <div>
-                <label class="block font-semibold">Role</label>
-                <select id="editRole" name="role" class="border rounded w-full px-2 py-1">
-                    <option value="User">User</option>
-                    <option value="Superuser">Superuser</option>
-                    <option value="Admin">Admin</option>
-                </select>
+                <label class="block font-semibold">Region</label>
+                <select id="editRegion" name="region_id" class="border rounded w-full px-2 py-1"></select>
             </div>
             <div>
-                <label class="block font-semibold">Region ID</label>
-                <input type="number" id="editRegion" name="region_id" class="border rounded w-full px-2 py-1">
+                <label class="block font-semibold">Province</label>
+                <select id="editProvince" name="province_id" class="border rounded w-full px-2 py-1"></select>
             </div>
             <div>
-                <label class="block font-semibold">Province ID</label>
-                <input type="number" id="editProvince" name="province_id" class="border rounded w-full px-2 py-1">
+                <label class="block font-semibold">City</label>
+                <select id="editCity" name="city_id" class="border rounded w-full px-2 py-1"></select>
             </div>
             <div>
-                <label class="block font-semibold">City ID</label>
-                <input type="number" id="editCity" name="city_id" class="border rounded w-full px-2 py-1">
-            </div>
-            <div>
-                <label class="block font-semibold">Barangay ID</label>
-                <input type="number" id="editBarangay" name="barangay_id" class="border rounded w-full px-2 py-1">
+                <label class="block font-semibold">Barangay</label>
+                <select id="editBarangay" name="barangay_id" class="border rounded w-full px-2 py-1"></select>
             </div>
 
             <!-- Buttons -->
@@ -92,23 +90,32 @@
 
     function initEditButtons() {
         document.querySelectorAll('.edit-btn').forEach(btn => {
+            // Remove previous click listeners if re-initializing
+            btn.replaceWith(btn.cloneNode(true));
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.getElementById('editUserId').value = btn.getAttribute('data-user_id');
-                document.getElementById('editFirstName').value = btn.getAttribute('data-first_name');
-                document.getElementById('editMiddleName').value = btn.getAttribute('data-middle_name');
-                document.getElementById('editLastName').value = btn.getAttribute('data-last_name');
-                document.getElementById('editDOB').value = btn.getAttribute('data-dob');
-                document.getElementById('editGender').value = btn.getAttribute('data-gender');
-                document.getElementById('editZip').value = btn.getAttribute('data-zip');
-                document.getElementById('editPhone').value = btn.getAttribute('data-phone');
-                document.getElementById('editEmail').value = btn.getAttribute('data-email');
-                document.getElementById('editRole').value = btn.getAttribute('data-role');
-                document.getElementById('editRegion').value = btn.getAttribute('data-region');
-                document.getElementById('editProvince').value = btn.getAttribute('data-province');
-                document.getElementById('editCity').value = btn.getAttribute('data-city');
-                document.getElementById('editBarangay').value = btn.getAttribute('data-barangay');
-                document.getElementById('editModalProfilePic').src = btn.getAttribute('data-profile_pic');
-                
+                const userId = btn.dataset.user_id;
+                console.log('Editing user_id:', userId); // check in console
+
+                document.getElementById('editUserId').value = userId;
+                document.getElementById('editFirstName').value = btn.dataset.first_name;
+                document.getElementById('editMiddleName').value = btn.dataset.middle_name;
+                document.getElementById('editLastName').value = btn.dataset.last_name;
+                document.getElementById('editDOB').value = btn.dataset.dob;
+                document.getElementById('editGender').value = btn.dataset.gender;
+                document.getElementById('editZip').value = btn.dataset.zip;
+                document.getElementById('editPhone').value = btn.dataset.phone;
+                document.getElementById('editEmail').value = btn.dataset.email;
+                document.getElementById('editModalProfilePic').src = btn.dataset.profile_pic;
+
+                // Load locations
+                loadRegions(btn.dataset.region);
+                loadProvinces(btn.dataset.region, btn.dataset.province);
+                loadCities(btn.dataset.province, btn.dataset.city);
+                loadBarangays(btn.dataset.city, btn.dataset.barangay);
+
                 editUserModal.classList.remove('hidden');
                 editUserModal.classList.add('flex');
             });
@@ -132,5 +139,166 @@
         }
     });
 
-    // Optional: handle form submission here via AJAX
+
+
+    // Load Regions
+    function loadRegions(selectedRegion = null) {
+        fetch('../get_regions.php')
+        .then(res => res.json())
+        .then(data => {
+            const regionSelect = document.getElementById('editRegion');
+            regionSelect.innerHTML = '<option value="">Select Region</option>';
+            data.forEach(r => {
+                const selected = selectedRegion == r.id ? 'selected' : '';
+                regionSelect.innerHTML += `<option value="${r.id}" ${selected}>${r.name}</option>`;
+            });
+            toggleProvince(regionSelect.value);
+        });
+    }
+
+    // Load Provinces
+    function loadProvinces(regionId, selectedProvince = null) {
+        const provinceSelect = document.getElementById('editProvince');
+        provinceSelect.innerHTML = '<option value="">Select Province</option>';
+        if (!regionId) {
+            toggleProvince(null);
+            return;
+        }
+        fetch(`../get_provinces.php?region_id=${regionId}`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(p => {
+                const selected = selectedProvince == p.id ? 'selected' : '';
+                provinceSelect.innerHTML += `<option value="${p.id}" ${selected}>${p.name}</option>`;
+            });
+            toggleProvince(regionId);
+        });
+    }
+
+    // Load Cities
+    function loadCities(provinceId, selectedCity = null) {
+        const citySelect = document.getElementById('editCity');
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        if (!provinceId) {
+            toggleCity(null);
+            return;
+        }
+        fetch(`../get_cities.php?province_id=${provinceId}`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(c => {
+                const selected = selectedCity == c.id ? 'selected' : '';
+                citySelect.innerHTML += `<option value="${c.id}" ${selected}>${c.name}</option>`;
+            });
+            toggleCity(provinceId);
+        });
+    }
+
+    // Load Barangays
+    function loadBarangays(cityId, selectedBarangay = null) {
+        const barangaySelect = document.getElementById('editBarangay');
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        if (!cityId) {
+            toggleBarangay(null);
+            return;
+        }
+        fetch(`../get_barangays.php?city_id=${cityId}`)
+        .then(res => res.json())
+        .then(data => {
+            data.forEach(b => {
+                const selected = selectedBarangay == b.id ? 'selected' : '';
+                barangaySelect.innerHTML += `<option value="${b.id}" ${selected}>${b.name}</option>`;
+            });
+            toggleBarangay(cityId);
+        });
+    }
+
+    // Enable/disable functions
+    function toggleProvince(regionId) {
+        const province = document.getElementById('editProvince');
+        province.disabled = !regionId;
+        province.classList.toggle('bg-gray-200', !regionId);
+    }
+
+    function toggleCity(provinceId) {
+        const city = document.getElementById('editCity');
+        city.disabled = !provinceId;
+        city.classList.toggle('bg-gray-200', !provinceId);
+    }
+
+    function toggleBarangay(cityId) {
+        const barangay = document.getElementById('editBarangay');
+        barangay.disabled = !cityId;
+        barangay.classList.toggle('bg-gray-200', !cityId);
+    }
+
+    // Event listeners
+    document.getElementById('editRegion').addEventListener('change', function() {
+        loadProvinces(this.value);
+        document.getElementById('editCity').innerHTML = '<option value="">Select City</option>';
+        document.getElementById('editBarangay').innerHTML = '<option value="">Select Barangay</option>';
+        toggleCity(null);
+        toggleBarangay(null);
+    });
+
+    document.getElementById('editProvince').addEventListener('change', function() {
+        loadCities(this.value);
+        document.getElementById('editBarangay').innerHTML = '<option value="">Select Barangay</option>';
+        toggleBarangay(null);
+    });
+
+    document.getElementById('editCity').addEventListener('change', function() {
+        loadBarangays(this.value);
+    });
+
+
+    const changeProfileBtn = document.getElementById('changeProfileBtn');
+    const editProfilePicInput = document.getElementById('editProfilePicInput');
+    const editModalProfilePic = document.getElementById('editModalProfilePic');
+
+    // When "Change Profile" button is clicked, trigger file input
+    changeProfileBtn.addEventListener('click', () => {
+        editProfilePicInput.click();
+    });
+
+    // Preview selected image
+    editProfilePicInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                editModalProfilePic.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+
+
+    // Make sure to append user_id in form submit
+    document.getElementById('editUserForm').addEventListener('submit', function(e){
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        formData.append('user_id', document.getElementById('editUserId').value);
+
+        const profileFile = document.getElementById('editProfilePicInput').files[0];
+        if(profileFile){
+            formData.append('profile_pic', profileFile);
+        }
+
+        fetch('../my_account_update.php', { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success'){
+                    alert('User updated successfully!');
+                    editUserModal.classList.add('hidden');
+                    editUserModal.classList.remove('flex');
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(err => { console.error(err); alert('Unexpected error'); });
+    });
 </script>

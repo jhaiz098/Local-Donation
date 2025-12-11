@@ -18,6 +18,7 @@
             <div><strong>Middle Name:</strong> <span id="modalMiddleName"></span></div>
             <div><strong>Last Name:</strong> <span id="modalLastName"></span></div>
             <div><strong>Date of Birth:</strong> <span id="modalDOB"></span></div>
+            <div><strong>Age:</strong> <span id="modalAge"></span></div>
             <div><strong>Gender:</strong> <span id="modalGender"></span></div>
             <div><strong>ZIP Code:</strong> <span id="modalZip"></span></div>
             <div><strong>Phone Number:</strong> <span id="modalPhone"></span></div>
@@ -41,6 +42,7 @@
     const modalMiddleName = document.getElementById('modalMiddleName');
     const modalLastName = document.getElementById('modalLastName');
     const modalDOB = document.getElementById('modalDOB');
+    const modalAge = document.getElementById('modalAge');
     const modalGender = document.getElementById('modalGender');
     const modalZip = document.getElementById('modalZip');
     const modalPhone = document.getElementById('modalPhone');
@@ -73,11 +75,27 @@
                 modalBarangay.textContent = btn.getAttribute('data-barangay');
                 modalProfilePic.src = btn.getAttribute('data-profile_pic');
 
+                // --- CALCULATE AGE ---
+                const dob = btn.getAttribute('data-dob');
+                if (dob) {
+                    const birthDate = new Date(dob);
+                    const today = new Date();
+                    let age = today.getFullYear() - birthDate.getFullYear();
+                    const m = today.getMonth() - birthDate.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+                    modalAge.textContent = age + ' years';
+                } else {
+                    modalAge.textContent = '-';
+                }
+
                 userModal.classList.remove('hidden');
                 userModal.classList.add('flex');
             });
         });
     }
+
 
     closeModal.addEventListener('click', () => {
         userModal.classList.add('hidden');
@@ -90,4 +108,5 @@
             userModal.classList.remove('flex');
         }
     });
+
 </script>

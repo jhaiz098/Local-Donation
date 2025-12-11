@@ -7,9 +7,9 @@ include 'db_connect.php';
 header('Content-Type: application/json');
 
 // Check user is logged in
-$user_id = $_SESSION['user_id'] ?? null;
+$user_id = $_POST['user_id'] ?? $_SESSION['user_id'] ?? null;
 if (!$user_id) {
-    echo json_encode(["status" => "error", "message" => "Not logged in"]);
+    echo json_encode(["status" => "error", "message" => "No user specified"]);
     exit;
 }
 
