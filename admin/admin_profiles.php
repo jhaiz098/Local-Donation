@@ -261,11 +261,12 @@ if ($result->num_rows > 0) {
                         <td class="p-3"><?= $profile['created_at'] ?></td>
                         <td class="p-3 text-center">
                             <div class="flex gap-1 justify-center whitespace-nowrap">
-                                <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
+                                <button onclick="openModal(<?= $profile['profile_id'] ?>)" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
                                 <button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
                                 <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
                             </div>
                         </td>
+
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -303,6 +304,24 @@ if ($result->num_rows > 0) {
     closeBtn.addEventListener('click', () => {
         sideMenu.classList.add('-translate-x-full');
     });
+
+    function openModal(profileId) {
+        // Open modal and fetch the profile data
+        const modalUrl = `profile_view_modal.php?profile_id=${profileId}`;
+        
+        // Fetch and display modal content via Ajax
+        fetch(modalUrl)
+            .then(response => response.text())
+            .then(data => {
+                // Inject modal content into the page
+                document.body.insertAdjacentHTML('beforeend', data);
+                // Show modal
+                document.getElementById('profileModal').style.display = 'flex';
+            })
+            .catch(error => {
+                console.error('Error fetching modal:', error);
+            });
+    }
 </script>
 
 </body>
