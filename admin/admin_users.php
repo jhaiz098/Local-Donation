@@ -236,11 +236,20 @@ if($result->num_rows > 0){
                 </td>
 
                 <!-- Phone -->
-                <td class="p-3"><?= $filter == 'pending' ? '-' : $user['phone_number'] ?></td>
+                <td class="p-3">
+                    <?= $filter == 'pending' || empty($user['phone_number']) ? '-' : $user['phone_number'] ?>
+                </td>
+
 
                 <!-- Location -->
                 <td class="p-3 max-w-[180px] break-words">
-                    <?= $filter == 'pending' ? '-' : ($user['region_name'].' / '.$user['province_name'].' / '.$user['city_name'].' / '.$user['barangay_name']) ?>
+                    <?php
+                    $location = ($user['region_name'] && $user['province_name'] && $user['city_name'] && $user['barangay_name'])
+                        ? $user['region_name'].' / '.$user['province_name'].' / '.$user['city_name'].' / '.$user['barangay_name']
+                        : '-';
+                    ?>
+                    <?= $filter == 'pending' ? '-' : $location ?>
+
                 </td>
 
                 <!-- Joined / Requested Date -->
@@ -363,7 +372,6 @@ document.querySelectorAll('.remove-btn').forEach(button => {
             return;
         }
 
-        // AJAX POST to user_remove.php
         fetch("user_remove.php", {
             method: "POST",
             headers: {
@@ -371,17 +379,30 @@ document.querySelectorAll('.remove-btn').forEach(button => {
             },
             body: "user_id=" + userID
         })
-        .then(res => res.json())
-        .then(data => {
-            alert(data.message);
+        .then(res => res.text())   // <-- READ RAW RESPONSE
+        .then(text => {
+            // console.log("SERVER RESPONSE:", text); // <-- SEE FULL OUTPUT
+            // alert(text); // TEMPORARY
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                alert("Invalid JSON received.\n\n" + text);
+                return;
+            }
 
             if (data.status === "success") {
+                alert(data.message);
                 location.reload();
+            } else {
+                alert(data.message + "\n\nERROR: " + (data.error ?? "none"));
             }
         })
         .catch(err => {
-            alert("Error connecting to server.");
+            alert("Fetch error: " + err);
         });
+
 
     });
 });
