@@ -68,15 +68,15 @@ while($row = $result->fetch_assoc()) {
             <li class="uppercase text-xs px-2 mt-4">Accounts</li>
             <li><a href="admin_myAccount.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">My Account</a></li>
             <li><a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a></li>
+            <li><a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a></li>
 
             <!-- Operations -->
             <li class="uppercase text-xs px-2 mt-4">Operations</li>
-            <li><a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a></li>
             <li><a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a></li>
-            <li><a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a></li>
 
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
+            <li><a href="admin_items.php" class="block px-4 py-2 rounded hover:bg-gray-200">Item Management</a></li>
             <li><a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a></li>
             <li><a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a></li>
             <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
@@ -85,6 +85,7 @@ while($row = $result->fetch_assoc()) {
 
             <!-- Support -->
             <li class="uppercase text-xs px-2 mt-4">Support</li>
+            <li><a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a></li>
             <li><a href="admin_help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a></li>
 
             <!-- Logout -->
@@ -132,7 +133,7 @@ while($row = $result->fetch_assoc()) {
         <form class="space-y-6" enctype="multipart/form-data">
             <!-- Profile Picture -->
             <div class="flex items-center gap-6">
-                <img id="profile-preview" src="<?php echo '../'.$user['profile_pic'] ?: '../uploads/profile_pic_placeholder1.png'; ?>" class="w-28 h-28 rounded-full object-cover border shadow">
+                <img id="profile-preview" src="<?php echo $user['profile_pic'] ?: '../uploads/profile_pic_placeholder1.png'; ?>" class="w-28 h-28 rounded-full object-cover border shadow">
                 <div>
                     <label class="block text-gray-700 font-medium mb-1">Profile Picture (Optional)</label>
                     <button type="button" id="change-btn" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
