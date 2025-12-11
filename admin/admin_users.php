@@ -197,7 +197,7 @@ if($result->num_rows > 0){
         <table class="w-full min-w-[900px] border-collapse text-sm">
             <thead class="bg-gray-100 text-left">
                 <tr>
-                    <th class="p-3">User ID</th>
+                    <th class="p-3"><?= ($filter == 'pending') ? 'Admin User ID' : 'User ID' ?></th>
                     <th class="p-3">User</th>
                     <th class="p-3">Email</th>
                     <th class="p-3">Role</th>
@@ -265,8 +265,8 @@ if($result->num_rows > 0){
                 <td class="p-3 text-center">
                     <div class="flex gap-1 justify-center whitespace-nowrap">
                         <?php if($filter == 'pending'): ?>
-                            <button class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Approve</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Reject</button>
+                            <button class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 approve-btn" data-id="<?= $user['pending_admin_id'] ?>">Approve</button>
+                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 reject-btn" data-id="<?= $user['pending_admin_id'] ?>">Reject</button>
                             <?php else: ?>
                                 <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 view-btn"
                                     data-user_id="<?= $user['user_id'] ?>"
@@ -353,6 +353,72 @@ if($result->num_rows > 0){
     closeBtn.addEventListener('click', () => {
         sideMenu.classList.add('-translate-x-full');
     });
+
+    document.querySelectorAll('.approve-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const pendingAdminId = this.getAttribute("data-id");
+
+            // Confirm approval
+            if (!confirm("Are you sure you want to approve this admin?")) {
+                return;
+            }
+
+            // Send the approval request to the server
+            fetch("approve_admin.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "pending_admin_id=" + pendingAdminId
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(data.message);
+                    location.reload(); // Refresh the page to show updated data
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => {
+                alert("An error occurred: " + err);
+            });
+        });
+    });
+
+    document.querySelectorAll('.reject-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const pendingAdminId = this.getAttribute("data-id");
+
+            // Confirm rejection
+            if (!confirm("Are you sure you want to reject this admin?")) {
+                return;
+            }
+
+            // Send the rejection request to the server
+            fetch("reject_admin.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "pending_admin_id=" + pendingAdminId
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    alert(data.message);
+                    location.reload(); // Refresh the page to show updated data
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(err => {
+                alert("An error occurred: " + err);
+            });
+        });
+    });
+
+
 </script>
 
 <?php include 'user_view_modal.php'; ?>
