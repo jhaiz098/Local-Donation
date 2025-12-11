@@ -1,9 +1,43 @@
+<?php
+include "../db_connect.php"; // Include your database connection
+
+// Number of records to display per page
+$records_per_page = 10;
+
+// Get the current page from the query string, default to 1 if not set
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+// Calculate the starting record based on the current page
+$offset = ($page - 1) * $records_per_page;
+
+// Fetch donation logs from the database with LIMIT and OFFSET for pagination
+$query = "SELECT * FROM donation_logs ORDER BY created_at DESC LIMIT ?, ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("ii", $offset, $records_per_page); // Bind offset and records per page as integers
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Check if any records were found
+$donationLogs = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $donationLogs[] = $row;
+    }
+}
+
+// Get the total number of donation logs for pagination calculation
+$query_total = "SELECT COUNT(*) as total FROM donation_logs";
+$result_total = $conn->query($query_total);
+$total_donation_logs = $result_total->fetch_assoc()['total'];
+$total_pages = ceil($total_donation_logs / $records_per_page); // Calculate total number of pages
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Feedback</title>
+    <title>Donation Logs</title>
 
     <script src="../src/tailwind.js"></script>
     <link rel="stylesheet" href="../src/style.css">
@@ -98,60 +132,48 @@
 
 <!-- ================= MAIN CONTENT ================= -->
 <main class="pt-24 p-6 md:ml-64">
+    <h2 class="text-2xl font-bold mb-6">Donation Logs</h2>
 
-    <h2 class="text-2xl font-bold mb-6">Feedback Management</h2>
-
-    <!-- ================= FEEDBACK TABLE ================= -->
     <div class="bg-white rounded-xl shadow-md overflow-x-auto">
-        <table class="w-full min-w-[800px] border-collapse text-sm">
+        <table class="w-full border-collapse text-sm">
             <thead class="bg-gray-100 text-left">
                 <tr>
-                    <th class="p-3">ID</th>
-                    <th class="p-3">User / Profile</th>
-                    <th class="p-3">Feedback</th>
-                    <th class="p-3">Submitted At</th>
-                    <th class="p-3 text-center">Actions</th>
+                    <th class="p-3">#</th>
+                    <th class="p-3">Donor Name</th>
+                    <th class="p-3">Amount</th>
+                    <th class="p-3">Donation Type</th>
+                    <th class="p-3">Created At</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">1</td>
-                    <td class="p-3">Juan M. Dela Cruz</td>
-                    <td class="p-3 truncate max-w-[300px]">Great platform! Very helpful and easy to use.</td>
-                    <td class="p-3">2025-12-06 14:30</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">2</td>
-                    <td class="p-3">Family: Santos</td>
-                    <td class="p-3 truncate max-w-[300px]">Request for more community events in our area.</td>
-                    <td class="p-3">2025-12-05 10:12</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">3</td>
-                    <td class="p-3">Organization: Bayanihan Community</td>
-                    <td class="p-3 truncate max-w-[300px]">Feedback on improving donation requests visibility.</td>
-                    <td class="p-3">2025-12-04 09:45</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
-                    </td>
-                </tr>
+            <tbody class="text-gray-700">
+                <?php foreach ($donationLogs as $log): ?>
+                    <tr class="border-t hover:bg-gray-50">
+                        <td class="p-3"><?= $log['log_id'] ?></td>
+                        <td class="p-3"><?= htmlspecialchars($log['donor_name']) ?></td>
+                        <td class="p-3"><?= htmlspecialchars($log['amount']) ?></td>
+                        <td class="p-3"><?= htmlspecialchars($log['donation_type']) ?></td>
+                        <td class="p-3"><?= $log['created_at'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="mt-4 flex justify-between">
+        <!-- Previous Page Button -->
+        <?php if ($page > 1): ?>
+            <a href="?page=<?= $page - 1 ?>" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Previous</a>
+        <?php else: ?>
+            <span class="px-4 py-2 bg-gray-100 rounded cursor-not-allowed">Previous</span>
+        <?php endif; ?>
+
+        <!-- Next Page Button -->
+        <?php if ($page < $total_pages): ?>
+            <a href="?page=<?= $page + 1 ?>" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Next</a>
+        <?php else: ?>
+            <span class="px-4 py-2 bg-gray-100 rounded cursor-not-allowed">Next</span>
+        <?php endif; ?>
     </div>
 
 </main>

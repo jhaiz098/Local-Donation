@@ -1,9 +1,19 @@
 <?php
 include "../db_connect.php"; // Include your database connection
 
-// Fetch audit logs from the database
-$query = "SELECT * FROM audit_logs ORDER BY created_at DESC";
+// Number of records to display per page
+$records_per_page = 10;
+
+// Get the current page from the query string, default to 1 if not set
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+// Calculate the starting record based on the current page
+$offset = ($page - 1) * $records_per_page;
+
+// Fetch audit logs from the database with LIMIT and OFFSET for pagination
+$query = "SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT ?, ?";
 $stmt = $conn->prepare($query);
+$stmt->bind_param("ii", $offset, $records_per_page); // Bind offset and records per page as integers
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -14,6 +24,12 @@ if ($result->num_rows > 0) {
         $auditLogs[] = $row;
     }
 }
+
+// Get the total number of audit logs for pagination calculation
+$query_total = "SELECT COUNT(*) as total FROM audit_logs";
+$result_total = $conn->query($query_total);
+$total_audit_logs = $result_total->fetch_assoc()['total'];
+$total_pages = ceil($total_audit_logs / $records_per_page); // Calculate total number of pages
 ?>
 
 <!DOCTYPE html>
@@ -70,6 +86,7 @@ if ($result->num_rows > 0) {
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
             <li><a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a></li>
+            <li><a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a></li>
             <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
             <li><a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
             <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Settings</a></li>
@@ -121,6 +138,7 @@ if ($result->num_rows > 0) {
         <table class="w-full min-w-[900px] text-sm border-collapse">
             <thead class="bg-gray-100 text-left">
                 <tr>
+                    <th class="p-3">No.</th> <!-- Added No. Column -->
                     <th class="p-3">Activity ID</th>
                     <th class="p-3">User ID</th>
                     <th class="p-3">Profile ID</th>
@@ -129,8 +147,12 @@ if ($result->num_rows > 0) {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($auditLogs as $log): ?>
+                <?php 
+                    $serial_no = $offset + 1; // Start from the correct serial number for the page
+                    foreach ($auditLogs as $log): 
+                ?>
                     <tr class="border-t hover:bg-gray-50 cursor-pointer group">
+                        <td class="p-3"><?= $serial_no++ ?></td> <!-- Display Serial Number -->
                         <td class="p-3"><?= $log['activity_id'] ?></td>
                         <td class="p-3"><?= $log['user_id'] ?: 'NULL' ?></td>
                         <td class="p-3"><?= $log['profile_id'] ?: 'NULL' ?></td>
@@ -142,6 +164,23 @@ if ($result->num_rows > 0) {
                 <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="mt-4 flex justify-between">
+        <!-- Previous Page Button -->
+        <?php if ($page > 1): ?>
+            <a href="?page=<?= $page - 1 ?>" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Previous</a>
+        <?php else: ?>
+            <span class="px-4 py-2 bg-gray-100 rounded cursor-not-allowed">Previous</span>
+        <?php endif; ?>
+
+        <!-- Next Page Button -->
+        <?php if ($page < $total_pages): ?>
+            <a href="?page=<?= $page + 1 ?>" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded">Next</a>
+        <?php else: ?>
+            <span class="px-4 py-2 bg-gray-100 rounded cursor-not-allowed">Next</span>
+        <?php endif; ?>
     </div>
 </main>
 
