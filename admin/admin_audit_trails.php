@@ -1,3 +1,21 @@
+<?php
+include "../db_connect.php"; // Include your database connection
+
+// Fetch audit logs from the database
+$query = "SELECT * FROM audit_logs ORDER BY created_at DESC";
+$stmt = $conn->prepare($query);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Check if any records were found
+$auditLogs = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $auditLogs[] = $row;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,34 +129,17 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Example Row -->
-                <tr class="border-t hover:bg-gray-50 cursor-pointer group">
-                    <td class="p-3">1</td>
-                    <td class="p-3">NULL</td>
-                    <td class="p-3">NULL</td>
-                    <td class="p-3 max-w-[400px]" title="Failed login attempt for email 'james.fernandez123...'">
-                        Failed login attempt for email 'james.fernandez123...'
-                    </td>
-                    <td class="p-3">2025-12-09 02:30:42</td>
-                </tr>
-                <tr class="border-t hover:bg-gray-50 cursor-pointer group">
-                    <td class="p-3">2</td>
-                    <td class="p-3">9</td>
-                    <td class="p-3">NULL</td>
-                    <td class="p-3 max-w-[400px]" title="New user account created: James Emmanuel Fernandez">
-                        New user account created: James Emmanuel Fernandez
-                    </td>
-                    <td class="p-3">2025-12-09 02:55:34</td>
-                </tr>
-                <tr class="border-t hover:bg-gray-50 cursor-pointer group">
-                    <td class="p-3">3</td>
-                    <td class="p-3">NULL</td>
-                    <td class="p-3">NULL</td>
-                    <td class="p-3 max-w-[400px]" title="Failed login attempt for email 'james.fernandez123...'">
-                        Failed login attempt for email 'james.fernandez123...'
-                    </td>
-                    <td class="p-3">2025-12-09 02:55:56</td>
-                </tr>
+                <?php foreach ($auditLogs as $log): ?>
+                    <tr class="border-t hover:bg-gray-50 cursor-pointer group">
+                        <td class="p-3"><?= $log['activity_id'] ?></td>
+                        <td class="p-3"><?= $log['user_id'] ?: 'NULL' ?></td>
+                        <td class="p-3"><?= $log['profile_id'] ?: 'NULL' ?></td>
+                        <td class="p-3 max-w-[400px]" title="<?= htmlspecialchars($log['description']) ?>">
+                            <?= htmlspecialchars($log['description']) ?>
+                        </td>
+                        <td class="p-3"><?= $log['created_at'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
