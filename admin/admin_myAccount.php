@@ -59,14 +59,14 @@ while($row = $result->fetch_assoc()) {
             <!-- Core -->
             <li class="uppercase text-xs px-2 mt-2">Core</li>
             <li>
-                <a href="admin_dashboard.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">
+                <a href="admin_dashboard.php" class="block px-4 py-2 rounded hover:bg-gray-200">
                     Dashboard
                 </a>
             </li>
 
             <!-- Accounts -->
             <li class="uppercase text-xs px-2 mt-4">Accounts</li>
-            <li><a href="admin_myAccount.php" class="block px-4 py-2 rounded hover:bg-gray-200">My Account</a></li>
+            <li><a href="admin_myAccount.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">My Account</a></li>
             <li><a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a></li>
 
             <!-- Operations -->
