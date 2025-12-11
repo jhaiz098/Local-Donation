@@ -121,15 +121,23 @@ if ($result->num_rows > 0) {
             'profile_name' => $profile['profile_name'],
             'profile_type' => $profileType,
             'owner' => $ownerId, // Display user_id of the owner (or the owner's name if needed)
-            'phone_number' => $profileDetails['phone_number'],
-            'location' => "$barangayName, $cityName, $provinceName, $regionName",
+            
+            // Conditional logic for phone number based on profile type
+            'phone_number' => (
+                $profileType == 'individual' ? $profileDetails['phone_number'] :
+                ($profileType == 'family' ? $profileDetails['contact_number'] :
+                ($profileType == 'institution' ? $profileDetails['official_contact_number'] :
+                ($profileType == 'organization' ? $profileDetails['contact_number'] : '-')))
+            ),
+            
+            'location' => "$barangayName / $cityName / $provinceName / $regionName",
             'created_at' => $profile['created_at']
         ];
+
     }
 } else {
     $profiles = [];
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -251,13 +259,20 @@ if ($result->num_rows > 0) {
                 <?php foreach ($profiles as $profile): ?>
                     <tr class="border-t hover:bg-gray-50">
                         <td class="p-3"><?= $profile['profile_id'] ?></td>
-                        <td class="p-3 truncate max-w-[180px]"><?= $profile['profile_name'] ?></td>
+                        <td class="p-3 max-w-[180px]">
+                            <div class="flex items-center gap-2">
+                                <img src="<?= isset($profile['profile_pic']) ? '../'.$profile['profile_pic'] : '../uploads/profile_pic_placeholder1.png' ?>" class="w-8 h-8 rounded-full object-cover">
+                                <span class="max-w-[150px] break-words whitespace-normal">
+                                    <?= $profile['profile_name'] ?>
+                                </span>
+                            </div>
+                        </td>
                         <td class="p-3">
                             <span class="px-2 py-1 rounded bg-gray-200 text-xs"><?= ucfirst($profile['profile_type']) ?></span>
                         </td>
                         <td class="p-3"><?= $profile['owner'] ?></td>
-                        <td class="p-3"><?= $profile['phone_number'] ?></td>
-                        <td class="p-3 truncate max-w-[180px]"><?= $profile['location'] ?></td>
+                        <td class="p-3"><?= !empty($profile['phone_number']) ? $profile['phone_number'] : '-' ?></td>
+                        <td class="p-3 max-w-[180px] break-words whitespace-normal"><?= !empty($profile['location']) ? $profile['location'] : '-' ?></td>
                         <td class="p-3"><?= $profile['created_at'] ?></td>
                         <td class="p-3 text-center">
                             <div class="flex gap-1 justify-center whitespace-nowrap">
@@ -266,10 +281,11 @@ if ($result->num_rows > 0) {
                                 <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
                             </div>
                         </td>
-
                     </tr>
                 <?php endforeach; ?>
             </tbody>
+
+
         </table>
     </div>
 
