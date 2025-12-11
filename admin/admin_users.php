@@ -192,8 +192,6 @@ if($result->num_rows > 0){
         <a href="?filter=pending" class="px-4 py-2 rounded <?= $filter=='pending'?'bg-yellow-300 hover:bg-yellow-400 text-black font-semibold':'bg-gray-200 hover:bg-gray-300' ?>">Pending Admins</a>
     </div>
 
-
-
     <!-- ================= USER TABLE ================= -->
     <div class="bg-white rounded-xl shadow-md overflow-x-auto">
         <table class="w-full min-w-[900px] border-collapse text-sm">
@@ -254,18 +252,53 @@ if($result->num_rows > 0){
                         <?php if($filter == 'pending'): ?>
                             <button class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Approve</button>
                             <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Reject</button>
-                        <?php else: ?>
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
-                        <?php endif; ?>
+                            <?php else: ?>
+                                <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 view-btn"
+                                    data-user_id="<?= $user['user_id'] ?>"
+                                    data-profile_pic="<?= isset($user['profile_pic']) ? '../'.$user['profile_pic'] : '../uploads/profile_pic_placeholder1.png' ?>"
+                                    data-first_name="<?= $user['first_name'] ?>"
+                                    data-middle_name="<?= $user['middle_name'] ?>"
+                                    data-last_name="<?= $user['last_name'] ?>"
+                                    data-dob="<?= $user['date_of_birth'] ?>"
+                                    data-gender="<?= $user['gender'] ?>"
+                                    data-zip="<?= $user['zip_code'] ?>"
+                                    data-phone="<?= $user['phone_number'] ?>"
+                                    data-email="<?= $user['email'] ?>"
+                                    data-password="<?= $user['password'] ?>"
+                                    data-role="<?= $user['role'] ?>"
+                                    data-created="<?= $user['created_at'] ?>"
+                                    data-region="<?= $user['region_name'] ?? $user['region_id'] ?>"
+                                    data-province="<?= $user['province_name'] ?? $user['province_id'] ?>"
+                                    data-city="<?= $user['city_name'] ?? $user['city_id'] ?>"
+                                    data-barangay="<?= $user['barangay_name'] ?? $user['barangay_id'] ?>"
+                                >View</button>
+
+
+                                <button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 edit-btn"
+                                    data-user_id="<?= $user['user_id'] ?>"
+                                    data-profile_pic="<?= isset($user['profile_pic']) ? '../'.$user['profile_pic'] : '../uploads/profile_pic_placeholder1.png' ?>"
+                                    data-first_name="<?= $user['first_name'] ?>"
+                                    data-middle_name="<?= $user['middle_name'] ?>"
+                                    data-last_name="<?= $user['last_name'] ?>"
+                                    data-dob="<?= $user['date_of_birth'] ?>"
+                                    data-gender="<?= $user['gender'] ?>"
+                                    data-zip="<?= $user['zip_code'] ?>"
+                                    data-phone="<?= $user['phone_number'] ?>"
+                                    data-email="<?= $user['email'] ?>"
+                                    data-role="<?= $user['role'] ?>"
+                                    data-region="<?= $user['region_id'] ?>"
+                                    data-province="<?= $user['province_id'] ?>"
+                                    data-city="<?= $user['city_id'] ?>"
+                                    data-barangay="<?= $user['barangay_id'] ?>"
+                                >Edit</button>
+
+                                <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Remove</button>
+                            <?php endif; ?>
                     </div>
                 </td>
             </tr>
             <?php endforeach; ?>
             </tbody>
-
-
         </table>
     </div>
 
@@ -286,9 +319,6 @@ if($result->num_rows > 0){
         <?php endif; ?>
     </div>
 
-
-
-
 </main>
 
 <!-- ================= JS ================= -->
@@ -305,6 +335,19 @@ if($result->num_rows > 0){
         sideMenu.classList.add('-translate-x-full');
     });
 </script>
+
+<?php include 'user_view_modal.php'; ?>
+<script>
+    // Initialize view buttons after modal is included
+    initViewButtons();
+</script>
+
+<?php include 'user_edit_modal.php'; ?>
+<script>
+    // Initialize edit buttons after modal is included
+    initEditButtons();
+</script>
+
 
 </body>
 </html>
