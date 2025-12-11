@@ -1,3 +1,87 @@
+<?php
+include '../db_connect.php';
+
+$filter = $_GET['filter'] ?? 'all';
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$perPage = 10; // users per page
+$offset = ($page - 1) * $perPage;
+
+// Count total users for pagination
+switch($filter) {
+    case 'regular':
+        $countSql = "SELECT COUNT(*) as total FROM users WHERE role = 'User'";
+        break;
+    case 'admin':
+        $countSql = "SELECT COUNT(*) as total FROM users WHERE role != 'User'";
+        break;
+    case 'pending':
+        $countSql = "SELECT COUNT(*) as total FROM pending_admins";
+        break;
+    default:
+        $countSql = "SELECT COUNT(*) as total FROM users";
+        break;
+}
+
+$countResult = $conn->query($countSql);
+$totalUsers = $countResult->fetch_assoc()['total'];
+$totalPages = ceil($totalUsers / $perPage);
+
+switch($filter) {
+    case 'regular':
+        $sql = "SELECT u.*, r.name AS region_name, p.name AS province_name, 
+                       c.name AS city_name, b.name AS barangay_name
+                FROM users u
+                LEFT JOIN regions r ON u.region_id = r.id
+                LEFT JOIN provinces p ON u.province_id = p.id
+                LEFT JOIN cities c ON u.city_id = c.id
+                LEFT JOIN barangays b ON u.barangay_id = b.id
+                WHERE u.role = 'User'
+                ORDER BY u.user_id ASC
+                LIMIT $perPage OFFSET $offset";
+        break;
+
+    case 'admin':
+        $sql = "SELECT u.*, r.name AS region_name, p.name AS province_name, 
+                       c.name AS city_name, b.name AS barangay_name
+                FROM users u
+                LEFT JOIN regions r ON u.region_id = r.id
+                LEFT JOIN provinces p ON u.province_id = p.id
+                LEFT JOIN cities c ON u.city_id = c.id
+                LEFT JOIN barangays b ON u.barangay_id = b.id
+                WHERE u.role != 'User'
+                ORDER BY u.user_id ASC
+                LIMIT $perPage OFFSET $offset";
+        break;
+
+    case 'pending':
+        $sql = "SELECT pa.*
+                FROM pending_admins pa
+                ORDER BY pa.pending_admin_id ASC
+                LIMIT $perPage OFFSET $offset";
+        break;
+
+    default:
+        $sql = "SELECT u.*, r.name AS region_name, p.name AS province_name, 
+                       c.name AS city_name, b.name AS barangay_name
+                FROM users u
+                LEFT JOIN regions r ON u.region_id = r.id
+                LEFT JOIN provinces p ON u.province_id = p.id
+                LEFT JOIN cities c ON u.city_id = c.id
+                LEFT JOIN barangays b ON u.barangay_id = b.id
+                ORDER BY u.user_id ASC
+                LIMIT $perPage OFFSET $offset";
+        break;
+}
+
+$result = $conn->query($sql);
+$users = [];
+if($result->num_rows > 0){
+    while($row = $result->fetch_assoc()){
+        $users[] = $row;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,19 +186,12 @@
 
     <!-- ================= FILTER TABS ================= -->
     <div class="flex flex-wrap gap-2 mb-6">
-        <button class="px-4 py-2 rounded bg-blue-600 text-white font-semibold">
-            All Users
-        </button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">
-            Regular Users
-        </button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">
-            Administrative Users
-        </button>
-        <button class="px-4 py-2 rounded bg-yellow-300 hover:bg-yellow-400 text-black font-semibold">
-            Pending Admins
-        </button>
+        <a href="?filter=all" class="px-4 py-2 rounded <?= $filter=='all'?'bg-blue-600 text-white':'bg-gray-200 hover:bg-gray-300' ?>">All Users</a>
+        <a href="?filter=regular" class="px-4 py-2 rounded <?= $filter=='regular'?'bg-blue-600 text-white':'bg-gray-200 hover:bg-gray-300' ?>">Regular Users</a>
+        <a href="?filter=admin" class="px-4 py-2 rounded <?= $filter=='admin'?'bg-blue-600 text-white':'bg-gray-200 hover:bg-gray-300' ?>">Administrative Users</a>
+        <a href="?filter=pending" class="px-4 py-2 rounded <?= $filter=='pending'?'bg-yellow-300 hover:bg-yellow-400 text-black font-semibold':'bg-gray-200 hover:bg-gray-300' ?>">Pending Admins</a>
     </div>
+
 
 
     <!-- ================= USER TABLE ================= -->
@@ -134,53 +211,81 @@
             </thead>
 
             <tbody>
-                <!-- Sample User -->
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">1</td>
-                    <td class="p-3 flex items-center gap-2">
-                        <img src="../assets/default-avatar.png" class="w-8 h-8 rounded-full object-cover">
-                        <span class="truncate max-w-[150px]">Juan M. Dela Cruz</span>
-                    </td>
-                    <td class="p-3 truncate max-w-[180px]">juan@email.com</td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 rounded bg-gray-200 text-xs">User</span>
-                    </td>
-                    <td class="p-3">09123456789</td>
-                    <td class="p-3 truncate max-w-[180px]">Tacloban City, Leyte</td>
-                    <td class="p-3">2025-01-12</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
+            <?php foreach($users as $user): ?>
+            <tr class="border-t hover:bg-gray-50 <?= ($filter == 'pending') ? 'bg-yellow-50 hover:bg-yellow-100' : '' ?>">
+                <!-- User ID -->
+                <td class="p-3"><?= $filter == 'pending' ? $user['pending_admin_id'] : $user['user_id'] ?></td>
+
+                <!-- Name + Avatar -->
+                <td class="p-3 align-middle">
+                    <div class="flex items-center gap-2">
+                        <img src="<?= isset($user['profile_pic']) ? '../'.$user['profile_pic'] : '../uploads/profile_pic_placeholder1.png' ?>" class="w-8 h-8 rounded-full object-cover">
+                        <span class="max-w-[150px] break-words">
+                            <?= $filter == 'pending' ? $user['first_name'].' '.$user['middle_name'].' '.$user['last_name'] : $user['first_name'].' '.$user['last_name'] ?>
+                        </span>
+                    </div>
+                </td>
+
+                <!-- Email -->
+                <td class="p-3 max-w-[180px] break-words"><?= $user['email'] ?></td>
+
+                <!-- Role -->
+                <td class="p-3">
+                    <span class="px-2 py-1 rounded text-xs 
+                        <?= $filter == 'pending' ? 'bg-yellow-200 font-semibold' : ($user['role'] == 'User' ? 'bg-gray-200' : 'bg-blue-200') ?>">
+                        <?= $filter == 'pending' ? 'Pending Admin' : $user['role'] ?>
+                    </span>
+                </td>
+
+                <!-- Phone -->
+                <td class="p-3"><?= $filter == 'pending' ? '-' : $user['phone_number'] ?></td>
+
+                <!-- Location -->
+                <td class="p-3 max-w-[180px] break-words">
+                    <?= $filter == 'pending' ? '-' : ($user['region_name'].' / '.$user['province_name'].' / '.$user['city_name'].' / '.$user['barangay_name']) ?>
+                </td>
+
+                <!-- Joined / Requested Date -->
+                <td class="p-3"><?= $user['created_at'] ?></td>
+
+                <!-- Actions -->
+                <td class="p-3 text-center">
+                    <div class="flex gap-1 justify-center whitespace-nowrap">
+                        <?php if($filter == 'pending'): ?>
+                            <button class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Approve</button>
+                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Reject</button>
+                        <?php else: ?>
                             <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
                             <button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
                             <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
-                        </div>
-                    </td>
-                </tr>
-
-                <!-- Pending Admin Example -->
-                <tr class="border-t bg-yellow-50 hover:bg-yellow-100">
-                    <td class="p-3">2</td>
-                    <td class="p-3 flex items-center gap-2">
-                        <img src="../assets/default-avatar.png" class="w-8 h-8 rounded-full object-cover">
-                        <span class="truncate max-w-[150px]">Maria Santos</span>
-                    </td>
-                    <td class="p-3 truncate max-w-[180px]">maria@email.com</td>
-                    <td class="p-3">
-                        <span class="px-2 py-1 rounded bg-yellow-200 text-xs font-semibold">Pending Admin</span>
-                    </td>
-                    <td class="p-3">09987654321</td>
-                    <td class="p-3 truncate max-w-[180px]">Cebu City, Cebu</td>
-                    <td class="p-3">2025-02-02</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">Approve</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Reject</button>
-                        </div>
-                    </td>
-                </tr>
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr>
+            <?php endforeach; ?>
             </tbody>
+
+
         </table>
     </div>
+
+    <div class="mt-4 flex justify-center gap-2">
+        <?php if($page > 1): ?>
+            <a href="?filter=<?= $filter ?>&page=<?= $page-1 ?>" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo; Prev</a>
+        <?php endif; ?>
+
+        <?php for($i=1; $i<=$totalPages; $i++): ?>
+            <a href="?filter=<?= $filter ?>&page=<?= $i ?>" 
+            class="px-3 py-1 rounded <?= $i==$page ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300' ?>">
+            <?= $i ?>
+            </a>
+        <?php endfor; ?>
+
+        <?php if($page < $totalPages): ?>
+            <a href="?filter=<?= $filter ?>&page=<?= $page+1 ?>" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Next &raquo;</a>
+        <?php endif; ?>
+    </div>
+
 
 
 

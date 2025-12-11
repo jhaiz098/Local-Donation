@@ -130,6 +130,23 @@ $feedback_received = $feedback['total_feedback'];
 
 <!-- ================= MAIN CONTENT ================= -->
 <main class="pt-24 p-6 md:ml-64">
+    
+    <?php 
+    // if ($isAdmin && !$adminAccountComplete): 
+    ?>
+        <div class="mb-6 bg-red-100 border-l-4 border-red-600 p-4 rounded">
+            <p class="text-red-700 font-medium">⚠ Admin account setup incomplete.</p>
+            <p class="text-red-700 text-sm">
+                Please complete your admin profile and required details to access all admin features.
+            </p>
+            <a href="admin_account.php" class="text-red-800 font-semibold underline mt-2 inline-block">
+                Complete Setup
+            </a>
+        </div>
+    <?php 
+    // endif; 
+    ?>
+
 
     <h2 class="text-2xl font-bold mb-6">Admin Dashboard</h2>
 
