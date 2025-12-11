@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 09, 2025 at 10:06 AM
+-- Generation Time: Dec 11, 2025 at 11:37 AM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -22,6 +22,25 @@ SET time_zone = "+00:00";
 --
 CREATE DATABASE IF NOT EXISTS `local_donation` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 USE `local_donation`;
+
+DELIMITER $$
+--
+-- Procedures
+--
+DROP PROCEDURE IF EXISTS `sp_insert_user`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_user` (IN `p_first_name` VARCHAR(100), IN `p_middle_name` VARCHAR(100), IN `p_last_name` VARCHAR(100), IN `p_date_of_birth` DATE, IN `p_gender` ENUM('Male','Female','Other'), IN `p_zip_code` VARCHAR(10), IN `p_phone_number` VARCHAR(20), IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_role` ENUM('User','Staff','Admin','Superuser'), IN `p_region_id` INT, IN `p_province_id` INT, IN `p_city_id` INT, IN `p_barangay_id` INT)   BEGIN
+    INSERT INTO users (
+        first_name, middle_name, last_name, date_of_birth, gender,
+        zip_code, phone_number, email, password, role,
+        region_id, province_id, city_id, barangay_id
+    ) VALUES (
+        p_first_name, p_middle_name, p_last_name, p_date_of_birth, p_gender,
+        p_zip_code, p_phone_number, p_email, p_password, p_role,
+        p_region_id, p_province_id, p_city_id, p_barangay_id
+    );
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -216,6 +235,26 @@ CREATE TABLE `item_units` (
   `item_unit_id` int(11) NOT NULL,
   `item_id` int(11) NOT NULL,
   `unit_name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pending_admins`
+--
+
+DROP TABLE IF EXISTS `pending_admins`;
+CREATE TABLE `pending_admins` (
+  `pending_admin_id` int(11) NOT NULL,
+  `first_name` varchar(100) DEFAULT NULL,
+  `middle_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `date_of_birth` date DEFAULT NULL,
+  `gender` enum('Male','Female','Other') DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('Staff') NOT NULL DEFAULT 'Staff',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -515,7 +554,7 @@ CREATE TABLE `users` (
   `phone_number` varchar(20) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `role` enum('User','Admin','Owner','Staff') DEFAULT 'User',
+  `role` enum('User','Staff','Admin','Superuser') DEFAULT 'User',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `region_id` int(11) DEFAULT NULL,
   `province_id` int(11) DEFAULT NULL,
@@ -555,13 +594,43 @@ DELIMITER ;
 DROP TRIGGER IF EXISTS `after_user_update`;
 DELIMITER $$
 CREATE TRIGGER `after_user_update` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
-    INSERT INTO activities (user_id, profile_id, description, display_text)
+    -- Insert a record into the activities table
+    INSERT INTO activities (
+        user_id, 
+        profile_id, 
+        description, 
+        display_text
+    )
     VALUES (
         NEW.user_id,
         NULL,
         CONCAT('User updated: ', NEW.first_name, ' ', NEW.last_name, ' (ID: ', NEW.user_id, ')'),
         CONCAT('Your account was updated: ', NEW.first_name, ' ', NEW.last_name)
     );
+
+    -- Update the profile_name and profile_pic in the profiles table
+    UPDATE profiles
+    SET 
+        profile_name = CONCAT(NEW.first_name, ' ', NEW.last_name), 
+        profile_pic = NEW.profile_pic
+    WHERE user_id = NEW.user_id;
+
+    -- Update user-related fields in the profiles_individual table using profile_id from profiles
+    UPDATE profiles_individual
+    SET 
+        first_name = NEW.first_name,
+        middle_name = NEW.middle_name,
+        last_name = NEW.last_name,
+        date_of_birth = NEW.date_of_birth,
+        gender = NEW.gender,
+        phone_number = NEW.phone_number,
+        email = NEW.email,
+        region_id = NEW.region_id,
+        province_id = NEW.province_id,
+        city_id = NEW.city_id,
+        barangay_id = NEW.barangay_id,
+        zip_code = NEW.zip_code
+    WHERE profile_id = (SELECT profile_id FROM profiles WHERE user_id = NEW.user_id);
 END
 $$
 DELIMITER ;
@@ -649,12 +718,40 @@ CREATE TABLE `view_donation_entries` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `view_recent_feedback`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `view_recent_feedback`;
+CREATE TABLE `view_recent_feedback` (
+`feedback_id` int(11)
+,`feedback` text
+,`created_at` datetime
+,`user_id` int(11)
+,`profile_id` int(11)
+,`first_name` varchar(100)
+,`profile_name` varchar(255)
+,`profile_type` enum('individual','family','institution','organization')
+);
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `view_donation_entries`
 --
 DROP TABLE IF EXISTS `view_donation_entries`;
 
 DROP VIEW IF EXISTS `view_donation_entries`;
 CREATE OR REPLACE VIEW `view_donation_entries`  AS SELECT `de`.`entry_id` AS `entry_id`, `de`.`entry_type` AS `entry_type`, `de`.`details` AS `details`, `de`.`created_at` AS `created_at`, `de`.`target_area` AS `target_area`, `p`.`profile_id` AS `profile_id`, `p`.`profile_name` AS `profile_name`, `p`.`profile_type` AS `profile_type`, coalesce(`pi`.`region_id`,`pf`.`region_id`,`pin`.`region_id`,`po`.`region_id`) AS `region_id`, coalesce(`pi`.`province_id`,`pf`.`province_id`,`pin`.`province_id`,`po`.`province_id`) AS `province_id`, coalesce(`pi`.`city_id`,`pf`.`city_id`,`pin`.`city_id`,`po`.`city_id`) AS `city_id`, coalesce(`pi`.`barangay_id`,`pf`.`barangay_id`,`pin`.`barangay_id`,`po`.`barangay_id`) AS `barangay_id`, `r`.`name` AS `region_name`, `pr`.`name` AS `province_name`, `c`.`name` AS `city_name`, `b`.`name` AS `barangay_name` FROM (((((((((`donation_entries` `de` join `profiles` `p` on(`de`.`profile_id` = `p`.`profile_id`)) left join `profiles_individual` `pi` on(`p`.`profile_id` = `pi`.`profile_id` and `p`.`profile_type` = 'individual')) left join `profiles_family` `pf` on(`p`.`profile_id` = `pf`.`profile_id` and `p`.`profile_type` = 'family')) left join `profiles_institution` `pin` on(`p`.`profile_id` = `pin`.`profile_id` and `p`.`profile_type` = 'institution')) left join `profiles_organization` `po` on(`p`.`profile_id` = `po`.`profile_id` and `p`.`profile_type` = 'organization')) left join `regions` `r` on(coalesce(`pi`.`region_id`,`pf`.`region_id`,`pin`.`region_id`,`po`.`region_id`) = `r`.`id`)) left join `provinces` `pr` on(coalesce(`pi`.`province_id`,`pf`.`province_id`,`pin`.`province_id`,`po`.`province_id`) = `pr`.`id`)) left join `cities` `c` on(coalesce(`pi`.`city_id`,`pf`.`city_id`,`pin`.`city_id`,`po`.`city_id`) = `c`.`id`)) left join `barangays` `b` on(coalesce(`pi`.`barangay_id`,`pf`.`barangay_id`,`pin`.`barangay_id`,`po`.`barangay_id`) = `b`.`id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `view_recent_feedback`
+--
+DROP TABLE IF EXISTS `view_recent_feedback`;
+
+DROP VIEW IF EXISTS `view_recent_feedback`;
+CREATE OR REPLACE VIEW `view_recent_feedback`  AS SELECT `f`.`feedback_id` AS `feedback_id`, `f`.`feedback` AS `feedback`, `f`.`created_at` AS `created_at`, `f`.`user_id` AS `user_id`, `f`.`profile_id` AS `profile_id`, `u`.`first_name` AS `first_name`, `p`.`profile_name` AS `profile_name`, `p`.`profile_type` AS `profile_type` FROM ((`feedback` `f` left join `users` `u` on(`f`.`user_id` = `u`.`user_id`)) left join `profiles` `p` on(`f`.`profile_id` = `p`.`profile_id`)) ORDER BY `f`.`created_at` DESC ;
 
 --
 -- Indexes for dumped tables
@@ -735,6 +832,13 @@ ALTER TABLE `items`
 ALTER TABLE `item_units`
   ADD PRIMARY KEY (`item_unit_id`),
   ADD KEY `idx_item_id` (`item_id`);
+
+--
+-- Indexes for table `pending_admins`
+--
+ALTER TABLE `pending_admins`
+  ADD PRIMARY KEY (`pending_admin_id`),
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- Indexes for table `profiles`
@@ -877,6 +981,12 @@ ALTER TABLE `item_units`
   MODIFY `item_unit_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `pending_admins`
+--
+ALTER TABLE `pending_admins`
+  MODIFY `pending_admin_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `profiles`
 --
 ALTER TABLE `profiles`
@@ -914,14 +1024,7 @@ ALTER TABLE `users`
 -- Constraints for table `activities`
 --
 ALTER TABLE `activities`
-  ADD CONSTRAINT `activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE,
   ADD CONSTRAINT `activities_ibfk_2` FOREIGN KEY (`profile_id`) REFERENCES `profiles` (`profile_id`) ON DELETE CASCADE;
-
---
--- Constraints for table `audit_logs`
---
-ALTER TABLE `audit_logs`
-  ADD CONSTRAINT `fk_audit_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `barangays`
@@ -973,7 +1076,7 @@ ALTER TABLE `item_units`
 -- Constraints for table `profiles`
 --
 ALTER TABLE `profiles`
-  ADD CONSTRAINT `profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `profiles_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `profiles_family`
@@ -1004,7 +1107,7 @@ ALTER TABLE `profiles_organization`
 --
 ALTER TABLE `profile_members`
   ADD CONSTRAINT `fk_profile` FOREIGN KEY (`profile_id`) REFERENCES `profiles` (`profile_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `profile_members_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `profile_members_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `provinces`
@@ -1012,36 +1115,6 @@ ALTER TABLE `profile_members`
 ALTER TABLE `provinces`
   ADD CONSTRAINT `provinces_ibfk_1` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`);
 COMMIT;
-
-DELIMITER $$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_user`(
-    IN p_first_name VARCHAR(100),
-    IN p_middle_name VARCHAR(100),
-    IN p_last_name VARCHAR(100),
-    IN p_date_of_birth DATE,
-    IN p_gender ENUM('Male','Female','Other'),
-    IN p_zip_code VARCHAR(10),
-    IN p_phone_number VARCHAR(20),
-    IN p_email VARCHAR(255),
-    IN p_password VARCHAR(255), -- already hashed in PHP
-    IN p_role ENUM('User','Admin','Owner','Staff'),
-    IN p_region_id INT,
-    IN p_province_id INT,
-    IN p_city_id INT,
-    IN p_barangay_id INT
-)
-BEGIN
-    INSERT INTO users (
-        first_name, middle_name, last_name, date_of_birth, gender,
-        zip_code, phone_number, email, password, role,
-        region_id, province_id, city_id, barangay_id
-    ) VALUES (
-        p_first_name, p_middle_name, p_last_name, p_date_of_birth, p_gender,
-        p_zip_code, p_phone_number, p_email, p_password, p_role,
-        p_region_id, p_province_id, p_city_id, p_barangay_id
-    );
-END$$
-DELIMITER ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
