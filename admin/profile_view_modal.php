@@ -17,9 +17,11 @@ if ($profile_id > 0) {
         $profileName = $profile['profile_name'];
         $profileType = $profile['profile_type'];
         $createdAt = $profile['created_at'];
+        $profilePic = $profile['profile_pic'];  // Add profile picture
 
         // Fetch additional profile details based on profile type
         $table = '';
+        $profileDetails = [];
         if ($profileType == 'individual') {
             $table = 'profiles_individual';
         } elseif ($profileType == 'family') {
@@ -84,17 +86,50 @@ if ($profile_id > 0) {
             <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">&times;</button>
         </div>
         
+        <!-- Profile Picture -->
+        <div class="flex justify-center mb-4">
+            <img src="<?= !empty($profilePic) ? '../' . $profilePic : '../uploads/profile_pic_placeholder1.png' ?>" 
+                 alt="Profile Picture" class="w-24 h-24 rounded-full object-cover">
+        </div>
+
+        <!-- Profile Name, Type, and Creation Date -->
         <p><strong>Profile Name:</strong> <?= htmlspecialchars($profileName) ?></p>
         <p><strong>Profile Type:</strong> <?= ucfirst($profileType) ?></p>
         <p><strong>Created At:</strong> <?= $createdAt ?></p>
         
         <p><strong>Location:</strong> <?= htmlspecialchars("$barangayName, $cityName, $provinceName, $regionName") ?></p>
 
-        <!-- Show additional profile details -->
-        <?php if ($profileDetails): ?>
+        <!-- Conditional Fields for Each Profile Type -->
+        <?php if ($profileType == 'individual' && $profileDetails): ?>
+            <p><strong>First Name:</strong> <?= htmlspecialchars($profileDetails['first_name']) ?></p>
+            <p><strong>Middle Name:</strong> <?= htmlspecialchars($profileDetails['middle_name']) ?></p>
+            <p><strong>Last Name:</strong> <?= htmlspecialchars($profileDetails['last_name']) ?></p>
+            <p><strong>Date of Birth:</strong> <?= htmlspecialchars($profileDetails['date_of_birth']) ?></p>
+            <p><strong>Gender:</strong> <?= htmlspecialchars($profileDetails['gender']) ?></p>
             <p><strong>Phone Number:</strong> <?= htmlspecialchars($profileDetails['phone_number']) ?></p>
             <p><strong>Email:</strong> <?= htmlspecialchars($profileDetails['email']) ?></p>
-            <!-- Add other relevant profile details here -->
+
+        <?php elseif ($profileType == 'family' && $profileDetails): ?>
+            <p><strong>Household Name:</strong> <?= htmlspecialchars($profileDetails['household_name']) ?></p>
+            <p><strong>Primary Contact Person:</strong> <?= htmlspecialchars($profileDetails['primary_contact_person']) ?></p>
+            <p><strong>Contact Number:</strong> <?= htmlspecialchars($profileDetails['contact_number']) ?></p>
+            <p><strong>Email:</strong> <?= htmlspecialchars($profileDetails['email']) ?></p>
+            <p><strong>Zip Code:</strong> <?= htmlspecialchars($profileDetails['zip_code']) ?></p>
+
+        <?php elseif ($profileType == 'institution' && $profileDetails): ?>
+            <p><strong>Institution Type:</strong> <?= htmlspecialchars($profileDetails['institution_type']) ?></p>
+            <p><strong>Institution Name:</strong> <?= htmlspecialchars($profileDetails['institution_name']) ?></p>
+            <p><strong>Official Contact Person:</strong> <?= htmlspecialchars($profileDetails['official_contact_person']) ?></p>
+            <p><strong>Official Contact Number:</strong> <?= htmlspecialchars($profileDetails['official_contact_number']) ?></p>
+            <p><strong>Official Email:</strong> <?= htmlspecialchars($profileDetails['official_email']) ?></p>
+
+        <?php elseif ($profileType == 'organization' && $profileDetails): ?>
+            <p><strong>Organization Type:</strong> <?= htmlspecialchars($profileDetails['organization_type']) ?></p>
+            <p><strong>Organization Name:</strong> <?= htmlspecialchars($profileDetails['organization_name']) ?></p>
+            <p><strong>Contact Person:</strong> <?= htmlspecialchars($profileDetails['contact_person']) ?></p>
+            <p><strong>Contact Number:</strong> <?= htmlspecialchars($profileDetails['contact_number']) ?></p>
+            <p><strong>Email:</strong> <?= htmlspecialchars($profileDetails['email']) ?></p>
+            <p><strong>Registration Number:</strong> <?= htmlspecialchars($profileDetails['registration_number']) ?></p>
         <?php endif; ?>
 
         <div class="mt-4 flex justify-end">

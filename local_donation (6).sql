@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 11, 2025 at 11:37 AM
+-- Generation Time: Dec 11, 2025 at 09:58 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -596,9 +596,9 @@ DELIMITER $$
 CREATE TRIGGER `after_user_update` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
     -- Insert a record into the activities table
     INSERT INTO activities (
-        user_id, 
-        profile_id, 
-        description, 
+        user_id,
+        profile_id,
+        description,
         display_text
     )
     VALUES (
@@ -608,29 +608,31 @@ CREATE TRIGGER `after_user_update` AFTER UPDATE ON `users` FOR EACH ROW BEGIN
         CONCAT('Your account was updated: ', NEW.first_name, ' ', NEW.last_name)
     );
 
-    -- Update the profile_name and profile_pic in the profiles table
+    -- Update the profile_name and profile_pic in the profiles table, only if profile_type is 'individual'
     UPDATE profiles
-    SET 
-        profile_name = CONCAT(NEW.first_name, ' ', NEW.last_name), 
+    SET
+        profile_name = CONCAT(NEW.first_name, ' ', NEW.last_name),
         profile_pic = NEW.profile_pic
-    WHERE user_id = NEW.user_id;
+    WHERE user_id = NEW.user_id AND profile_type = 'individual';
 
-    -- Update user-related fields in the profiles_individual table using profile_id from profiles
-    UPDATE profiles_individual
-    SET 
-        first_name = NEW.first_name,
-        middle_name = NEW.middle_name,
-        last_name = NEW.last_name,
-        date_of_birth = NEW.date_of_birth,
-        gender = NEW.gender,
-        phone_number = NEW.phone_number,
-        email = NEW.email,
-        region_id = NEW.region_id,
-        province_id = NEW.province_id,
-        city_id = NEW.city_id,
-        barangay_id = NEW.barangay_id,
-        zip_code = NEW.zip_code
-    WHERE profile_id = (SELECT profile_id FROM profiles WHERE user_id = NEW.user_id);
+    -- Update the profiles_individual table only for the 'individual' profile type and corresponding user_id
+    UPDATE profiles_individual pi
+    JOIN profiles p ON pi.profile_id = p.profile_id
+    SET
+        pi.first_name = NEW.first_name,
+        pi.middle_name = NEW.middle_name,
+        pi.last_name = NEW.last_name,
+        pi.date_of_birth = NEW.date_of_birth,
+        pi.gender = NEW.gender,
+        pi.phone_number = NEW.phone_number,
+        pi.email = NEW.email,
+        pi.region_id = NEW.region_id,
+        pi.province_id = NEW.province_id,
+        pi.city_id = NEW.city_id,
+        pi.barangay_id = NEW.barangay_id,
+        pi.zip_code = NEW.zip_code
+    WHERE p.user_id = NEW.user_id AND p.profile_type = 'individual';
+
 END
 $$
 DELIMITER ;

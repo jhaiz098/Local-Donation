@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 11, 2025 at 11:38 AM
+-- Generation Time: Dec 11, 2025 at 09:59 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -250,6 +250,13 @@ INSERT INTO `item_units` (`item_unit_id`, `item_id`, `unit_name`) VALUES
 (31, 20, 'gallons');
 
 --
+-- Dumping data for table `pending_admins`
+--
+
+INSERT INTO `pending_admins` (`pending_admin_id`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `gender`, `email`, `password`, `role`, `created_at`) VALUES
+(1, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', 'admin2@gmail.com', '$2y$10$ZM4uC30Djbz09gINdCBWd.f8vtttgETyjNv8Q0s7V1WJuSFttAIYe', 'Staff', '2025-12-11 20:06:52');
+
+--
 -- Dumping data for table `provinces`
 --
 
@@ -375,6 +382,15 @@ INSERT INTO `regions` (`id`, `name`) VALUES
 (15, 'Region XII - SOCCSKSARGEN'),
 (16, 'Region XIII - Caraga'),
 (17, 'BARMM - Bangsamoro Autonomous Region in Muslim Min');
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`user_id`, `profile_pic`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `gender`, `zip_code`, `phone_number`, `email`, `password`, `role`, `created_at`, `region_id`, `province_id`, `city_id`, `barangay_id`) VALUES
+(1, 'uploads/1765486686_IMG_20231007_180326.JPG', 'James Emmanuel wewew', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'james.fernandez1230@gmail.com', '$2y$10$360P2lsH9hZxXTmyuXpvTOcuCso/Sm9W.fRRj.ooDa7ULhRxKxbAe', 'User', '2025-12-11 20:06:17', 10, 51, 24, 26),
+(2, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin@gmail.com', '$2y$10$GgR3SO4Q7Nm/WV51PFErWOYOVUFcaS4b9To4fpvkf5jvpEPlgegmy', 'Superuser', '2025-12-11 20:06:36', NULL, NULL, NULL, NULL),
+(3, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin3@gmail.com', '$2y$10$/nPU6amabRJRc0/ep/rCXu.nVW9nCCdXTy9ukjVGSvy5gnnmWUpbe', 'User', '2025-12-11 20:07:57', NULL, NULL, NULL, NULL);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
