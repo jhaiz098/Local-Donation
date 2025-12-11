@@ -1,3 +1,21 @@
+<?php
+include "../db_connect.php"; // Include your database connection
+
+// Fetch activities from the database
+$query = "SELECT * FROM activities ORDER BY created_at DESC";
+$stmt = $conn->prepare($query);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Check if any records were found
+$activities = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $activities[] = $row;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,7 +115,6 @@
 
 <!-- ================= MAIN CONTENT ================= -->
 <main class="pt-24 p-6 md:ml-64">
-
   <h2 class="text-2xl font-bold mb-6">Activity Logs</h2>
 
   <div class="bg-white rounded-xl shadow-md overflow-x-auto">
@@ -112,30 +129,19 @@
         </tr>
       </thead>
       <tbody class="text-gray-700">
-        <!-- Sample Row -->
-        <tr class="border-t hover:bg-gray-50">
-          <td class="p-3">1</td>
-          <td class="p-3">
-            <span class="font-medium">Juan Dela Cruz</span>
-            <br>
-            <span class="text-xs text-gray-500">User</span>
-          </td>
-          <td class="p-3 truncate max-w-[250px]">Updated his profile information.</td>
-          <td class="p-3 truncate max-w-[200px]">Profile updated successfully.</td>
-          <td class="p-3">2025-12-10 14:23</td>
-        </tr>
-
-        <tr class="border-t hover:bg-gray-50">
-          <td class="p-3">2</td>
-          <td class="p-3">
-            <span class="font-medium">Bayanihan Community</span>
-            <br>
-            <span class="text-xs text-gray-500">Profile</span>
-          </td>
-          <td class="p-3 truncate max-w-[250px]">Created a donation request.</td>
-          <td class="p-3 truncate max-w-[200px]">Request for relief goods submitted.</td>
-          <td class="p-3">2025-12-09 10:15</td>
-        </tr>
+        <?php foreach ($activities as $activity): ?>
+          <tr class="border-t hover:bg-gray-50">
+            <td class="p-3"><?= $activity['activity_id'] ?></td>
+            <td class="p-3">
+              <span class="font-medium"><?= $activity['user_id'] ?: 'System' ?></span>
+              <br>
+              <span class="text-xs text-gray-500"><?= $activity['profile_id'] ? 'Profile' : 'User' ?></span>
+            </td>
+            <td class="p-3 truncate max-w-[250px]"><?= htmlspecialchars($activity['description']) ?></td>
+            <td class="p-3 truncate max-w-[200px]"><?= htmlspecialchars($activity['display_text'] ?: 'No display text') ?></td>
+            <td class="p-3"><?= $activity['created_at'] ?></td>
+          </tr>
+        <?php endforeach; ?>
       </tbody>
     </table>
   </div>
