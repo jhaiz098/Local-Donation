@@ -275,18 +275,18 @@ if ($result->num_rows > 0) {
                         <td class="p-3"><?= !empty($profile['phone_number']) ? $profile['phone_number'] : '-' ?></td>
                         <td class="p-3 max-w-[180px] break-words whitespace-normal"><?= !empty($profile['location']) ? $profile['location'] : '-' ?></td>
                         <td class="p-3"><?= $profile['created_at'] ?></td>
+                        <!-- In your profile table -->
                         <td class="p-3 text-center">
                             <div class="flex gap-1 justify-center whitespace-nowrap">
                                 <!-- View Button -->
                                 <button onclick="openModal(<?= $profile['profile_id'] ?>, 'view')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                                
+
                                 <!-- Edit Button -->
                                 <button onclick="openModal(<?= $profile['profile_id'] ?>, 'edit')" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
                                 
                                 <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
                             </div>
                         </td>
-
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -339,16 +339,64 @@ if ($result->num_rows > 0) {
             .then(data => {
                 // Inject modal content into the page
                 document.body.insertAdjacentHTML('beforeend', data);
+                
                 // Show modal
                 const modal = document.getElementById('profileModal');
                 if (modal) {
                     modal.style.display = 'flex';
+                    // Add event listeners for close buttons
+                    attachModalCloseEvent();
                 }
             })
             .catch(error => {
                 console.error('Error fetching modal:', error);
             });
     }
+
+
+
+    // Function to attach close event listeners to the close buttons
+    function attachModalCloseEvent() {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+            // Close modal when clicking on the 'X' button
+            const closeButton = modal.querySelector('#closeBtn');
+            const closeModalButton = modal.querySelector('#closeModalBtn');
+
+            if (closeButton) {
+                closeButton.addEventListener('click', closeModal);
+            }
+
+            if (closeModalButton) {
+                closeModalButton.addEventListener('click', closeModal);
+            }
+
+            // Close modal if the user clicks outside of the modal content (overlay)
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Close modal if the user presses the "Escape" key
+            window.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        }
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+            modal.style.display = 'none';  // Hide the modal
+            modal.remove();  // Remove the modal content from the DOM
+        }
+    }
+
+
 
 </script>
 

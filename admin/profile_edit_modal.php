@@ -1,11 +1,14 @@
+<!-- profile_edit_modal.php -->
+
 <?php
+// Include database connection
 include "../db_connect.php";
 
-// Get the profile_id from the URL
+// Get the profile_id from the URL (if present)
 $profile_id = $_GET['profile_id'] ?? 0;
 
 if ($profile_id > 0) {
-    // Fetch profile details
+    // Fetch profile details from the database
     $query = "SELECT * FROM profiles WHERE profile_id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $profile_id);
@@ -15,83 +18,35 @@ if ($profile_id > 0) {
     if ($result->num_rows > 0) {
         $profile = $result->fetch_assoc();
         $profileName = $profile['profile_name'];
-        $profileType = $profile['profile_type'];
         $profilePic = $profile['profile_pic'];
-        $createdAt = $profile['created_at'];
-        
-        // Get additional profile details based on profile type
-        $table = '';
+        $profileType = $profile['profile_type'];
+
+        // Additional profile details for specific types
         $profileDetails = [];
         if ($profileType == 'individual') {
-            $table = 'profiles_individual';
+            $queryDetails = "SELECT * FROM profiles_individual WHERE profile_id = ?";
+            $stmtDetails = $conn->prepare($queryDetails);
+            $stmtDetails->bind_param("i", $profile_id);
+            $stmtDetails->execute();
+            $profileDetails = $stmtDetails->get_result()->fetch_assoc();
         } elseif ($profileType == 'family') {
-            $table = 'profiles_family';
-        } elseif ($profileType == 'institution') {
-            $table = 'profiles_institution';
-        } elseif ($profileType == 'organization') {
-            $table = 'profiles_organization';
-        }
-
-        if ($table) {
-            $queryDetails = "SELECT * FROM $table WHERE profile_id = ?";
+            $queryDetails = "SELECT * FROM profiles_family WHERE profile_id = ?";
             $stmtDetails = $conn->prepare($queryDetails);
             $stmtDetails->bind_param("i", $profile_id);
             $stmtDetails->execute();
             $profileDetails = $stmtDetails->get_result()->fetch_assoc();
         }
-    } else {
-        echo "Profile not found.";
-        exit();
     }
-} else {
-    echo "Invalid profile ID.";
-    exit();
 }
-
-// Check if the form has been submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $profile_name = $_POST['profile_name'] ?? '';
-    $first_name = $_POST['first_name'] ?? '';
-    $last_name = $_POST['last_name'] ?? '';
-    $phone_number = $_POST['phone_number'] ?? '';
-    $contact_number = $_POST['contact_number'] ?? '';
-
-    // Step 1: Update the main profile table
-    $queryProfile = "UPDATE profiles SET profile_name = ? WHERE profile_id = ?";
-    $stmtProfile = $conn->prepare($queryProfile);
-    $stmtProfile->bind_param("si", $profile_name, $profile_id);
-    $stmtProfile->execute();
-
-    // Step 2: Update the specific profile table based on the profile type
-    $queryDetails = "";
-    if ($profileType == 'individual') {
-        $queryDetails = "UPDATE profiles_individual SET first_name = ?, last_name = ?, phone_number = ? WHERE profile_id = ?";
-        $stmtDetails = $conn->prepare($queryDetails);
-        $stmtDetails->bind_param("sssi", $first_name, $last_name, $phone_number, $profile_id);
-    } elseif ($profileType == 'family') {
-        $queryDetails = "UPDATE profiles_family SET contact_number = ? WHERE profile_id = ?";
-        $stmtDetails = $conn->prepare($queryDetails);
-        $stmtDetails->bind_param("si", $contact_number, $profile_id);
-    }
-
-    // Execute the query
-    if ($queryDetails) {
-        $stmtDetails->execute();
-    }
-
-    // Redirect back to the profile page or display a success message
-    echo '<script>alert("Profile updated successfully!"); window.location.href="admin_profiles.php";</script>';
-    exit();
-}
-
 ?>
 
-<!-- Profile Edit Modal -->
-<div id="profileEditModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+<!-- profile_edit_modal.php -->
+<div id="profileModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50" style="display: none;">
     <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold">Edit Profile</h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">&times;</button>
+            <!-- Close button -->
+            <button id="closeBtn" class="text-gray-500 hover:text-gray-700">&times;</button>
         </div>
 
         <!-- Profile Picture -->
@@ -121,11 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="text" id="last_name" name="last_name" value="<?= htmlspecialchars($profileDetails['last_name']) ?>" 
                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="mb-4">
-                    <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone Number</label>
-                    <input type="text" id="phone_number" name="phone_number" value="<?= htmlspecialchars($profileDetails['phone_number']) ?>" 
-                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
             <?php elseif ($profileType == 'family'): ?>
                 <div class="mb-4">
                     <label for="contact_number" class="block text-sm font-medium text-gray-700">Contact Number</label>
@@ -135,14 +85,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <?php endif; ?>
 
             <div class="mb-4">
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save Changes</button>
-            </div>
-        </form>
+            <button id="closeModalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save Changes</button>
+        </div>
     </div>
 </div>
 
 <script>
+    // Function to close the modal
     function closeModal() {
-        document.getElementById('profileEditModal').style.display = 'none';
+        const modal = document.getElementById('profileEditModal');
+        if (modal) {
+            modal.style.display = 'none';  // Hide the modal
+        }
     }
+
+    // Close the modal when the "X" button is clicked
+    document.querySelector('#closeBtn').addEventListener('click', function() {
+        closeModal();
+    });
+
+    // Close the modal when the user presses "Esc"
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+
+    // Close modal when the user clicks outside the modal content (clicks the overlay)
+    document.getElementById('profileEditModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
 </script>

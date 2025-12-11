@@ -97,11 +97,12 @@ if ($profile_id > 0) {
 ?>
 
 <!-- Modal for Profile Details -->
-<div id="profileModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+<div id="profileModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50" style="display: none;"> 
     <div class="bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold">Profile Details</h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">&times;</button>
+            <!-- X Button (Close Button) -->
+            <button id="closeBtn" class="text-gray-500 hover:text-gray-700">&times;</button>
         </div>
         
         <!-- Profile Picture -->
@@ -177,15 +178,24 @@ if ($profile_id > 0) {
             </div>
         <?php endif; ?>
 
-
+        <!-- Close Button -->
         <div class="mt-4 flex justify-end">
-            <button onclick="closeModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
+            <button id="closeModalBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
         </div>
     </div>
 </div>
 
+
 <script>
+    // Function to close the modal
     function closeModal() {
-        document.getElementById('profileModal').style.display = 'none';
+        var modal = document.getElementById('profileModal');
+        if (modal) {
+            modal.style.display = 'none';  // Hide the modal
+        }
     }
+
+    // Ensure both buttons work
+    document.getElementById('closeBtn').addEventListener('click', closeModal); // X button
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal); // Close button
 </script>
