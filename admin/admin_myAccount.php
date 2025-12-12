@@ -11,6 +11,8 @@ if ($user_id) {
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
+
+    echo "<script>console.log(" . json_encode($user) . ");</script>";
 } else {
     // No user logged in
     $user = null;
@@ -133,7 +135,10 @@ while($row = $result->fetch_assoc()) {
         <form class="space-y-6" enctype="multipart/form-data">
             <!-- Profile Picture -->
             <div class="flex items-center gap-6">
-                <img id="profile-preview" src="<?php echo $user['profile_pic'] ?: '../uploads/profile_pic_placeholder1.png'; ?>" class="w-28 h-28 rounded-full object-cover border shadow">
+                <img id="profile-preview" 
+                    src="<?php echo !empty($user['profile_pic']) ? '../'.$user['profile_pic'] : '../uploads/profile_pic_placeholder1.png'; ?>" 
+                    class="w-28 h-28 rounded-full object-cover border shadow">
+
                 <div>
                     <label class="block text-gray-700 font-medium mb-1">Profile Picture (Optional)</label>
                     <button type="button" id="change-btn" class="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
@@ -272,6 +277,7 @@ while($row = $result->fetch_assoc()) {
 </main>
 
 <script>
+
 // ------------------------------
 // Hamburger / Side Menu
 // ------------------------------
