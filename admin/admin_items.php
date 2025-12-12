@@ -46,7 +46,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Location Management</title>
+    <title>Item Management</title>
 
     <script src="../src/tailwind.js"></script>
     <link rel="stylesheet" href="../src/style.css">
@@ -141,7 +141,83 @@ while ($barangay = $barangays_result->fetch_assoc()) {
 </div>
 
 
+<main class="pt-24 p-6 md:ml-64">
+    <div class="flex justify-between mb-4">
+            <h2 class="text-xl font-semibold">Manage Items</h2>
+            <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" id="add-item-btn">Add New Item</button>
+        </div>
 
+        <!-- ================= ADD ITEM AND UNIT FORMS ================= -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+            <!-- Add Item -->
+        <div class="bg-white rounded-xl shadow-md p-4">
+            <h3 class="text-lg font-semibold mb-2">Add Item</h3>
+            <form id="add-item-form" class="flex items-center gap-4">
+                <input type="text" id="item-name" placeholder="Item Name" class="p-2 text-sm border rounded flex-1" required>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add Item</button>
+            </form>
+        </div>
+
+        <!-- Add Unit -->
+        <div class="bg-white rounded-xl shadow-md p-4">
+            <h3 class="text-lg font-semibold mb-2">Add Unit</h3>
+            <form id="add-unit-form" class="flex items-center gap-4">
+                <!-- Select Item -->
+                <div class="relative flex-1">
+                    <select id="select-item" class="p-2 text-sm border rounded w-full overflow-auto" required>
+                        <option value="">Select Item</option>
+                        <!-- Items will be populated here -->
+                    </select>
+                </div>
+
+                <!-- Unit Name -->
+                <input type="text" id="unit-name" placeholder="Unit Name" class="p-2 text-sm border rounded flex-1" required>
+
+                <!-- Add Unit Button -->
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Add Unit</button>
+            </form>
+        </div>
+
+        <!-- ================= EXISTING ITEMS TABLE ================= -->
+        <h2 class="text-2xl font-bold mb-6">Existing Items</h2>
+
+        <div class="grid grid-cols-2 gap-4">
+
+            <!-- Items Section -->
+            <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+                <h3 class="font-bold mb-2 text-lg">Items</h3>
+                <ul id="items" class="space-y-2">
+                    <?php 
+                    // while($item = $items_result->fetch_assoc()): 
+                    ?>
+                        <li class="flex justify-between items-center p-2 rounded cursor-pointer hover:bg-blue-100 transition">
+                            <!-- <span onclick="selectItem('<?= $item['id']; ?>')"><?= $item['name']; ?></span> -->
+                            <div class="flex gap-1">
+                                <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('<?= $item['id']; ?>', 'item')">Edit</button>
+                                <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('<?= $item['id']; ?>', 'item')">Delete</button>
+                            </div>
+                        </li>
+                    <?php
+                    // endwhile; 
+                    ?>
+                </ul>
+            </div>
+
+            <!-- Units Section -->
+            <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+                <h3 class="font-bold mb-2 text-lg">Units</h3>
+                <ul id="units" class="space-y-2">
+                    <li class="text-xs cursor-pointer text-gray-500">Select an Item</li> <!-- Placeholder for Units -->
+                </ul>
+            </div>
+
+        </div>
+
+
+    </div>
+    
+</main>
 
 
 <!-- ================= JS ================= -->
