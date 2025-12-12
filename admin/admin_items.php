@@ -126,19 +126,18 @@ if (!$items_result) {
 
 <main class="pt-24 p-6 md:ml-64">
     <div class="flex justify-between mb-4">
-            <h2 class="text-xl font-semibold">Manage Items</h2>
-            <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700" id="add-item-btn">Add New Item</button>
-        </div>
+        <h2 class="text-xl font-semibold">Manage Items</h2>
+    </div>
 
         <!-- ================= ADD ITEM AND UNIT FORMS ================= -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
-            <!-- Add Item -->
+        <!-- Add Item -->
         <div class="bg-white rounded-xl shadow-md p-4">
             <h3 class="text-lg font-semibold mb-2">Add Item</h3>
             <form id="add-item-form" class="flex items-center gap-4">
                 <input type="text" id="item-name" placeholder="Item Name" class="p-2 text-sm border rounded flex-1" required>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add Item</button>
+                <button type="button" id="add-item-btn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add Item</button>
             </form>
         </div>
 
@@ -150,7 +149,12 @@ if (!$items_result) {
                 <div class="relative flex-1">
                     <select id="select-item" class="p-2 text-sm border rounded w-full overflow-auto" required>
                         <option value="">Select Item</option>
-                        <!-- Items will be populated here -->
+                        <?php
+                        // Loop through the items result and populate the select options
+                        while ($item = $items_result->fetch_assoc()):
+                            echo "<option value='" . $item['item_id'] . "'>" . $item['item_name'] . "</option>";
+                        endwhile;
+                        ?>
                     </select>
                 </div>
 
@@ -161,6 +165,7 @@ if (!$items_result) {
                 <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Add Unit</button>
             </form>
         </div>
+
     </div>
 
     <!-- ================= EXISTING ITEMS TABLE ================= -->
@@ -172,30 +177,26 @@ if (!$items_result) {
         <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
             <h3 class="font-bold mb-2 text-lg">Items</h3>
             <ul id="items" class="space-y-2">
-                <?php 
-                while($item = $items_result->fetch_assoc()):
-                    $unit_names = explode(',', $item['unit_names']); // Split the comma-separated unit names
-                    $units_list = ''; // Initialize an empty string for the units
-                    foreach ($unit_names as $unit) {
-                        // Add Edit and Delete buttons for each unit
-                        $units_list .= "<li class='flex justify-between items-center'>
-                                            <span>$unit</span>
-                                            <div class='flex gap-1'>
-                                                <button class='px-2 py-0.5 bg-yellow-500 text-white rounded text-xs' onclick='editUnit(\"$unit\", \"{$item['item_id']}\")'>Edit</button>
-                                                <button class='px-2 py-0.5 bg-red-500 text-white rounded text-xs' onclick='deleteUnit(\"$unit\", \"{$item['item_id']}\")'>Delete</button>
-                                            </div>
-                                        </li>"; // Add buttons
-                    }
+                <?php
+                while ($item = $items_result->fetch_assoc()):
+                    // Split the comma-separated unit names and remove any empty or extra spaces
+                    $unit_names = explode(',', $item['unit_names']); 
+                    $unit_names = array_map('trim', $unit_names); // Trim each unit name
+                    $unit_names = array_filter($unit_names, fn($unit) => !empty($unit)); // Filter out empty units
+
+                    // Prepare a simple string of unit names to pass as a data attribute (just unit names, no HTML)
+                    $units_list = implode(',', $unit_names); 
                 ?>
                     <li class="flex justify-between items-center p-2 rounded cursor-pointer hover:bg-blue-100 transition" data-item-id="<?= $item['item_id']; ?>" data-units="<?= htmlspecialchars($units_list); ?>">
                         <span><?= $item['item_name']; ?></span>
                         <div class="flex gap-1">
-                            <!-- Pass the item name as the currentItemName to the editItem function -->
                             <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('<?= $item['item_id']; ?>', 'item', '<?= htmlspecialchars($item['item_name']); ?>')">Edit</button>
                             <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('<?= $item['item_id']; ?>', 'item')">Delete</button>
                         </div>
                     </li>
                 <?php endwhile; ?>
+
+
 
             </ul>
         </div>
@@ -232,16 +233,55 @@ if (!$items_result) {
     // Function to handle item click and display associated units
     function showUnits(itemId) {
         const item = document.querySelector(`#items li[data-item-id='${itemId}']`);
-        const units = item.getAttribute('data-units'); // Get the units from the data attribute
+        const units = item.getAttribute('data-units'); // Get the unit names from the data attribute
 
         const unitsList = document.getElementById('units');
         
         // Clear the current list
         unitsList.innerHTML = '';
 
-        if (units) {
-            // If there are units, display them
-            unitsList.innerHTML = units;
+        if (units && units.trim() !== '') {
+            // Split the unit names and trim each one
+            const unitArray = units.split(',').map(unit => unit.trim()).filter(unit => unit !== '');
+
+            // Display each unit with its respective buttons
+            unitArray.forEach(unit => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('flex', 'justify-between', 'items-center'); // Add flex classes for layout
+
+                // Create the unit name span
+                const unitSpan = document.createElement('span');
+                unitSpan.textContent = unit;
+
+                // Create the Edit and Delete buttons
+                const buttonDiv = document.createElement('div');
+                buttonDiv.classList.add('flex', 'gap-1');
+
+                const editButton = document.createElement('button');
+                editButton.classList.add('px-2', 'py-0.5', 'bg-yellow-500', 'text-white', 'rounded', 'text-xs');
+                editButton.textContent = 'Edit';
+                editButton.onclick = function() {
+                    editUnit(unit, itemId); // Call the editUnit function
+                };
+
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('px-2', 'py-0.5', 'bg-red-500', 'text-white', 'rounded', 'text-xs');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = function() {
+                    deleteUnit(unit, itemId); // Call the deleteUnit function
+                };
+
+                // Append buttons to the button div
+                buttonDiv.appendChild(editButton);
+                buttonDiv.appendChild(deleteButton);
+
+                // Append the unit name and button div to the list item
+                listItem.appendChild(unitSpan);
+                listItem.appendChild(buttonDiv);
+
+                // Add the list item to the units list
+                unitsList.appendChild(listItem);
+            });
         } else {
             // If no units are available, show a placeholder
             const noUnitsItem = document.createElement('li');
@@ -250,6 +290,9 @@ if (!$items_result) {
             unitsList.appendChild(noUnitsItem);
         }
     }
+
+
+
 
     // Function to edit an item
     function editItem(itemId, type, currentItemName) {
@@ -310,7 +353,8 @@ if (!$items_result) {
                 xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === 4 && xhr.status === 200) {
-                        alert(`${type} ID ${itemId} has been deleted.`);
+                        alert(`${type} has been deleted.`);
+                        window.location.reload();
                         console.log(xhr.responseText); // For debugging response
                     }
                 };
@@ -321,21 +365,77 @@ if (!$items_result) {
         }
     }
 
-    // Function to edit a unit (not implemented yet)
+    // Function to edit a unit
     function editUnit(unit, itemId) {
-        // Show an alert for now
-        alert(`Editing unit: ${unit} for item ID: ${itemId}`);
-    }
+        // Prompt the user for the new unit name
+        const newUnitName = prompt("Enter the new name for unit: " + unit, unit);
 
-    // Function to delete a unit (not implemented yet)
-    function deleteUnit(unit, itemId) {
-        // Confirm before deleting
-        const confirmDelete = confirm(`Are you sure you want to delete the unit: ${unit}?`);
+        // If the user entered a valid new name (not empty or null)
+        if (newUnitName && newUnitName.trim() !== "") {
+            // Prepare data for sending
+            const data = {
+                action: 'edit',
+                item_id: itemId,
+                old_unit_name: unit,
+                new_unit_name: newUnitName.trim()  // Remove leading/trailing spaces
+            };
 
-        if (confirmDelete) {
-            alert(`Deleting unit: ${unit} for item ID: ${itemId}`);
+            // Send the data to edit_unit.php using AJAX
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "edit_unit.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText); // Parse the JSON response
+
+                    if (response.status === "success") {
+                        alert(`Unit "${unit}" has been updated to "${newUnitName}".`);
+                        window.location.reload(); // Reload to see changes
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                }
+            };
+            xhr.send("action=" + data.action + "&item_id=" + data.item_id + "&old_unit_name=" + encodeURIComponent(data.old_unit_name) + "&new_unit_name=" + encodeURIComponent(data.new_unit_name));
+        } else if (newUnitName !== null) {
+            alert('Please enter a valid unit name.');
         }
     }
+
+
+    // Function to delete a unit
+    function deleteUnit(unit, itemId) {
+        // Confirm before deleting
+        const confirmDelete = confirm(`Are you sure you want to delete the unit: "${unit}"?`);
+
+        if (confirmDelete) {
+            // Prepare data for sending
+            const data = {
+                action: 'delete',
+                item_id: itemId,
+                unit_name: unit
+            };
+
+            // Send the data to delete_unit.php using AJAX
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "delete_unit.php", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText); // Parse the JSON response
+
+                    if (response.status === "success") {
+                        alert(`Unit "${unit}" has been deleted.`);
+                        window.location.reload(); // Reload to reflect changes
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                }
+            };
+            xhr.send("action=" + data.action + "&item_id=" + data.item_id + "&unit_name=" + encodeURIComponent(data.unit_name));
+        }
+    }
+
 
     // Adding click event listener to each item in the list
     document.querySelectorAll('#items li').forEach(item => {
@@ -345,7 +445,42 @@ if (!$items_result) {
         });
     });
 
+    // Add event listener to the "Add Item" button
+    document.getElementById('add-item-btn').addEventListener('click', function() {
+        // Get the item name from the input field
+        const itemName = document.getElementById('item-name').value.trim();
 
+        // Validate if the item name is not empty
+        if (itemName === "") {
+            alert("Item name cannot be empty.");
+            return;
+        }
+
+        // Prepare data for sending to the server
+        const data = {
+            action: 'add',
+            item_name: itemName
+        };
+
+        // Send data to add_item.php using AJAX
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "add_item.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText); // Parse the JSON response
+                
+                if (response.status === "success") {
+                    alert("Item has been added successfully.");
+                    // Optionally reload the page or update the item list
+                    window.location.reload(); // Reloading the page to show the new item
+                } else {
+                    alert("Error: " + response.message);
+                }
+            }
+        };
+        xhr.send("action=" + data.action + "&item_name=" + encodeURIComponent(data.item_name));
+    });
 
 </script>
 
