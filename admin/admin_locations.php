@@ -607,7 +607,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
 
         // If the user confirmed the deletion
         if (confirmDelete) {
-            alert(`${type} with ID: ${id} will be deleted.`);
+            // alert(`${type} with ID: ${id} will be deleted.`);
 
             // Send the delete request to delete_location.php using fetch
             fetch('delete_location.php', {
@@ -625,6 +625,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 // Handle the response from the backend
                 if (data.success) {
                     alert(`${type} deleted successfully!`);
+                    window.location.reload();
                 } else {
                     alert(`Failed to delete ${type}.`);
                 }
@@ -633,8 +634,6 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 console.error('Error:', error);
                 alert('Error deleting the location.');
             });
-        } else {
-            alert("Deletion cancelled.");
         }
     }
 
@@ -677,12 +676,32 @@ while ($barangay = $barangays_result->fetch_assoc()) {
     document.getElementById('add-region-form').addEventListener('submit', function (e) {
         e.preventDefault();
         const regionName = document.getElementById('region-name').value.trim();
+
         if (!regionName) {
             alert("Region name cannot be empty.");
             return;
         }
-        // Proceed to send the region data (this is where the actual logic to add a region would go)
-        alert("Region added: " + regionName);
+
+        // Send the data to add_region.php
+        fetch('add_region.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ region_name: regionName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                window.location.reload();
+                // Optionally, reset the form or update the UI
+                document.getElementById('add-region-form').reset();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error adding region: ' + error);
+        });
     });
 
     // Handle Province Form Submission
@@ -700,8 +719,27 @@ while ($barangay = $barangays_result->fetch_assoc()) {
             alert("Province name cannot be empty.");
             return;
         }
-        // Proceed to send the province data
-        alert("Province added: " + provinceName);
+
+        // Send the data to add_province.php
+        fetch('add_province.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ province_name: provinceName, region_id: selectedRegion })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                window.location.reload();
+                // Optionally, reset the form or update the UI
+                document.getElementById('add-province-form').reset();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error adding province: ' + error);
+        });
     });
 
     // Handle City Form Submission
@@ -719,8 +757,27 @@ while ($barangay = $barangays_result->fetch_assoc()) {
             alert("City name cannot be empty.");
             return;
         }
-        // Proceed to send the city data
-        alert("City added: " + cityName);
+
+        // Send the data to add_city.php
+        fetch('add_city.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ city_name: cityName, province_id: selectedProvince })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                window.location.reload();
+                // Optionally, reset the form or update the UI
+                document.getElementById('add-city-form').reset();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error adding city: ' + error);
+        });
     });
 
     // Handle Barangay Form Submission
@@ -738,9 +795,29 @@ while ($barangay = $barangays_result->fetch_assoc()) {
             alert("Barangay name cannot be empty.");
             return;
         }
-        // Proceed to send the barangay data
-        alert("Barangay added: " + barangayName);
+
+        // Send the data to add_barangay.php
+        fetch('add_barangay.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ barangay_name: barangayName, city_id: selectedCity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(data.message);
+                window.location.reload();
+                // Optionally, reset the form or update the UI
+                document.getElementById('add-barangay-form').reset();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Error adding barangay: ' + error);
+        });
     });
+
 
 
 
