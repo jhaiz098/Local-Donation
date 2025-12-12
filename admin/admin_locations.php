@@ -298,7 +298,8 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         const regionSelect = document.getElementById('regions');
         regions.forEach(region => {
             const li = document.createElement('li');
-            li.classList.add('cursor-pointer', 'hover:bg-blue-100', 'transition');
+            li.classList.add('cursor-pointer', 'hover:bg-blue-100', 'transition','p-2');
+            li.setAttribute('data-id', region.id);  // Assigning data-id to each list item
 
             // Create the region name span
             const regionSpan = document.createElement('span');
@@ -338,29 +339,37 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         });
     }
 
-
-
-
     // Handle Region Selection
     function selectRegion(regionId) {
         selectedRegion = regionId;
         const provinceSelect = document.getElementById('provinces');
         const citySelect = document.getElementById('cities');
         const barangaySelect = document.getElementById('barangays');
-
+        
         // Reset selections
         provinceSelect.innerHTML = '';
         citySelect.innerHTML = '<li class="cursor-pointer text-gray-500">Select a Province</li>';
         barangaySelect.innerHTML = '<li class="cursor-pointer text-gray-500">Select a City / Municipality</li>';
+        
+        // Reset highlights for all regions
+        const regionItems = document.querySelectorAll('#regions li');
+        regionItems.forEach(item => {
+            item.classList.remove('bg-blue-100', 'text-blue-800', 'font-semibold');
+        });
 
-        // Find region name
+        // Find region name and highlight the selected region
         const regionName = regions.find(region => region.id === regionId)?.name || 'Unknown Region';
+        const selectedRegionItem = document.querySelector(`#regions li[data-id="${regionId}"]`);
+        if (selectedRegionItem) {
+            selectedRegionItem.classList.add('bg-blue-100', 'text-blue-800', 'font-semibold');
+        }
 
         // Populate provinces based on selected region
         if (regionProvinces[regionId] && regionProvinces[regionId].length > 0) {
             regionProvinces[regionId].forEach(province => {
                 const li = document.createElement('li');
                 li.classList.add('cursor-pointer', 'hover:bg-green-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                li.setAttribute('data-id', province.id); // Set unique ID for province
 
                 // Create the province name span
                 const provinceSpan = document.createElement('span');
@@ -403,9 +412,6 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         }
     }
 
-
-
-
     // Handle Province Selection
     function selectProvince(provinceId, provinceName) {
         selectedProvince = provinceId;
@@ -416,11 +422,24 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         citySelect.innerHTML = '';
         barangaySelect.innerHTML = '<li class="cursor-pointer text-gray-500">Select a City / Municipality</li>';
 
-        // Create a province item with edit and delete buttons
+        // Reset highlights for all provinces
+        const provinceItems = document.querySelectorAll('#provinces li');
+        provinceItems.forEach(item => {
+            item.classList.remove('bg-yellow-100', 'text-yellow-800', 'font-semibold');
+        });
+
+        // Highlight the selected province
+        const selectedProvinceItem = document.querySelector(`#provinces li[data-id="${provinceId}"]`);
+        if (selectedProvinceItem) {
+            selectedProvinceItem.classList.add('bg-yellow-100', 'text-yellow-800', 'font-semibold');
+        }
+
+        // Create city items with edit and delete buttons
         if (provinceCities[provinceId] && provinceCities[provinceId].length > 0) {
             provinceCities[provinceId].forEach(city => {
                 const li = document.createElement('li');
                 li.classList.add('cursor-pointer', 'hover:bg-yellow-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                li.setAttribute('data-id', city.id);
 
                 // Create the city name span
                 const citySpan = document.createElement('span');
@@ -463,8 +482,6 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         }
     }
 
-
-
     // Handle City Selection
     function selectCity(cityId, cityName) {
         selectedCity = cityId;
@@ -473,12 +490,25 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         // Reset barangay selections
         barangaySelect.innerHTML = '';
 
-        // Create a city item with edit and delete buttons
+        // Reset highlights for all cities
+        const cityItems = document.querySelectorAll('#cities li');
+        cityItems.forEach(item => {
+            item.classList.remove('bg-blue-200', 'text-blue-800', 'font-semibold');
+        });
+
+        // Highlight the selected city
+        const selectedCityItem = document.querySelector(`#cities li[data-id="${cityId}"]`);
+        if (selectedCityItem) {
+            selectedCityItem.classList.add('bg-blue-200', 'text-blue-800', 'font-semibold');
+        }
+
+        // Create barangay items with edit and delete buttons
         if (cityBarangays[cityId] && cityBarangays[cityId].length > 0) {
             cityBarangays[cityId].forEach(barangay => {
                 const li = document.createElement('li');
                 li.classList.add('cursor-pointer', 'hover:bg-blue-200', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
-                
+                li.setAttribute('data-id', barangay.id);
+
                 // Create the barangay name span
                 const barangaySpan = document.createElement('span');
                 barangaySpan.innerHTML = barangay.name;
@@ -492,7 +522,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 editButton.classList.add('px-2', 'py-0.5', 'bg-yellow-500', 'text-white', 'rounded', 'text-xs');
                 editButton.innerHTML = 'Edit';
                 editButton.onclick = function() {
-                    editItem(barangay.id, 'barangay', barangay.name); // Call the editItem function
+                    editItem(barangay.id, 'barangay', barangay.name);
                 };
 
                 // Delete button
@@ -500,7 +530,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 deleteButton.classList.add('px-2', 'py-0.5', 'bg-red-500', 'text-white', 'rounded', 'text-xs');
                 deleteButton.innerHTML = 'Delete';
                 deleteButton.onclick = function() {
-                    deleteItem(barangay.id, 'barangay',barangay.name); // Call the deleteItem function
+                    deleteItem(barangay.id, 'barangay', barangay.name);
                 };
 
                 // Append buttons to the container
@@ -520,14 +550,15 @@ while ($barangay = $barangays_result->fetch_assoc()) {
     }
 
 
+
     // Separate Edit Logic for Region/Province/City/Barangay
     function editItem(id, type, name) {
         // Prompt user for new input (e.g., name)
-        const newName = prompt(`Enter a new name for the ${type}: ${name}`);
+        const newName = prompt(`Enter a new name for the ${type}: ${name}`, name);
 
         // If the user provided a new name (not null or empty)
-        if (newName && newName.trim() !== '') {
-            alert(`Updating ${type} with ID: ${id} to new name: ${newName}`);
+        if (newName && newName.trim() !== '' && newName) {
+            // alert(`Updating ${type} with ID: ${id} to new name: ${newName}`);
 
             // Send the data to edit_location.php using fetch
             fetch('edit_location.php', {
@@ -546,6 +577,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 // Handle the response from the backend
                 if (data.success) {
                     alert(`${type} updated successfully!`);
+                    window.location.reload();
                 } else {
                     alert(`Failed to update ${type}.`);
                 }
@@ -554,7 +586,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 console.error('Error:', error);
                 alert('Error updating the location.');
             });
-        } else {
+        } else if(newName!=null){
             alert("No valid name entered. Operation cancelled.");
         }
     }
