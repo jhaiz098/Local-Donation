@@ -129,8 +129,8 @@ if (!$items_result) {
         <h2 class="text-xl font-semibold">Manage Items</h2>
     </div>
 
-        <!-- ================= ADD ITEM AND UNIT FORMS ================= -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <!-- ================= ADD ITEM AND UNIT FORMS ================= -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
 
         <!-- Add Item -->
         <div class="bg-white rounded-xl shadow-md p-4">
@@ -141,7 +141,7 @@ if (!$items_result) {
             </form>
         </div>
 
-        <!-- Add Unit -->
+        <!-- Add Unit Section -->
         <div class="bg-white rounded-xl shadow-md p-4">
             <h3 class="text-lg font-semibold mb-2">Add Unit</h3>
             <form id="add-unit-form" class="flex items-center gap-4">
@@ -150,6 +150,17 @@ if (!$items_result) {
                     <select id="select-item" class="p-2 text-sm border rounded w-full overflow-auto" required>
                         <option value="">Select Item</option>
                         <!-- Items will be populated here -->
+                        <?php
+                        // Rewind the result set (to allow the items to be fetched again for the select dropdown)
+                        $items_result->data_seek(0); // This rewinds the result set so that we can loop through it again
+
+                        // Fetch items and populate the select options
+                        if ($items_result->num_rows > 0) {
+                            while ($item = $items_result->fetch_assoc()) {
+                                echo '<option value="' . $item['item_id'] . '">' . htmlspecialchars($item['item_name']) . '</option>';
+                            }
+                        }
+                        ?>
                     </select>
                 </div>
 
@@ -157,9 +168,10 @@ if (!$items_result) {
                 <input type="text" id="unit-name" placeholder="Unit Name" class="p-2 text-sm border rounded flex-1" required>
 
                 <!-- Add Unit Button -->
-                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Add Unit</button>
+                <button type="button" id="add-unit-btn" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Add Unit</button>
             </form>
         </div>
+
     </div>
 
     <!-- ================= EXISTING ITEMS TABLE ================= -->
@@ -172,6 +184,9 @@ if (!$items_result) {
             <h3 class="font-bold mb-2 text-lg">Items</h3>
             <ul id="items" class="space-y-2">
                 <?php
+                // Rewind the result set before displaying the items again
+                $items_result->data_seek(0); // Rewind to the start
+
                 while ($item = $items_result->fetch_assoc()):
                     // Split the comma-separated unit names and remove any empty or extra spaces
                     $unit_names = explode(',', $item['unit_names']); 
@@ -189,9 +204,6 @@ if (!$items_result) {
                         </div>
                     </li>
                 <?php endwhile; ?>
-
-
-
             </ul>
         </div>
 
@@ -203,8 +215,9 @@ if (!$items_result) {
             </ul>
         </div>
 
-
     </div>
+
+
 </main>
 
 
@@ -476,6 +489,58 @@ if (!$items_result) {
         xhr.send("action=" + data.action + "&item_name=" + encodeURIComponent(data.item_name));
     });
 
+    // Function to handle adding a unit
+    document.getElementById('add-unit-btn').addEventListener('click', function() {
+        // Get the selected item ID from the dropdown
+        const itemId = document.getElementById('select-item').value;
+        
+        // Get the unit name from the input field
+        const unitName = document.getElementById('unit-name').value.trim();
+        
+        // Validate that an item is selected and unit name is not empty
+        if (itemId === "" || unitName === "") {
+            alert("Please select an item and provide a unit name.");
+            return;
+        }
+        
+        // Get the item name corresponding to the selected item
+        const itemName = document.querySelector(`#select-item option[value='${itemId}']`).textContent;
+        
+        // Prepare data for sending to add_unit.php
+        const data = {
+            action: 'add',
+            item_id: itemId,
+            item_name: itemName,
+            unit_name: unitName
+        };
+
+        // Create a new XMLHttpRequest object for AJAX
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "add_unit.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+        // Handle the response after the request is sent
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText); // Parse the JSON response
+                
+                if (response.status === "success") {
+                    alert("Unit has been added successfully.");
+                    window.location.reload(); // Reload the page to show the new unit
+                } else {
+                    alert("Error: " + response.message);
+                }
+            }
+        };
+
+        // Send the data via POST request
+        xhr.send(
+            "action=" + data.action + 
+            "&item_id=" + data.item_id + 
+            "&item_name=" + encodeURIComponent(data.item_name) + 
+            "&unit_name=" + encodeURIComponent(data.unit_name)
+        );
+    });
 </script>
 
 </body>

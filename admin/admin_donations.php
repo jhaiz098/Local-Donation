@@ -1,3 +1,60 @@
+<?php
+include('../db_connect.php');
+
+// Fetch donations/requests from donation_entries table
+$sql = "SELECT * FROM donation_entries";
+$result = $conn->query($sql);
+
+// Store the data in an array
+$donation_entries = [];
+if ($result->num_rows > 0) {
+    while ($entry = $result->fetch_assoc()) {
+        // Get the items associated with the current donation entry
+        $entry_id = $entry['entry_id'];
+        
+        // Modify the query to join the donation_entry_items with the items table to get item names
+        $item_sql = "
+            SELECT dei.item_id, i.item_name, dei.unit_name 
+            FROM donation_entry_items dei
+            JOIN items i ON dei.item_id = i.item_id 
+            WHERE dei.entry_id = ?
+        ";
+        
+        $stmt = $conn->prepare($item_sql);
+        $stmt->bind_param("i", $entry_id);
+        $stmt->execute();
+        $item_result = $stmt->get_result();
+
+        // Determine target location based on entry type
+        $target_location = $entry['entry_type'] == 'request' ? '-' : $entry['target_area'];
+
+        // Store data into the array
+        $donation_entries[] = [
+            'entry_id' => $entry['entry_id'],
+            'profile_id' => htmlspecialchars($entry['profile_id']),
+            'entry_type' => $entry['entry_type'],
+            'details' => $entry['details'],
+            'target_location' => $target_location,
+            'created_at' => $entry['created_at'],
+            'updated_at' => $entry['updated_at'],
+            'items' => [] // to store the items
+        ];
+
+        // Loop through the items and add them to the donation entry
+        while ($item = $item_result->fetch_assoc()) {
+            $donation_entries[count($donation_entries) - 1]['items'][] = [
+                'item_name' => htmlspecialchars($item['item_name']), // Store the item name
+                'unit_name' => htmlspecialchars($item['unit_name']),
+            ];
+        }
+    }
+}
+
+$conn->close();
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -114,9 +171,9 @@
             <thead class="bg-gray-100 text-left">
                 <tr>
                     <th class="p-3">Entry ID</th>
-                    <th class="p-3">Profile</th>
+                    <th class="p-3">Profile ID</th>
                     <th class="p-3">Type</th>
-                    <th class="p-3">Details</th>
+                    <th class="p-3">Items</th> <!-- New column for Items -->
                     <th class="p-3">Target Area</th>
                     <th class="p-3">Created At</th>
                     <th class="p-3">Updated At</th>
@@ -124,42 +181,49 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Sample Offer -->
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">1</td>
-                    <td class="p-3">Juan Dela Cruz</td>
-                    <td class="p-3"><span class="px-2 py-1 rounded bg-green-200 text-xs">Offer</span></td>
-                    <td class="p-3 truncate max-w-[200px]">500kg of rice for donation</td>
-                    <td class="p-3">Tacloban City, Leyte</td>
-                    <td class="p-3">2025-03-01</td>
-                    <td class="p-3">2025-03-02</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
-                    </td>
-                </tr>
-
-                <!-- Sample Request -->
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3">2</td>
-                    <td class="p-3">Santos Family</td>
-                    <td class="p-3"><span class="px-2 py-1 rounded bg-yellow-200 text-xs">Request</span></td>
-                    <td class="p-3 truncate max-w-[200px]">Looking for medical supplies</td>
-                    <td class="p-3">—</td>
-                    <td class="p-3">2025-04-10</td>
-                    <td class="p-3">2025-04-10</td>
-                    <td class="p-3 text-center">
-                        <div class="flex gap-1 justify-center whitespace-nowrap">
-                            <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>
-                            <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>
-                        </div>
-                    </td>
-                </tr>
+                <?php
+                // Check if we have stored data
+                if (count($donation_entries) > 0) {
+                    // Loop through the stored data and output rows in the table
+                    foreach ($donation_entries as $entry) {
+                        echo '<tr class="border-t hover:bg-gray-50">';
+                        echo '<td class="p-3">' . $entry['entry_id'] . '</td>';
+                        echo '<td class="p-3">' . $entry['profile_id'] . '</td>';
+                        echo '<td class="p-3"><span class="px-2 py-1 rounded ' . ($entry['entry_type'] == 'offer' ? 'bg-green-200' : 'bg-yellow-200') . ' text-xs">' . ucfirst($entry['entry_type']) . '</span></td>';
+                        
+                        // Items column with vertical list
+                        echo '<td class="p-3">';
+                        if (count($entry['items']) > 0) {
+                            echo '<ul class="list-disc pl-5 space-y-1">'; // Improved style for list
+                            foreach ($entry['items'] as $item) {
+                                echo '<li>' . $item['item_name'] . ' (' . $item['unit_name'] . ')</li>'; // Display item name
+                            }
+                            echo '</ul>';
+                        } else {
+                            echo 'No items';
+                        }
+                        echo '</td>';
+                        
+                        echo '<td class="p-3">' . $entry['target_location'] . '</td>';
+                        echo '<td class="p-3">' . $entry['created_at'] . '</td>';
+                        echo '<td class="p-3">' . $entry['updated_at'] . '</td>';
+                        echo '<td class="p-3 text-center">';
+                        echo '<div class="flex gap-1 justify-center whitespace-nowrap">';
+                        echo '<button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>';
+                        echo '<button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>';
+                        echo '</div>';
+                        echo '</td>';
+                        echo '</tr>';
+                    }
+                } else {
+                    // If no entries found
+                    echo '<tr><td colspan="8" class="text-center p-3">No entries found.</td></tr>';
+                }
+                ?>
             </tbody>
         </table>
     </div>
+
 
 </main>
 
