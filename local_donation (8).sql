@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 11, 2025 at 09:58 PM
+-- Generation Time: Dec 12, 2025 at 07:10 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -86,6 +86,20 @@ CREATE TABLE `barangays` (
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Triggers `barangays`
+--
+DROP TRIGGER IF EXISTS `after_barangay_delete`;
+DELIMITER $$
+CREATE TRIGGER `after_barangay_delete` AFTER DELETE ON `barangays` FOR EACH ROW BEGIN
+    -- Step 1: Set barangay_id to NULL for users in that barangay
+    UPDATE users
+    SET barangay_id = NULL
+    WHERE barangay_id = OLD.id;
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -98,6 +112,25 @@ CREATE TABLE `cities` (
   `province_id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `cities`
+--
+DROP TRIGGER IF EXISTS `after_city_delete`;
+DELIMITER $$
+CREATE TRIGGER `after_city_delete` AFTER DELETE ON `cities` FOR EACH ROW BEGIN
+    -- Step 1: Set city_id to NULL for users in that city
+    UPDATE users
+    SET city_id = NULL
+    WHERE city_id = OLD.id;
+
+    -- Step 2: Set barangay_id to NULL for users in the deleted city
+    UPDATE users
+    SET barangay_id = NULL
+    WHERE barangay_id IN (SELECT id FROM barangays WHERE city_id = OLD.id);
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -523,6 +556,30 @@ CREATE TABLE `provinces` (
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Triggers `provinces`
+--
+DROP TRIGGER IF EXISTS `after_province_delete`;
+DELIMITER $$
+CREATE TRIGGER `after_province_delete` AFTER DELETE ON `provinces` FOR EACH ROW BEGIN
+    -- Step 1: Set province_id to NULL for users in that province
+    UPDATE users
+    SET province_id = NULL
+    WHERE province_id = OLD.id;
+
+    -- Step 2: Find related cities for the deleted province and set city_id to NULL for users in those cities
+    UPDATE users
+    SET city_id = NULL
+    WHERE city_id IN (SELECT id FROM cities WHERE province_id = OLD.id);
+
+    -- Step 3: Set barangay_id to NULL for users in the deleted cities
+    UPDATE users
+    SET barangay_id = NULL
+    WHERE barangay_id IN (SELECT id FROM barangays WHERE city_id IN (SELECT id FROM cities WHERE province_id = OLD.id));
+END
+$$
+DELIMITER ;
+
 -- --------------------------------------------------------
 
 --
@@ -534,6 +591,35 @@ CREATE TABLE `regions` (
   `id` int(11) NOT NULL,
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Triggers `regions`
+--
+DROP TRIGGER IF EXISTS `after_region_delete`;
+DELIMITER $$
+CREATE TRIGGER `after_region_delete` AFTER DELETE ON `regions` FOR EACH ROW BEGIN
+    -- Step 1: Set region_id to NULL for users in that region
+    UPDATE users
+    SET region_id = NULL
+    WHERE region_id = OLD.id;
+    
+    -- Step 2: Find related provinces for the deleted region and set province_id to NULL for users in those provinces
+    UPDATE users
+    SET province_id = NULL
+    WHERE province_id IN (SELECT id FROM provinces WHERE region_id = OLD.id);
+    
+    -- Step 3: Find related cities for the deleted provinces and set city_id to NULL for users in those cities
+    UPDATE users
+    SET city_id = NULL
+    WHERE city_id IN (SELECT id FROM cities WHERE province_id IN (SELECT id FROM provinces WHERE region_id = OLD.id));
+    
+    -- Step 4: Set barangay_id to NULL for users in the deleted cities
+    UPDATE users
+    SET barangay_id = NULL
+    WHERE barangay_id IN (SELECT id FROM barangays WHERE city_id IN (SELECT id FROM cities WHERE province_id IN (SELECT id FROM provinces WHERE region_id = OLD.id)));
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -1032,13 +1118,13 @@ ALTER TABLE `activities`
 -- Constraints for table `barangays`
 --
 ALTER TABLE `barangays`
-  ADD CONSTRAINT `barangays_ibfk_1` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`);
+  ADD CONSTRAINT `fk_city_id` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `cities`
 --
 ALTER TABLE `cities`
-  ADD CONSTRAINT `cities_ibfk_1` FOREIGN KEY (`province_id`) REFERENCES `provinces` (`id`);
+  ADD CONSTRAINT `fk_province_id` FOREIGN KEY (`province_id`) REFERENCES `provinces` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `donation_entries`
@@ -1115,7 +1201,7 @@ ALTER TABLE `profile_members`
 -- Constraints for table `provinces`
 --
 ALTER TABLE `provinces`
-  ADD CONSTRAINT `provinces_ibfk_1` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`);
+  ADD CONSTRAINT `fk_region_id` FOREIGN KEY (`region_id`) REFERENCES `regions` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
