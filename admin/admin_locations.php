@@ -299,10 +299,46 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         regions.forEach(region => {
             const li = document.createElement('li');
             li.classList.add('cursor-pointer', 'hover:bg-blue-100', 'transition');
-            li.innerHTML = `<span onclick="selectRegion(${region.id})">${region.name}</span>`;
+            
+            // Create the region name span
+            const regionSpan = document.createElement('span');
+            regionSpan.innerHTML = region.name;
+            regionSpan.onclick = function() {
+                selectRegion(region.id);
+            };
+            
+            // Create the edit and delete buttons
+            const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('flex', 'p-1', 'gap-2', 'justify-center', 'items-center');
+
+            const editButton = document.createElement('button');
+            editButton.classList.add('px-2', 'py-0.5', 'bg-yellow-500', 'text-white', 'rounded', 'text-xs');
+            editButton.innerHTML = 'Edit';
+            editButton.onclick = function() {
+                editRegion(region.id);
+            };
+
+            const deleteButton = document.createElement('button');
+            deleteButton.classList.add('px-2', 'py-0.5', 'bg-red-500', 'text-white', 'rounded', 'text-xs');
+            deleteButton.innerHTML = 'Delete';
+            deleteButton.onclick = function() {
+                deleteRegion(region.id);
+            };
+
+            // Append buttons to the container
+            buttonContainer.appendChild(editButton);
+            buttonContainer.appendChild(deleteButton);
+
+            // Append everything to the <li>
+            li.appendChild(regionSpan);
+            li.appendChild(buttonContainer);
+
+            // Append the <li> to the regionSelect <ul>
             regionSelect.appendChild(li);
         });
     }
+
+
 
     // Handle Region Selection
     function selectRegion(regionId) {
@@ -323,14 +359,49 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         if (regionProvinces[regionId] && regionProvinces[regionId].length > 0) {
             regionProvinces[regionId].forEach(province => {
                 const li = document.createElement('li');
-                li.classList.add('cursor-pointer', 'hover:bg-green-100', 'transition');
-                li.innerHTML = `<span onclick="selectProvince(${province.id}, '${province.name}')">${province.name}</span>`;
+                li.classList.add('cursor-pointer', 'hover:bg-green-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                
+                // Create the province name span
+                const provinceSpan = document.createElement('span');
+                provinceSpan.innerHTML = province.name;
+                provinceSpan.onclick = function() {
+                    selectProvince(province.id, province.name);
+                };
+
+                // Create the edit and delete buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('flex', 'gap-2', 'justify-between', 'items-center');
+
+                const editButton = document.createElement('button');
+                editButton.classList.add('px-2', 'py-0.5', 'bg-yellow-500', 'text-white', 'rounded', 'text-xs');
+                editButton.innerHTML = 'Edit';
+                editButton.onclick = function() {
+                    editProvince(province.id); // Assuming you have an editProvince function
+                };
+
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('px-2', 'py-0.5', 'bg-red-500', 'text-white', 'rounded', 'text-xs');
+                deleteButton.innerHTML = 'Delete';
+                deleteButton.onclick = function() {
+                    deleteProvince(province.id); // Assuming you have a deleteProvince function
+                };
+
+                // Append buttons to the container
+                buttonContainer.appendChild(editButton);
+                buttonContainer.appendChild(deleteButton);
+
+                // Append everything to the <li>
+                li.appendChild(provinceSpan);
+                li.appendChild(buttonContainer);
+
+                // Append the <li> to the provinceSelect <ul>
                 provinceSelect.appendChild(li);
             });
         } else {
             provinceSelect.innerHTML = `<li class="cursor-pointer text-gray-500">No existing provinces in ${regionName}</li>`;
         }
     }
+
 
 
     // Handle Province Selection
@@ -343,18 +414,53 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         citySelect.innerHTML = '';
         barangaySelect.innerHTML = '<li class="cursor-pointer text-gray-500">Select a City / Municipality</li>';
 
-        // Populate cities based on selected province
+        // Create a province item with edit and delete buttons
         if (provinceCities[provinceId] && provinceCities[provinceId].length > 0) {
             provinceCities[provinceId].forEach(city => {
                 const li = document.createElement('li');
-                li.classList.add('cursor-pointer', 'hover:bg-yellow-100', 'transition');
-                li.innerHTML = `<span onclick="selectCity(${city.id}, '${city.name}')">${city.name}</span>`;
+                li.classList.add('cursor-pointer', 'hover:bg-yellow-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                
+                // Create the province name span
+                const citySpan = document.createElement('span');
+                citySpan.innerHTML = city.name;
+                citySpan.onclick = function() {
+                    selectCity(city.id, city.name);
+                };
+
+                // Create the edit and delete buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('flex', 'gap-2', 'justify-between', 'items-center');
+
+                const editButton = document.createElement('button');
+                editButton.classList.add('px-2', 'py-0.5', 'bg-yellow-500', 'text-white', 'rounded', 'text-xs');
+                editButton.innerHTML = 'Edit';
+                editButton.onclick = function() {
+                    editProvince(city.id); // Assuming you have editProvince function
+                };
+
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('px-2', 'py-0.5', 'bg-red-500', 'text-white', 'rounded', 'text-xs');
+                deleteButton.innerHTML = 'Delete';
+                deleteButton.onclick = function() {
+                    deleteProvince(city.id); // Assuming you have deleteProvince function
+                };
+
+                // Append buttons to the container
+                buttonContainer.appendChild(editButton);
+                buttonContainer.appendChild(deleteButton);
+
+                // Append everything to the <li>
+                li.appendChild(citySpan);
+                li.appendChild(buttonContainer);
+
+                // Append the <li> to the citySelect <ul>
                 citySelect.appendChild(li);
             });
         } else {
             citySelect.innerHTML = `<li class="cursor-pointer text-gray-500">No existing cities/municipalities in ${provinceName}</li>`;
         }
     }
+
 
     // Handle City Selection
     function selectCity(cityId, cityName) {
@@ -364,18 +470,50 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         // Reset barangay selections
         barangaySelect.innerHTML = '';
 
-        // Populate barangays based on selected city
+        // Create a city item with edit and delete buttons
         if (cityBarangays[cityId] && cityBarangays[cityId].length > 0) {
             cityBarangays[cityId].forEach(barangay => {
                 const li = document.createElement('li');
-                li.classList.add('cursor-pointer', 'hover:bg-blue-200', 'transition');
-                li.innerHTML = `<span>${barangay.name}</span>`;
+                li.classList.add('cursor-pointer', 'hover:bg-blue-200', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                
+                // Create the barangay name span
+                const barangaySpan = document.createElement('span');
+                barangaySpan.innerHTML = barangay.name;
+
+                // Create the edit and delete buttons
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('flex', 'gap-2', 'justify-between', 'items-center');
+
+                const editButton = document.createElement('button');
+                editButton.classList.add('px-2', 'py-0.5', 'bg-yellow-500', 'text-white', 'rounded', 'text-xs');
+                editButton.innerHTML = 'Edit';
+                editButton.onclick = function() {
+                    editBarangay(barangay.id); // Assuming you have editBarangay function
+                };
+
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('px-2', 'py-0.5', 'bg-red-500', 'text-white', 'rounded', 'text-xs');
+                deleteButton.innerHTML = 'Delete';
+                deleteButton.onclick = function() {
+                    deleteBarangay(barangay.id); // Assuming you have deleteBarangay function
+                };
+
+                // Append buttons to the container
+                buttonContainer.appendChild(editButton);
+                buttonContainer.appendChild(deleteButton);
+
+                // Append everything to the <li>
+                li.appendChild(barangaySpan);
+                li.appendChild(buttonContainer);
+
+                // Append the <li> to the barangaySelect <ul>
                 barangaySelect.appendChild(li);
             });
         } else {
             barangaySelect.innerHTML = `<li class="cursor-pointer text-gray-500">No existing barangays in ${cityName}</li>`;
         }
     }
+
 
 
     // Initialize the page
