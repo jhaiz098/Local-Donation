@@ -149,12 +149,7 @@ if (!$items_result) {
                 <div class="relative flex-1">
                     <select id="select-item" class="p-2 text-sm border rounded w-full overflow-auto" required>
                         <option value="">Select Item</option>
-                        <?php
-                        // Loop through the items result and populate the select options
-                        while ($item = $items_result->fetch_assoc()):
-                            echo "<option value='" . $item['item_id'] . "'>" . $item['item_name'] . "</option>";
-                        endwhile;
-                        ?>
+                        <!-- Items will be populated here -->
                     </select>
                 </div>
 
@@ -165,7 +160,6 @@ if (!$items_result) {
                 <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Add Unit</button>
             </form>
         </div>
-
     </div>
 
     <!-- ================= EXISTING ITEMS TABLE ================= -->
