@@ -178,45 +178,42 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Add Unit</button>
             </form>
         </div>
+    </div>
 
-        <!-- ================= EXISTING ITEMS TABLE ================= -->
-        <h2 class="text-2xl font-bold mb-6">Existing Items</h2>
+    <!-- ================= EXISTING ITEMS TABLE ================= -->
+    <h2 class="text-2xl font-bold mb-6">Existing Items</h2>
 
-        <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-4">
 
-            <!-- Items Section -->
-            <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
-                <h3 class="font-bold mb-2 text-lg">Items</h3>
-                <ul id="items" class="space-y-2">
-                    <?php 
-                    // while($item = $items_result->fetch_assoc()): 
-                    ?>
-                        <li class="flex justify-between items-center p-2 rounded cursor-pointer hover:bg-blue-100 transition">
-                            <!-- <span onclick="selectItem('<?= $item['id']; ?>')"><?= $item['name']; ?></span> -->
-                            <div class="flex gap-1">
-                                <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('<?= $item['id']; ?>', 'item')">Edit</button>
-                                <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('<?= $item['id']; ?>', 'item')">Delete</button>
-                            </div>
-                        </li>
-                    <?php
-                    // endwhile; 
-                    ?>
-                </ul>
-            </div>
-
-            <!-- Units Section -->
-            <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
-                <h3 class="font-bold mb-2 text-lg">Units</h3>
-                <ul id="units" class="space-y-2">
-                    <li class="text-xs cursor-pointer text-gray-500">Select an Item</li> <!-- Placeholder for Units -->
-                </ul>
-            </div>
-
+        <!-- Items Section -->
+        <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+            <h3 class="font-bold mb-2 text-lg">Items</h3>
+            <ul id="items" class="space-y-2">
+                <?php 
+                // while($item = $items_result->fetch_assoc()): 
+                ?>
+                    <li class="flex justify-between items-center p-2 rounded cursor-pointer hover:bg-blue-100 transition">
+                        <!-- <span onclick="selectItem('<?= $item['id']; ?>')"><?= $item['name']; ?></span> -->
+                        <div class="flex gap-1">
+                            <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('<?= $item['id']; ?>', 'item')">Edit</button>
+                            <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('<?= $item['id']; ?>', 'item')">Delete</button>
+                        </div>
+                    </li>
+                <?php
+                // endwhile; 
+                ?>
+            </ul>
         </div>
 
+        <!-- Units Section -->
+        <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
+            <h3 class="font-bold mb-2 text-lg">Units</h3>
+            <ul id="units" class="space-y-2">
+                <li class="text-xs cursor-pointer text-gray-500">Select an Item</li> <!-- Placeholder for Units -->
+            </ul>
+        </div>
 
     </div>
-    
 </main>
 
 
