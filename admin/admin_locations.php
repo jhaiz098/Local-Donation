@@ -151,54 +151,62 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         <!-- Add Region -->
         <div class="bg-white rounded-xl shadow-md p-4">
             <h3 class="text-lg font-semibold mb-2">Add Region</h3>
-            <form class="flex gap-2">
-                <input type="text" placeholder="Region Name" class="flex-1 p-1 text-sm border rounded">
-                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            <form id="add-region-form" class="flex gap-2">
+                <input type="text" id="region-name" placeholder="Region Name" class="flex-1 p-1 text-sm border rounded">
+                <button type="submit" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
             </form>
         </div>
 
         <!-- Add Province -->
         <div class="bg-white rounded-xl shadow-md p-4">
             <h3 class="text-lg font-semibold mb-2">Add Province</h3>
-            <form class="flex gap-2">
-                <select class="p-1 text-sm border rounded flex-1">
-                    <option>Select Region</option>
-                    <option>Region 1</option>
-                </select>
-                <input type="text" placeholder="Province Name" class="flex-1 p-1 text-sm border rounded">
-                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            <form id="add-province-form" class="flex gap-2">
+                <div class="relative flex-1">
+                    <select id="select-region" class="p-1 text-sm border rounded w-full overflow-auto">
+                        <option value="">Select Region</option>
+                        <!-- Regions will be populated here -->
+                    </select>
+                </div>
+                <input type="text" id="province-name" placeholder="Province Name" class="flex-1 p-1 text-sm border rounded">
+                <button type="submit" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
             </form>
         </div>
 
         <!-- Add City -->
         <div class="bg-white rounded-xl shadow-md p-4">
             <h3 class="text-lg font-semibold mb-2">Add City / Municipality</h3>
-            <form class="flex gap-2">
-                <select class="p-1 text-sm border rounded flex-1">
-                    <option>Select Province</option>
-                    <option>Province A</option>
-                </select>
-                <input type="text" placeholder="City Name" class="flex-1 p-1 text-sm border rounded">
-                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            <form id="add-city-form" class="flex gap-2">
+                <div class="relative flex-1">
+                    <select id="select-province" class="p-1 text-sm border rounded w-full overflow-auto">
+                        <option value="">Select Province</option>
+                        <!-- Provinces will be populated here -->
+                    </select>
+                </div>
+                <input type="text" id="city-name" placeholder="City Name" class="flex-1 p-1 text-sm border rounded">
+                <button type="submit" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
             </form>
         </div>
 
         <!-- Add Barangay -->
         <div class="bg-white rounded-xl shadow-md p-4">
             <h3 class="text-lg font-semibold mb-2">Add Barangay</h3>
-            <form class="flex gap-2">
-                <select class="p-1 text-sm border rounded flex-1">
-                    <option>Select City / Municipality</option>
-                    <option>City X</option>
-                </select>
-                <input type="text" placeholder="Barangay Name" class="flex-1 p-1 text-sm border rounded">
-                <button class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
+            <form id="add-barangay-form" class="flex gap-2">
+                <div class="relative flex-1">
+                    <select id="select-city" class="p-1 text-sm border rounded w-full overflow-auto">
+                        <option value="">Select City / Municipality</option>
+                        <!-- Cities will be populated here -->
+                    </select>
+                </div>
+                <input type="text" id="barangay-name" placeholder="Barangay Name" class="flex-1 p-1 text-sm border rounded">
+                <button type="submit" class="px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">Add</button>
             </form>
         </div>
-
     </div>
 
     <!-- ================= EXISTING LOCATIONS TABLE ================= -->
+    
+    <h2 class="text-2xl font-bold mb-6">Existing Locations</h2>
+
     <div class="grid grid-cols-4 gap-4">
 
     <!-- Regions Section -->
@@ -221,7 +229,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
     <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
         <h3 class="font-bold mb-2 text-lg">Provinces</h3>
         <ul id="provinces" class="space-y-2">
-            <li class="cursor-pointer text-gray-500">Select a Region</li> <!-- Placeholder for Provinces -->
+            <li class="text-xs cursor-pointer text-gray-500">Select a Region</li> <!-- Placeholder for Provinces -->
         </ul>
     </div>
 
@@ -229,7 +237,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
     <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
         <h3 class="font-bold mb-2 text-lg">Cities / Municipalities</h3>
         <ul id="cities" class="space-y-2">
-            <li class="cursor-pointer text-gray-500">Select a Province</li> <!-- Placeholder for Cities -->
+            <li class="text-xs cursor-pointer text-gray-500">Select a Province</li> <!-- Placeholder for Cities -->
         </ul>
     </div>
 
@@ -237,7 +245,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
     <div class="bg-white rounded-lg shadow p-4 h-[500px] overflow-y-auto">
         <h3 class="font-bold mb-2 text-lg">Barangays</h3>
         <ul id="barangays" class="space-y-1 text-sm">
-            <li class="cursor-pointer text-gray-500">Select a City / Municipality</li> <!-- Placeholder for Barangays -->
+            <li class="text-xs cursor-pointer text-gray-500">Select a City / Municipality</li> <!-- Placeholder for Barangays -->
         </ul>
     </div>
 
@@ -298,7 +306,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         const regionSelect = document.getElementById('regions');
         regions.forEach(region => {
             const li = document.createElement('li');
-            li.classList.add('cursor-pointer', 'hover:bg-blue-100', 'transition','p-2');
+            li.classList.add('text-xs', 'cursor-pointer', 'hover:bg-blue-100', 'transition','p-2');
             li.setAttribute('data-id', region.id);  // Assigning data-id to each list item
 
             // Create the region name span
@@ -348,8 +356,8 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         
         // Reset selections
         provinceSelect.innerHTML = '';
-        citySelect.innerHTML = '<li class="cursor-pointer text-gray-500">Select a Province</li>';
-        barangaySelect.innerHTML = '<li class="cursor-pointer text-gray-500">Select a City / Municipality</li>';
+        citySelect.innerHTML = '<li class="text-xs cursor-pointer text-gray-500">Select a Province</li>';
+        barangaySelect.innerHTML = '<li class="text-xs cursor-pointer text-gray-500">Select a City / Municipality</li>';
         
         // Reset highlights for all regions
         const regionItems = document.querySelectorAll('#regions li');
@@ -368,7 +376,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         if (regionProvinces[regionId] && regionProvinces[regionId].length > 0) {
             regionProvinces[regionId].forEach(province => {
                 const li = document.createElement('li');
-                li.classList.add('cursor-pointer', 'hover:bg-green-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                li.classList.add('text-xs', 'cursor-pointer', 'hover:bg-green-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
                 li.setAttribute('data-id', province.id); // Set unique ID for province
 
                 // Create the province name span
@@ -408,7 +416,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 provinceSelect.appendChild(li);
             });
         } else {
-            provinceSelect.innerHTML = `<li class="cursor-pointer text-gray-500">No existing provinces in ${regionName}</li>`;
+            provinceSelect.innerHTML = `<li class="text-xs cursor-pointer text-gray-500">No existing provinces in ${regionName}</li>`;
         }
     }
 
@@ -420,7 +428,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
 
         // Reset selections
         citySelect.innerHTML = '';
-        barangaySelect.innerHTML = '<li class="cursor-pointer text-gray-500">Select a City / Municipality</li>';
+        barangaySelect.innerHTML = '<li class="text-xs cursor-pointer text-gray-500">Select a City / Municipality</li>';
 
         // Reset highlights for all provinces
         const provinceItems = document.querySelectorAll('#provinces li');
@@ -438,7 +446,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         if (provinceCities[provinceId] && provinceCities[provinceId].length > 0) {
             provinceCities[provinceId].forEach(city => {
                 const li = document.createElement('li');
-                li.classList.add('cursor-pointer', 'hover:bg-yellow-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                li.classList.add('text-xs', 'cursor-pointer', 'hover:bg-yellow-100', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
                 li.setAttribute('data-id', city.id);
 
                 // Create the city name span
@@ -478,7 +486,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 citySelect.appendChild(li);
             });
         } else {
-            citySelect.innerHTML = `<li class="cursor-pointer text-gray-500">No existing cities/municipalities in ${provinceName}</li>`;
+            citySelect.innerHTML = `<li class="text-xs cursor-pointer text-gray-500">No existing cities/municipalities in ${provinceName}</li>`;
         }
     }
 
@@ -506,7 +514,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         if (cityBarangays[cityId] && cityBarangays[cityId].length > 0) {
             cityBarangays[cityId].forEach(barangay => {
                 const li = document.createElement('li');
-                li.classList.add('cursor-pointer', 'hover:bg-blue-200', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
+                li.classList.add('text-xs', 'cursor-pointer', 'hover:bg-blue-200', 'transition', 'flex', 'justify-between', 'items-center', 'p-2', 'space-x-4');
                 li.setAttribute('data-id', barangay.id);
 
                 // Create the barangay name span
@@ -545,7 +553,7 @@ while ($barangay = $barangays_result->fetch_assoc()) {
                 barangaySelect.appendChild(li);
             });
         } else {
-            barangaySelect.innerHTML = `<li class="cursor-pointer text-gray-500">No existing barangays in ${cityName}</li>`;
+            barangaySelect.innerHTML = `<li class="text-xs cursor-pointer text-gray-500">No existing barangays in ${cityName}</li>`;
         }
     }
 
@@ -630,12 +638,119 @@ while ($barangay = $barangays_result->fetch_assoc()) {
         }
     }
 
+    // Load Regions in the UI
+    function loadRegions() {
+        const regionSelect = document.getElementById('select-region');
+        regions.forEach(region => {
+            const option = document.createElement('option');
+            option.value = region.id;
+            option.textContent = region.name;
+            regionSelect.appendChild(option);
+        });
+    }
+
+    // Load Provinces in the UI
+    function loadProvinces() {
+        const provinceSelect = document.getElementById('select-province');
+        provinces.forEach(province => {  // Use the correct array name
+            const option = document.createElement('option');
+            option.value = province.id;  // Reference `province.id`
+            option.textContent = province.name;  // Reference `province.name`
+            provinceSelect.appendChild(option);
+        });
+    }
+
+
+    // Load Regions in the UI
+    function loadCities() {
+        const citySelect = document.getElementById('select-city');
+        cities.forEach(city => {
+            const option = document.createElement('option');
+            option.value = city.id;
+            option.textContent = city.name;
+            citySelect.appendChild(option);
+        });
+    }
+
+
+    // Handle Region Form Submission
+    document.getElementById('add-region-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const regionName = document.getElementById('region-name').value.trim();
+        if (!regionName) {
+            alert("Region name cannot be empty.");
+            return;
+        }
+        // Proceed to send the region data (this is where the actual logic to add a region would go)
+        alert("Region added: " + regionName);
+    });
+
+    // Handle Province Form Submission
+    document.getElementById('add-province-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const provinceName = document.getElementById('province-name').value.trim();
+        const selectedRegion = document.getElementById('select-region').value;
+
+        if (!selectedRegion) {
+            alert("Please select a region.");
+            return;
+        }
+
+        if (!provinceName) {
+            alert("Province name cannot be empty.");
+            return;
+        }
+        // Proceed to send the province data
+        alert("Province added: " + provinceName);
+    });
+
+    // Handle City Form Submission
+    document.getElementById('add-city-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const cityName = document.getElementById('city-name').value.trim();
+        const selectedProvince = document.getElementById('select-province').value;
+
+        if (!selectedProvince) {
+            alert("Please select a province.");
+            return;
+        }
+
+        if (!cityName) {
+            alert("City name cannot be empty.");
+            return;
+        }
+        // Proceed to send the city data
+        alert("City added: " + cityName);
+    });
+
+    // Handle Barangay Form Submission
+    document.getElementById('add-barangay-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const barangayName = document.getElementById('barangay-name').value.trim();
+        const selectedCity = document.getElementById('select-city').value;
+
+        if (!selectedCity) {
+            alert("Please select a city.");
+            return;
+        }
+
+        if (!barangayName) {
+            alert("Barangay name cannot be empty.");
+            return;
+        }
+        // Proceed to send the barangay data
+        alert("Barangay added: " + barangayName);
+    });
+
 
 
 
     // Initialize the page
     window.onload = function() {
         populateRegions();
+        loadRegions();
+        loadProvinces();
+        loadCities();
     }
 </script>
 
