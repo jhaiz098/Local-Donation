@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 12, 2025 at 07:52 AM
+-- Generation Time: Dec 12, 2025 at 09:46 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -384,7 +384,8 @@ INSERT INTO `users` (`user_id`, `profile_pic`, `first_name`, `middle_name`, `las
 (1, 'uploads/1765486686_IMG_20231007_180326.JPG', 'James Emmanuel wewew', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'james.fernandez1230@gmail.com', '$2y$10$360P2lsH9hZxXTmyuXpvTOcuCso/Sm9W.fRRj.ooDa7ULhRxKxbAe', 'User', '2025-12-11 12:06:17', 10, 51, 24, 26),
 (2, 'uploads/1765497537_FB_IMG_1698376370669.jpg', 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'admin@gmail.com', '$2y$10$GsorrmO4rp3rhgRQMvH68OGZKLs4mKfxxdbJAHrDBDJbX8/K1MZDm', 'Superuser', '2025-12-11 12:06:36', NULL, NULL, NULL, NULL),
 (3, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin3@gmail.com', '$2y$10$/nPU6amabRJRc0/ep/rCXu.nVW9nCCdXTy9ukjVGSvy5gnnmWUpbe', 'User', '2025-12-11 12:07:57', NULL, NULL, NULL, NULL),
-(4, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2003-01-02', 'Male', NULL, NULL, 'james.fernandez1231@gmail.com', '$2y$10$jZ6/I3SNgHP8Iup04orqgO/osAx3AakogieFxIFPtKfGLD5QOEfpi', 'User', '2025-12-11 23:05:43', NULL, NULL, NULL, NULL);
+(4, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2003-01-02', 'Male', NULL, NULL, 'james.fernandez1231@gmail.com', '$2y$10$jZ6/I3SNgHP8Iup04orqgO/osAx3AakogieFxIFPtKfGLD5QOEfpi', 'User', '2025-12-11 23:05:43', NULL, NULL, NULL, NULL),
+(5, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin2@gmail.com', '$2y$10$ZM4uC30Djbz09gINdCBWd.f8vtttgETyjNv8Q0s7V1WJuSFttAIYe', 'Staff', '2025-12-12 08:41:52', NULL, NULL, NULL, NULL);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
