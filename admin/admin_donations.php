@@ -14,7 +14,7 @@ if ($result->num_rows > 0) {
         
         // Modify the query to join the donation_entry_items with the items table to get item names
         $item_sql = "
-            SELECT dei.item_id, i.item_name, dei.unit_name 
+            SELECT dei.item_id, i.item_name, dei.unit_name, dei.quantity
             FROM donation_entry_items dei
             JOIN items i ON dei.item_id = i.item_id 
             WHERE dei.entry_id = ?
@@ -45,6 +45,7 @@ if ($result->num_rows > 0) {
             $donation_entries[count($donation_entries) - 1]['items'][] = [
                 'item_name' => htmlspecialchars($item['item_name']), // Store the item name
                 'unit_name' => htmlspecialchars($item['unit_name']),
+                'quantity' => htmlspecialchars($item['quantity']),
             ];
         }
     }
@@ -196,7 +197,7 @@ $conn->close();
                         if (count($entry['items']) > 0) {
                             echo '<ul class="list-disc pl-5 space-y-1">'; // Improved style for list
                             foreach ($entry['items'] as $item) {
-                                echo '<li>' . $item['item_name'] . ' (' . $item['unit_name'] . ')</li>'; // Display item name
+                                echo '<li>' . $item['item_name'] .' '. $item['quantity'] .' (' . $item['unit_name'] . ')</li>'; // Display item name
                             }
                             echo '</ul>';
                         } else {
@@ -209,8 +210,17 @@ $conn->close();
                         echo '<td class="p-3">' . $entry['updated_at'] . '</td>';
                         echo '<td class="p-3 text-center">';
                         echo '<div class="flex gap-1 justify-center whitespace-nowrap">';
-                        echo '<button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">View</button>';
-                        echo '<button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Delete</button>';
+                        echo '<button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 view-btn" onclick="openModal(this)" 
+                                data-entry-id="' . $entry['entry_id'] . '" 
+                                data-profile-id="' . urlencode($entry['profile_id']) . '" 
+                                data-entry-type="' . urlencode($entry['entry_type']) . '" 
+                                data-details="' . urlencode($entry['details']) . '" 
+                                data-target-location="' . urlencode($entry['target_location']) . '" 
+                                data-created-at="' . urlencode($entry['created_at']) . '" 
+                                data-updated-at="' . urlencode($entry['updated_at']) . '" 
+                                data-items=\'' . json_encode($entry['items']) . '\'>View</button>';
+                        echo '<button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onclick="handleButtonClick(this, \'Edit\')" data-entry-id="' . $entry['entry_id'] . '">Edit</button>';
+                        echo '<button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" onclick="handleButtonClick(this, \'Delete\')" data-entry-id="' . $entry['entry_id'] . '">Delete</button>';
                         echo '</div>';
                         echo '</td>';
                         echo '</tr>';
@@ -240,6 +250,71 @@ $conn->close();
     closeBtn.addEventListener('click', () => {
         sideMenu.classList.add('-translate-x-full');
     });
+</script>
+
+<script>
+    // Function to handle button click (View, Edit, Delete)
+function handleButtonClick(button, action) {
+    const entryId = button.getAttribute('data-entry-id');
+
+    if (action === 'View') {
+        window.location.href = "donation_view.php?entry_id=" + entryId;
+    } else if (action === 'Edit') {
+        openModal(button); // Open the edit modal
+    } else if (action === 'Delete') {
+        // Perform delete action (e.g., show a confirmation)
+        alert('Delete clicked for Entry ID: ' + entryId);
+    }
+}
+</script>
+
+<?php include 'donation_view.php'; ?>
+<script>
+
+// Function to open the modal and pass the data
+function openModal(button) {
+    // Get the data from the button's data attributes
+    const entryId = button.getAttribute('data-entry-id');
+    const profileId = button.getAttribute('data-profile-id');
+    const entryType = button.getAttribute('data-entry-type');
+    const details = button.getAttribute('data-details');
+    const targetLocation = button.getAttribute('data-target-location');
+    const createdAt = decodeURIComponent(button.getAttribute('data-created-at'));  // Decode URL-encoded date
+    const updatedAt = decodeURIComponent(button.getAttribute('data-updated-at'));  // Decode URL-encoded date
+    const itemsData = JSON.parse(button.getAttribute('data-items'));  // Parse the items data from JSON
+
+    // Populate the modal with the data
+    document.getElementById('modal-entry-id').innerText = entryId;
+    document.getElementById('modal-profile-id').innerText = profileId;
+    document.getElementById('modal-entry-type').innerText = entryType;
+    document.getElementById('modal-details').innerText = details;
+    document.getElementById('modal-target-location').innerText = targetLocation;
+    document.getElementById('modal-created-at').innerText = createdAt;
+    document.getElementById('modal-updated-at').innerText = updatedAt;
+
+    // Display items in the modal
+    const itemsList = document.getElementById('modal-items-list');
+    itemsList.innerHTML = '';  // Clear existing items
+    if (itemsData.length > 0) {
+        itemsData.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `${item.item_name} ${item.quantity} (${item.unit_name})`;
+            itemsList.appendChild(listItem);
+        });
+    } else {
+        itemsList.innerHTML = 'No items available.';
+    }
+
+    // Show the modal
+    document.getElementById('modal').classList.remove('hidden');
+}
+
+// Function to close the modal
+function closeModal() {
+    document.getElementById('modal').classList.add('hidden');  // Add 'hidden' to hide the modal
+}
+
+
 </script>
 
 </body>
