@@ -190,11 +190,13 @@ if (!$items_result) {
                     <li class="flex justify-between items-center p-2 rounded cursor-pointer hover:bg-blue-100 transition" data-item-id="<?= $item['item_id']; ?>" data-units="<?= htmlspecialchars($units_list); ?>">
                         <span><?= $item['item_name']; ?></span>
                         <div class="flex gap-1">
-                            <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('<?= $item['item_id']; ?>', 'item')">Edit</button>
+                            <!-- Pass the item name as the currentItemName to the editItem function -->
+                            <button class="px-2 py-0.5 bg-yellow-500 text-white rounded text-xs" onclick="editItem('<?= $item['item_id']; ?>', 'item', '<?= htmlspecialchars($item['item_name']); ?>')">Edit</button>
                             <button class="px-2 py-0.5 bg-red-500 text-white rounded text-xs" onclick="deleteItem('<?= $item['item_id']; ?>', 'item')">Delete</button>
                         </div>
                     </li>
                 <?php endwhile; ?>
+
             </ul>
         </div>
 
@@ -250,31 +252,43 @@ if (!$items_result) {
     }
 
     // Function to edit an item
-    function editItem(itemId, type) {
-        // Validate item ID (simple validation)
+    function editItem(itemId, type, currentItemName) {
+        // Validate item ID and type
         if (itemId && type) {
-            // Prepare data for sending
-            const data = {
-                action: 'edit',
-                item_id: itemId,
-                type: type
-            };
+            // Prompt the user for the new item name with the default value set to the current item name
+            const newItemName = prompt("Enter the new name for item " + currentItemName +":", currentItemName);
 
-            // Send data to edit_item.php using AJAX
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "edit_item.php", true);
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    alert(`Item ${itemId} has been edited.`);
-                    console.log(xhr.responseText); // For debugging response
-                }
-            };
-            xhr.send("action=" + data.action + "&item_id=" + data.item_id + "&type=" + data.type);
+            // Validate the input (ensure it's not empty)
+            if (newItemName && newItemName.trim() !== "") {
+                // Prepare data for sending
+                const data = {
+                    action: 'edit',
+                    item_id: itemId,
+                    type: type,
+                    new_item_name: newItemName
+                };
+
+                // Send data to edit_item.php using AJAX
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "edit_item.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        alert(`Item ${currentItemName} has been edited.`);
+                        window.location.reload();
+                        console.log(xhr.responseText); // For debugging response
+                    }
+                };
+                xhr.send("action=" + data.action + "&item_id=" + data.item_id + "&type=" + data.type + "&new_item_name=" + encodeURIComponent(data.new_item_name));
+            } else if(newItemName!=null) {
+                alert('Please enter a valid name for the item.');
+            }
         } else {
             alert('Invalid item or type.');
         }
     }
+
+
 
     // Function to delete an item
     function deleteItem(itemId, type) {
