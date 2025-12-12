@@ -2,19 +2,19 @@
 include('../db_connect.php');
 
 // Fetch regions
-$regions_query = "SELECT * FROM regions";
+$regions_query = "SELECT * FROM regions ORDER BY name";
 $regions_result = $conn->query($regions_query);
 
 // Fetch provinces
-$provinces_query = "SELECT * FROM provinces";
+$provinces_query = "SELECT * FROM provinces ORDER BY name";
 $provinces_result = $conn->query($provinces_query);
 
 // Fetch cities
-$cities_query = "SELECT * FROM cities";
+$cities_query = "SELECT * FROM cities ORDER BY name";
 $cities_result = $conn->query($cities_query);
 
 // Fetch barangays
-$barangays_query = "SELECT * FROM barangays";
+$barangays_query = "SELECT * FROM barangays ORDER BY name";
 $barangays_result = $conn->query($barangays_query);
 
 // Prepare data for JavaScript

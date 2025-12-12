@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 12, 2025 at 07:10 AM
+-- Generation Time: Dec 12, 2025 at 07:51 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -92,10 +92,14 @@ CREATE TABLE `barangays` (
 DROP TRIGGER IF EXISTS `after_barangay_delete`;
 DELIMITER $$
 CREATE TRIGGER `after_barangay_delete` AFTER DELETE ON `barangays` FOR EACH ROW BEGIN
-    -- Step 1: Set barangay_id to NULL for users in that barangay
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    -- Step 1: Set barangay_id to NULL for users in the deleted barangay
     UPDATE users
     SET barangay_id = NULL
     WHERE barangay_id = OLD.id;
+
+    SET FOREIGN_KEY_CHECKS = 1;
 END
 $$
 DELIMITER ;
@@ -119,15 +123,23 @@ CREATE TABLE `cities` (
 DROP TRIGGER IF EXISTS `after_city_delete`;
 DELIMITER $$
 CREATE TRIGGER `after_city_delete` AFTER DELETE ON `cities` FOR EACH ROW BEGIN
-    -- Step 1: Set city_id to NULL for users in that city
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    -- Step 1: Set barangay_id to NULL for users in barangays linked to the deleted city
+    UPDATE users
+    SET barangay_id = NULL
+    WHERE barangay_id IN (
+        SELECT id
+        FROM barangays
+        WHERE city_id = OLD.id
+    );
+
+    -- Step 2: Set city_id to NULL for users in the deleted city
     UPDATE users
     SET city_id = NULL
     WHERE city_id = OLD.id;
 
-    -- Step 2: Set barangay_id to NULL for users in the deleted city
-    UPDATE users
-    SET barangay_id = NULL
-    WHERE barangay_id IN (SELECT id FROM barangays WHERE city_id = OLD.id);
+    SET FOREIGN_KEY_CHECKS = 1;
 END
 $$
 DELIMITER ;
@@ -562,20 +574,36 @@ CREATE TABLE `provinces` (
 DROP TRIGGER IF EXISTS `after_province_delete`;
 DELIMITER $$
 CREATE TRIGGER `after_province_delete` AFTER DELETE ON `provinces` FOR EACH ROW BEGIN
-    -- Step 1: Set province_id to NULL for users in that province
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    -- Step 1: Set barangay_id to NULL for users in barangays linked to cities in the deleted province
+    UPDATE users
+    SET barangay_id = NULL
+    WHERE barangay_id IN (
+        SELECT id
+        FROM barangays
+        WHERE city_id IN (
+            SELECT id
+            FROM cities
+            WHERE province_id = OLD.id
+        )
+    );
+
+    -- Step 2: Set city_id to NULL for users in cities linked to the deleted province
+    UPDATE users
+    SET city_id = NULL
+    WHERE city_id IN (
+        SELECT id
+        FROM cities
+        WHERE province_id = OLD.id
+    );
+
+    -- Step 3: Set province_id to NULL for users in the deleted province
     UPDATE users
     SET province_id = NULL
     WHERE province_id = OLD.id;
 
-    -- Step 2: Find related cities for the deleted province and set city_id to NULL for users in those cities
-    UPDATE users
-    SET city_id = NULL
-    WHERE city_id IN (SELECT id FROM cities WHERE province_id = OLD.id);
-
-    -- Step 3: Set barangay_id to NULL for users in the deleted cities
-    UPDATE users
-    SET barangay_id = NULL
-    WHERE barangay_id IN (SELECT id FROM barangays WHERE city_id IN (SELECT id FROM cities WHERE province_id = OLD.id));
+    SET FOREIGN_KEY_CHECKS = 1;
 END
 $$
 DELIMITER ;
@@ -598,25 +626,55 @@ CREATE TABLE `regions` (
 DROP TRIGGER IF EXISTS `after_region_delete`;
 DELIMITER $$
 CREATE TRIGGER `after_region_delete` AFTER DELETE ON `regions` FOR EACH ROW BEGIN
-    -- Step 1: Set region_id to NULL for users in that region
+    -- Temporarily disable foreign key checks to update users table
+    SET FOREIGN_KEY_CHECKS = 0;
+
+    -- Step 1: Set barangay_id to NULL for users in barangays linked to cities in the deleted region
+    UPDATE users
+    SET barangay_id = NULL
+    WHERE barangay_id IN (
+        SELECT id
+        FROM barangays
+        WHERE city_id IN (
+            SELECT id
+            FROM cities
+            WHERE province_id IN (
+                SELECT id
+                FROM provinces
+                WHERE region_id = OLD.id
+            )
+        )
+    );
+
+    -- Step 2: Set city_id to NULL for users in cities linked to those provinces in the deleted region
+    UPDATE users
+    SET city_id = NULL
+    WHERE city_id IN (
+        SELECT id
+        FROM cities
+        WHERE province_id IN (
+            SELECT id
+            FROM provinces
+            WHERE region_id = OLD.id
+        )
+    );
+
+    -- Step 3: Set province_id to NULL for users in provinces linked to the deleted region
+    UPDATE users
+    SET province_id = NULL
+    WHERE province_id IN (
+        SELECT id
+        FROM provinces
+        WHERE region_id = OLD.id
+    );
+
+    -- Step 4: Set region_id to NULL for users in the deleted region
     UPDATE users
     SET region_id = NULL
     WHERE region_id = OLD.id;
-    
-    -- Step 2: Find related provinces for the deleted region and set province_id to NULL for users in those provinces
-    UPDATE users
-    SET province_id = NULL
-    WHERE province_id IN (SELECT id FROM provinces WHERE region_id = OLD.id);
-    
-    -- Step 3: Find related cities for the deleted provinces and set city_id to NULL for users in those cities
-    UPDATE users
-    SET city_id = NULL
-    WHERE city_id IN (SELECT id FROM cities WHERE province_id IN (SELECT id FROM provinces WHERE region_id = OLD.id));
-    
-    -- Step 4: Set barangay_id to NULL for users in the deleted cities
-    UPDATE users
-    SET barangay_id = NULL
-    WHERE barangay_id IN (SELECT id FROM barangays WHERE city_id IN (SELECT id FROM cities WHERE province_id IN (SELECT id FROM provinces WHERE region_id = OLD.id)));
+
+    -- Re-enable foreign key checks after the update
+    SET FOREIGN_KEY_CHECKS = 1;
 END
 $$
 DELIMITER ;

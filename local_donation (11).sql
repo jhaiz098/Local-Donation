@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 12, 2025 at 07:10 AM
+-- Generation Time: Dec 12, 2025 at 07:52 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -374,8 +374,7 @@ INSERT INTO `regions` (`id`, `name`) VALUES
 (14, 'Region XI - Davao Region'),
 (15, 'Region XII - SOCCSKSARGEN'),
 (16, 'Region XIII - Caraga'),
-(17, 'BARMM - Bangsamoro Autonomous Region in Muslim Min'),
-(21, 'asdasd');
+(17, 'BARMM - Bangsamoro Autonomous Region in Muslim Min');
 
 --
 -- Dumping data for table `users`
@@ -383,7 +382,7 @@ INSERT INTO `regions` (`id`, `name`) VALUES
 
 INSERT INTO `users` (`user_id`, `profile_pic`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `gender`, `zip_code`, `phone_number`, `email`, `password`, `role`, `created_at`, `region_id`, `province_id`, `city_id`, `barangay_id`) VALUES
 (1, 'uploads/1765486686_IMG_20231007_180326.JPG', 'James Emmanuel wewew', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'james.fernandez1230@gmail.com', '$2y$10$360P2lsH9hZxXTmyuXpvTOcuCso/Sm9W.fRRj.ooDa7ULhRxKxbAe', 'User', '2025-12-11 12:06:17', 10, 51, 24, 26),
-(2, 'uploads/1765497537_FB_IMG_1698376370669.jpg', 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'admin@gmail.com', '$2y$10$3z1leKtFme33YEkgW2xe.uYRc.aDPjlFnZQdj/2olru7Dwu6wEwxK', 'Superuser', '2025-12-11 12:06:36', 21, NULL, 103, NULL),
+(2, 'uploads/1765497537_FB_IMG_1698376370669.jpg', 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'admin@gmail.com', '$2y$10$GsorrmO4rp3rhgRQMvH68OGZKLs4mKfxxdbJAHrDBDJbX8/K1MZDm', 'Superuser', '2025-12-11 12:06:36', NULL, NULL, NULL, NULL),
 (3, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin3@gmail.com', '$2y$10$/nPU6amabRJRc0/ep/rCXu.nVW9nCCdXTy9ukjVGSvy5gnnmWUpbe', 'User', '2025-12-11 12:07:57', NULL, NULL, NULL, NULL),
 (4, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2003-01-02', 'Male', NULL, NULL, 'james.fernandez1231@gmail.com', '$2y$10$jZ6/I3SNgHP8Iup04orqgO/osAx3AakogieFxIFPtKfGLD5QOEfpi', 'User', '2025-12-11 23:05:43', NULL, NULL, NULL, NULL);
 COMMIT;
