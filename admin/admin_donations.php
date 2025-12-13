@@ -1,8 +1,22 @@
 <?php
 include('../db_connect.php');
 
-// Fetch donations/requests from donation_entries table
-$sql = "SELECT * FROM donation_entries";
+// Get the filter from the query string (default is 'all')
+$filter = $_GET['filter'] ?? 'all'; 
+
+// Fetch donations/requests based on the selected filter
+switch ($filter) {
+    case 'offer':
+        $sql = "SELECT * FROM donation_entries WHERE entry_type = 'offer'";
+        break;
+    case 'request':
+        $sql = "SELECT * FROM donation_entries WHERE entry_type = 'request'";
+        break;
+    default:
+        $sql = "SELECT * FROM donation_entries"; // 'all' filter
+        break;
+}
+
 $result = $conn->query($sql);
 
 // Store the data in an array
@@ -161,10 +175,11 @@ if ($result->num_rows > 0) {
 
     <!-- ================= FILTER TABS ================= -->
     <div class="flex flex-wrap gap-2 mb-6">
-        <button class="px-4 py-2 rounded bg-blue-600 text-white font-semibold">All</button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Offers</button>
-        <button class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">Requests</button>
+        <a href="?filter=all" class="px-4 py-2 rounded <?= $filter == 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300' ?>">All</a>
+        <a href="?filter=offer" class="px-4 py-2 rounded <?= $filter == 'offer' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300' ?>">Offers</a>
+        <a href="?filter=request" class="px-4 py-2 rounded <?= $filter == 'request' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300' ?>">Requests</a>
     </div>
+
 
     <!-- ================= DONATION / REQUEST TABLE ================= -->
     <div class="bg-white rounded-xl shadow-md overflow-x-auto">
@@ -265,46 +280,19 @@ if ($result->num_rows > 0) {
 </script>
 
 <script>
-// JavaScript function to handle the delete button click
+    // Function to handle button click (View, Edit, Delete)
 function handleButtonClick(button, action) {
-    const entryId = button.getAttribute('data-entry-id');  // Get the entry ID
+    const entryId = button.getAttribute('data-entry-id');
 
-    if (action === 'Delete') {
-        // Confirm before deleting
-        if (confirm('Are you sure you want to delete this entry?')) {
-            // If confirmed, send AJAX request to delete the entry
-            deleteDonationEntry(entryId);
-        }
+    if (action === 'View') {
+        window.location.href = "donation_view.php?entry_id=" + entryId;
+    } else if (action === 'Edit') {
+        openModal(button); // Open the edit modal
+    } else if (action === 'Delete') {
+        // Perform delete action (e.g., show a confirmation)
+        alert('Delete clicked for Entry ID: ' + entryId);
     }
 }
-
-// AJAX function to delete the donation entry
-function deleteDonationEntry(entryId) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'delete_donation.php', true);  // Create POST request to delete_donation.php
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-    xhr.onload = function() {
-        console.log(xhr.status); // Debugging log for status code
-        if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);  // Parse the JSON response
-            console.log(response); // Debugging log for response
-
-            if (response.success) {
-                alert('Donation entry deleted successfully!');
-                window.location.reload();  // Reload the page to reflect the changes
-            } else {
-                alert('Error deleting donation entry: ' + response.message);
-            }
-        } else {
-            alert('An error occurred. Please try again.');
-        }
-    };
-
-    // Send the entry ID as a parameter in the request
-    xhr.send('entry_id=' + entryId);
-}
-
 </script>
 
 <?php include 'donation_edit.php'; ?>
