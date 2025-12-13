@@ -1,3 +1,22 @@
+<?php
+include('../db_connect.php');
+
+// Fetch users with roles other than 'User'
+$sql = "SELECT user_id, first_name, email, role FROM users WHERE role != 'User'";
+$result = $conn->query($sql);
+
+// Store the data in an array
+$users = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $users[] = $row;
+    }
+}
+// var_dump($users);
+$conn->close();
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,6 +168,7 @@
         <table class="w-full text-sm">
             <thead class="bg-gray-100">
                 <tr>
+                    <th class="p-3 text-left">User ID</th>
                     <th class="p-3 text-left">Name</th>
                     <th class="p-3 text-left">Email</th>
                     <th class="p-3 text-left">Current Role</th>
@@ -156,50 +176,37 @@
                 </tr>
             </thead>
             <tbody>
+                <?php
+                // Loop through users array and display each user
+                // foreach ($users as $user) {
+                //     // Get user_id, name, email, and role from the user array
+                //     $user_id = htmlspecialchars($user['user_id']);
+                //     $name = htmlspecialchars($user['first_name']);
+                //     $email = htmlspecialchars($user['email']);
+                //     $role = htmlspecialchars($user['role']);
 
-                <!-- Staff -->
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3 font-medium">Juan Dela Cruz</td>
-                    <td class="p-3">juan@email.com</td>
-                    <td class="p-3 text-blue-700 font-semibold">Staff</td>
-                    <td class="p-3 text-center">
-                        <select class="border rounded p-1 text-sm">
-                            <option selected>Staff</option>
-                            <option>Admin</option>
-                            <option>Superuser</option>
-                        </select>
-                    </td>
-                </tr>
+                //     // Set the appropriate classes based on the role
+                //     $role_class = ($role == 'Admin') ? 'text-yellow-700' : (($role == 'Superuser') ? 'text-red-700' : 'text-blue-700'));
 
-                <!-- Admin -->
-                <tr class="border-t hover:bg-gray-50">
-                    <td class="p-3 font-medium">Maria Santos</td>
-                    <td class="p-3">maria@email.com</td>
-                    <td class="p-3 text-yellow-700 font-semibold">Admin</td>
-                    <td class="p-3 text-center">
-                        <select class="border rounded p-1 text-sm">
-                            <option>Staff</option>
-                            <option selected>Admin</option>
-                            <option>Superuser</option>
-                        </select>
-                    </td>
-                </tr>
-
-                <!-- Superuser -->
-                <tr class="border-t bg-red-50">
-                    <td class="p-3 font-medium">System Owner</td>
-                    <td class="p-3">superuser@email.com</td>
-                    <td class="p-3 text-red-700 font-semibold">Superuser</td>
-                    <td class="p-3 text-center">
-                        <span class="text-xs text-gray-500 italic">
-                            Protected account
-                        </span>
-                    </td>
-                </tr>
-
+                //     echo "<tr class='border-t hover:bg-gray-50'>";
+                //     echo "<td class='p-3 font-medium'>{$user_id}</td>";
+                //     echo "<td class='p-3'>{$name}</td>";
+                //     echo "<td class='p-3'>{$email}</td>";
+                //     echo "<td class='p-3 {$role_class} font-semibold'>{$role}</td>";
+                //     echo "<td class='p-3 text-center'>
+                //             <select class='border rounded p-1 text-sm'>
+                //                 <option " . ($role == 'Staff' ? 'selected' : '') . ">Staff</option>
+                //                 <option " . ($role == 'Admin' ? 'selected' : '') . ">Admin</option>
+                //                 <option " . ($role == 'Superuser' ? 'selected' : '') . ">Superuser</option>
+                //             </select>
+                //         </td>";
+                //     echo "</tr>";
+                // }
+                ?>
             </tbody>
         </table>
     </div>
+
 
 
 </main>

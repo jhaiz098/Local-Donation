@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 13, 2025 at 02:09 AM
+-- Generation Time: Dec 13, 2025 at 08:56 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -41,7 +41,14 @@ INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`,
 (11, NULL, 1, 'Added new donation entry #1: request', 'You added a new donation entry request.', '2025-12-13 05:17:40'),
 (12, NULL, 1, 'Added new donation entry #2: offer', 'You added a new donation entry offer.', '2025-12-13 05:18:02'),
 (13, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 05:18:12'),
-(14, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 08:25:06');
+(14, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 08:25:06'),
+(15, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-13 09:14:50'),
+(16, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 09:16:11'),
+(17, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 10:47:22'),
+(18, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-13 12:47:40'),
+(19, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 12:47:57'),
+(20, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-13 13:17:20'),
+(21, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 13:17:38');
 
 --
 -- Dumping data for table `audit_logs`
@@ -56,7 +63,28 @@ INSERT INTO `audit_logs` (`activity_id`, `user_id`, `profile_id`, `description`,
 (6, 1, 1, 'New member 1added to profile: Profile ID 1', '2025-12-13 05:17:22'),
 (7, 1, 1, 'New profile created: 1', '2025-12-13 05:17:22'),
 (8, NULL, 1, 'Profile ID: 1 added a new donation entry', '2025-12-13 05:17:40'),
-(9, NULL, 1, 'Profile ID: 1 added a new donation entry', '2025-12-13 05:18:02');
+(9, NULL, 1, 'Profile ID: 1 added a new donation entry', '2025-12-13 05:18:02'),
+(10, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:37:55'),
+(11, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:38:06'),
+(12, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:39:52'),
+(13, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:42:09'),
+(14, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:43:54'),
+(15, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:44:53'),
+(16, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:45:15'),
+(17, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:46:31'),
+(18, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:46:43'),
+(19, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:47:08'),
+(20, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:47:15'),
+(21, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:47:23'),
+(22, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:48:05'),
+(23, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:48:14'),
+(24, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 12:48:25'),
+(25, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 13:17:12'),
+(26, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 13:24:24'),
+(27, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 13:24:34'),
+(28, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 13:24:46'),
+(29, NULL, 1, 'Profile ID: 1 updated a donation entry', '2025-12-13 13:36:54'),
+(30, NULL, 1, 'Profile ID: 1 deleted a donation entry', '2025-12-13 13:59:56');
 
 --
 -- Dumping data for table `barangays`
@@ -237,7 +265,6 @@ INSERT INTO `cities` (`id`, `province_id`, `name`) VALUES
 --
 
 INSERT INTO `donation_entries` (`entry_id`, `profile_id`, `entry_type`, `details`, `created_at`, `updated_at`, `target_area`) VALUES
-(1, 1, 'request', 'ddddasd', '2025-12-12 21:17:40', '2025-12-12 21:17:40', 'philippines'),
 (2, 1, 'offer', 'qqqq', '2025-12-12 21:18:02', '2025-12-12 21:18:02', 'region');
 
 --
@@ -245,11 +272,9 @@ INSERT INTO `donation_entries` (`entry_id`, `profile_id`, `entry_type`, `details
 --
 
 INSERT INTO `donation_entry_items` (`item_entry_id`, `entry_id`, `item_id`, `quantity`, `unit_name`) VALUES
-(1, 1, 17, 3, 'pcs'),
-(2, 1, 6, 1, 'pcs'),
-(3, 2, 7, 5, 'pcs'),
-(4, 2, 19, 3, 'pcs'),
-(5, 2, 14, 6, 'bottles');
+(34, 2, 7, 5, 'pcs'),
+(35, 2, 19, 3, 'pcs'),
+(36, 2, 14, 6, 'bottles');
 
 --
 -- Dumping data for table `items`

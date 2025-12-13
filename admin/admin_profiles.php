@@ -286,7 +286,7 @@ if ($result->num_rows > 0) {
                                 <!-- Edit Button -->
                                 <button onclick="openModal(<?= $profile['profile_id'] ?>, 'edit')" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600">Edit</button>
                                 
-                                <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Disable</button>
+                                <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Remove</button>
                             </div>
                         </td>
                     </tr>
