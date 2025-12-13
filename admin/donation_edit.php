@@ -149,6 +149,82 @@ function closeEditModal() {
     document.getElementById('edit-modal').classList.add('hidden');
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+    // Fetch the 'Add Item' button
+    const addItemBtn = document.getElementById('addItemBtn');
+
+    addItemBtn.addEventListener('click', function () {
+        // Fetch the items list (this is where the new item input will be appended)
+        const itemsList = document.getElementById('edit-items-list');
+
+        // Create a new div for the item
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('mb-2', 'flex', 'gap-2', 'items-center');
+
+        // Create the item select dropdown
+        const itemSelect = document.createElement('select');
+        itemSelect.className = 'border rounded p-1 flex-1 item-select text-sm';
+
+        // Create the unit select dropdown
+        const unitSelect = document.createElement('select');
+        unitSelect.className = 'border rounded p-1 w-20 unit-select text-sm';
+
+        // Function to populate the unit select based on the selected item
+        function populateUnits(selectedItemId) {
+            const units = allUnits[selectedItemId] || [];
+            unitSelect.innerHTML = ''; // Clear previous options
+
+            // Populate the units for the selected item
+            units.forEach((unit) => {
+                const option = document.createElement('option');
+                option.value = unit;
+                option.textContent = unit;
+                unitSelect.appendChild(option);
+            });
+        }
+
+        // Populate the item select options dynamically
+        allItems.forEach((it) => {
+            const option = document.createElement('option');
+            option.value = it.item_id;
+            option.textContent = it.item_name;
+            itemSelect.appendChild(option);
+        });
+
+        // Quantity input field
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.min = 1;
+        qtyInput.value = 1; // Default quantity
+        qtyInput.className = 'border rounded p-1 w-20 text-sm';
+
+        // Update the unit options when an item is selected
+        itemSelect.addEventListener('change', function () {
+            populateUnits(itemSelect.value); // Ensure the unit dropdown is populated with the correct options
+        });
+
+        // Add a remove button to the item input
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'bg-red-500 text-white px-2 rounded text-sm';
+        removeBtn.textContent = 'X';
+        removeBtn.onclick = () => itemDiv.remove(); // Remove the item when clicked
+
+        // Append the item select, quantity input, unit select, and remove button to the itemDiv
+        itemDiv.appendChild(itemSelect);
+        itemDiv.appendChild(qtyInput);
+        itemDiv.appendChild(unitSelect);
+        itemDiv.appendChild(removeBtn);
+
+        // Append the itemDiv to the items list
+        itemsList.appendChild(itemDiv);
+
+        // Populate the units for the first item on creation (optional)
+        populateUnits(allItems[0].item_id);
+    });
+});
+
+
 document.addEventListener('DOMContentLoaded', function() {
     const editForm = document.getElementById('editForm');
 
