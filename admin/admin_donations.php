@@ -219,7 +219,15 @@ $conn->close();
                                 data-created-at="' . urlencode($entry['created_at']) . '" 
                                 data-updated-at="' . urlencode($entry['updated_at']) . '" 
                                 data-items=\'' . json_encode($entry['items']) . '\'>View</button>';
-                        echo '<button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onclick="handleButtonClick(this, \'Edit\')" data-entry-id="' . $entry['entry_id'] . '">Edit</button>';
+                        echo '<button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onclick="openEditModal(this)" data-entry-id="' . $entry['entry_id'] . '" 
+                                data-profile-id="' . urlencode($entry['profile_id']) . '" 
+                                data-entry-type="' . urlencode($entry['entry_type']) . '" 
+                                data-details="' . urlencode($entry['details']) . '" 
+                                data-target-location="' . urlencode($entry['target_location']) . '" 
+                                data-created-at="' . urlencode($entry['created_at']) . '" 
+                                data-updated-at="' . urlencode($entry['updated_at']) . '" 
+                                data-items=\'' . json_encode($entry['items']) . '\'>Edit</button>';
+
                         echo '<button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" onclick="handleButtonClick(this, \'Delete\')" data-entry-id="' . $entry['entry_id'] . '">Delete</button>';
                         echo '</div>';
                         echo '</td>';
@@ -268,6 +276,7 @@ function handleButtonClick(button, action) {
 }
 </script>
 
+<?php include 'donation_edit.php'; ?>
 <?php include 'donation_view.php'; ?>
 <script>
 
