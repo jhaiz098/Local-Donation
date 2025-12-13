@@ -91,7 +91,7 @@ if ($result->num_rows > 0) {
             <!-- Core -->
             <li class="uppercase text-xs px-2 mt-2">Core</li>
             <li>
-                <a href="admin_dashboard.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">
+                <a href="admin_dashboard.php" class="block px-4 py-2 rounded hover:bg-gray-200">
                     Dashboard
                 </a>
             </li>
@@ -104,7 +104,7 @@ if ($result->num_rows > 0) {
 
             <!-- Operations -->
             <li class="uppercase text-xs px-2 mt-4">Operations</li>
-            <li><a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a></li>
+            <li><a href="admin_donations.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">Donations / Requests</a></li>
 
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
@@ -113,7 +113,7 @@ if ($result->num_rows > 0) {
             <li><a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a></li>
             <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
             <li><a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
-            <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Settings</a></li>
+            <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a></li>
 
             <!-- Support -->
             <li class="uppercase text-xs px-2 mt-4">Support</li>

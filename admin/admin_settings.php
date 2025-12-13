@@ -1,20 +1,28 @@
 <?php
 include('../db_connect.php');
 
-// Fetch users with roles other than 'User'
-$sql = "SELECT user_id, first_name, email, role FROM users WHERE role != 'User'";
-$result = $conn->query($sql);
+// Handle role change
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['role'])) {
+    $user_id = $_POST['user_id'];
+    $new_role = $_POST['role'];
 
-// Store the data in an array
-$users = [];
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $users[] = $row;
+    // Prevent changing the only superuser
+    $superusers = $conn->query("SELECT user_id FROM users WHERE role='Superuser'")->fetch_all(MYSQLI_ASSOC);
+    if (count($superusers) == 1 && $user_id == $superusers[0]['user_id'] && $new_role != 'Superuser') {
+        echo "<script>alert('The only Superuser cannot have their role changed.');</script>";
+    } else {
+        $conn->query("UPDATE users SET role='{$new_role}' WHERE user_id={$user_id}");
+        // Redirect to avoid resubmitting POST
+        header("Location: admin_settings.php?role_changed=1");
+        exit;
     }
 }
-// var_dump($users);
+
+// Fetch users
+$users = $conn->query("SELECT user_id, CONCAT(first_name,' ',middle_name,' ',last_name) AS name, email, role FROM users WHERE role!='User'")->fetch_all(MYSQLI_ASSOC);
 $conn->close();
 ?>
+
 
 
 <!DOCTYPE html>
@@ -52,7 +60,7 @@ $conn->close();
             <!-- Core -->
             <li class="uppercase text-xs px-2 mt-2">Core</li>
             <li>
-                <a href="admin_dashboard.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">
+                <a href="admin_dashboard.php" class="block px-4 py-2 rounded hover:bg-gray-200">
                     Dashboard
                 </a>
             </li>
@@ -74,7 +82,7 @@ $conn->close();
             <li><a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a></li>
             <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
             <li><a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
-            <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Settings</a></li>
+            <li><a href="admin_settings.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">Access Level Management</a></li>
 
             <!-- Support -->
             <li class="uppercase text-xs px-2 mt-4">Support</li>
@@ -178,34 +186,38 @@ $conn->close();
             <tbody>
                 <?php
                 // Loop through users array and display each user
-                // foreach ($users as $user) {
-                //     // Get user_id, name, email, and role from the user array
-                //     $user_id = htmlspecialchars($user['user_id']);
-                //     $name = htmlspecialchars($user['first_name']);
-                //     $email = htmlspecialchars($user['email']);
-                //     $role = htmlspecialchars($user['role']);
+                foreach ($users as $user) {
+                    $user_id = htmlspecialchars($user['user_id']);
+                    $name = htmlspecialchars($user['name']);
+                    $email = htmlspecialchars($user['email']);
+                    $role = htmlspecialchars($user['role']);
+                    $role_class = ($role == 'Admin') ? 'text-yellow-700' : (($role == 'Superuser') ? 'text-red-700' : 'text-blue-700');
 
-                //     // Set the appropriate classes based on the role
-                //     $role_class = ($role == 'Admin') ? 'text-yellow-700' : (($role == 'Superuser') ? 'text-red-700' : 'text-blue-700'));
-
-                //     echo "<tr class='border-t hover:bg-gray-50'>";
-                //     echo "<td class='p-3 font-medium'>{$user_id}</td>";
-                //     echo "<td class='p-3'>{$name}</td>";
-                //     echo "<td class='p-3'>{$email}</td>";
-                //     echo "<td class='p-3 {$role_class} font-semibold'>{$role}</td>";
-                //     echo "<td class='p-3 text-center'>
-                //             <select class='border rounded p-1 text-sm'>
-                //                 <option " . ($role == 'Staff' ? 'selected' : '') . ">Staff</option>
-                //                 <option " . ($role == 'Admin' ? 'selected' : '') . ">Admin</option>
-                //                 <option " . ($role == 'Superuser' ? 'selected' : '') . ">Superuser</option>
-                //             </select>
-                //         </td>";
-                //     echo "</tr>";
-                // }
+                    echo "<tr class='border-t hover:bg-gray-50'>";
+                    echo "<td class='p-3 font-medium'>{$user_id}</td>";
+                    echo "<td class='p-3'>{$name}</td>";
+                    echo "<td class='p-3'>{$email}</td>";
+                    echo "<td class='p-3 {$role_class} font-semibold'>{$role}</td>";
+                    
+                    // Form for changing role
+                    echo "<td class='p-3 text-center'>
+                            <form method='POST' action='admin_settings.php'>
+                                <select name='role' class='border rounded p-1 text-sm' onchange='this.form.submit()'>
+                                    <option " . ($role == 'Staff' ? 'selected' : '') . ">Staff</option>
+                                    <option " . ($role == 'Admin' ? 'selected' : '') . ">Admin</option>
+                                    <option " . ($role == 'Superuser' ? 'selected' : '') . ">Superuser</option>
+                                </select>
+                                <input type='hidden' name='user_id' value='{$user_id}' />
+                            </form>
+                        </td>";
+                    echo "</tr>";
+                }
                 ?>
             </tbody>
         </table>
     </div>
+
+
 
 
 
@@ -226,6 +238,17 @@ $conn->close();
         sideMenu.classList.add('-translate-x-full');
     });
 </script>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('role_changed') === '1') {
+        alert("Role changed successfully!");
+        // Remove the query parameter to prevent alert on reload
+        window.history.replaceState({}, document.title, "admin_settings.php");
+    }
+</script>
+
+
 
 </body>
 </html>
