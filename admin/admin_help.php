@@ -1,3 +1,25 @@
+<?php
+
+include '../db_connect.php';
+
+$user_id = $_SESSION['user_id'] ?? null;
+
+$roleSql = "SELECT role FROM users WHERE user_id = ?";
+$roleStmt = $conn->prepare($roleSql);
+$roleStmt->bind_param("i", $user_id);
+$roleStmt->execute();
+$roleResult = $roleStmt->get_result();
+$roleRow = $roleResult->fetch_assoc();
+
+$disabledClass = 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200';
+$currentRole = $roleRow['role'] ?? 'User';
+
+$isStaff = ($currentRole === 'Staff');
+$isAdmin = ($currentRole === 'Admin');
+$isSuperuser = ($currentRole === 'Superuser');
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,11 +72,28 @@
 
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
-            <li><a href="admin_items.php" class="block px-4 py-2 rounded hover:bg-gray-200">Item Management</a></li>
-            <li><a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a></li>
-            <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
-            <li><a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
-            <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a></li>
+            <li>
+                <a href="admin_items.php"
+                class="block px-4 py-2 rounded
+                <?= ($isStaff || $incomplete) ? $disabledClass : 'hover:bg-gray-200' ?>">
+                    Item Management
+                </a>
+            </li>
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+                <a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a>
+            </li>
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+                <a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a>
+            </li>
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+                <a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a>
+            </li>
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+                <a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a>
+            </li>
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+                <a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a>
+            </li>
 
             <!-- Support -->
             <li class="uppercase text-xs px-2 mt-4">Support</li>
@@ -101,90 +140,81 @@
 
     <h2 class="text-2xl font-bold mb-6">Help & Support</h2>
 
-    <!-- ================= QUICK HELP CARDS ================= -->
+    <!-- ================= QUICK GUIDE ================= -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
         <div class="bg-white rounded-xl shadow p-5 border">
-            <h3 class="text-lg font-semibold mb-2">User Management</h3>
+            <h3 class="text-lg font-semibold mb-2">Users & Roles</h3>
             <p class="text-sm text-gray-700">
-                Manage user accounts, update roles, and monitor account activity. 
-                Staff have limited access, while Admins and Superusers can assign roles.
+                Manage user accounts and access levels.
+                Role permissions depend on whether you are Staff, Admin, or Superuser.
             </p>
         </div>
 
         <div class="bg-white rounded-xl shadow p-5 border">
             <h3 class="text-lg font-semibold mb-2">Profiles & Donations</h3>
             <p class="text-sm text-gray-700">
-                View and manage individual, family, community, and organization profiles.
-                Monitor donation offers and requests submitted by profiles.
+                View and manage profiles and monitor donation requests and offers
+                submitted through the system.
             </p>
         </div>
 
         <div class="bg-white rounded-xl shadow p-5 border">
-            <h3 class="text-lg font-semibold mb-2">System Activity</h3>
+            <h3 class="text-lg font-semibold mb-2">System Records</h3>
             <p class="text-sm text-gray-700">
-                Activities and audit trails record system events such as logins,
-                profile creation, and donation updates for accountability.
+                Activity logs and audit trails track important system actions
+                for transparency and security.
             </p>
         </div>
 
     </div>
 
-    <!-- ================= FREQUENTLY ASKED QUESTIONS ================= -->
+    <!-- ================= FAQ ================= -->
     <div class="bg-white rounded-xl shadow p-6 mb-10">
         <h3 class="text-xl font-semibold mb-4">Frequently Asked Questions</h3>
 
         <div class="space-y-4 text-sm text-gray-700">
 
             <div>
-                <h4 class="font-semibold">Who can change user access levels?</h4>
+                <h4 class="font-semibold">Who can manage user roles?</h4>
                 <p>
-                    Only Admins and Superusers can change access levels.
-                    Superuser accounts are protected to prevent accidental lockout.
+                    Admins and Superusers can assign roles.
+                    The system always ensures at least one Superuser exists.
                 </p>
             </div>
 
             <div>
-                <h4 class="font-semibold">Why can’t audit trails be edited or deleted?</h4>
+                <h4 class="font-semibold">Why are audit trails read-only?</h4>
                 <p>
-                    Audit trails are permanent system records used for security,
-                    accountability, and troubleshooting purposes.
+                    Audit trails are permanent records used for monitoring,
+                    security, and accountability.
                 </p>
             </div>
 
             <div>
-                <h4 class="font-semibold">What happens if a Superuser is downgraded?</h4>
+                <h4 class="font-semibold">Why are some features unavailable?</h4>
                 <p>
-                    Downgrading a Superuser removes their ability to manage system-level
-                    permissions. The system must always retain at least one Superuser.
-                </p>
-            </div>
-
-            <div>
-                <h4 class="font-semibold">Why can’t I see some system settings?</h4>
-                <p>
-                    Certain settings are restricted based on your assigned role.
-                    Contact a Superuser if you believe you need additional access.
+                    Access is limited based on your assigned role.
+                    Higher-level system settings are restricted to authorized users.
                 </p>
             </div>
 
         </div>
     </div>
 
-    <!-- ================= CONTACT / SUPPORT ================= -->
+    <!-- ================= SUPPORT ================= -->
     <div class="bg-white rounded-xl shadow p-6 border-l-4 border-blue-600">
-        <h3 class="text-lg font-semibold mb-2">Need Further Assistance?</h3>
-        <p class="text-sm text-gray-700 mb-3">
-            If you encounter system issues or need clarification on permissions,
-            please contact the system administrator or development team.
+        <h3 class="text-lg font-semibold mb-2">Need Help?</h3>
+        <p class="text-sm text-gray-700">
+            For system issues or access concerns, contact the system administrator.
         </p>
-        <p class="text-sm text-gray-600">
-            Email: <span class="font-medium">support@bayanihanhub.local</span><br>
-            Response time: 1–2 business days
+        <p class="text-sm text-gray-600 mt-2">
+            Email: <span class="font-medium">support@bayanihanhub.local</span>
         </p>
     </div>
 
 </main>
+
 
 
 <!-- ================= JS ================= -->
