@@ -1,41 +1,78 @@
 <!-- donation_edit.php -->
-<!-- donation_edit.php -->
-<div id="edit-modal" class="fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center hidden z-50">
-    <div class="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h2 class="text-2xl font-bold mb-4">Edit Donation / Request</h2>
+<div id="edit-modal"
+     class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
 
-        <form action="update_donation.php" method="POST">
+    <div class="bg-white p-6 rounded shadow-lg w-96 max-h-[90vh] flex flex-col">
+        <h3 class="text-xl font-semibold mb-4">
+            Edit Request / Offer
+        </h3>
+
+        <form id="editForm"
+              action="update_donation.php"
+              method="POST"
+              class="space-y-3 overflow-y-auto flex-1 text-sm">
+
             <input type="hidden" name="entry_id" id="edit-entry-id">
 
-            <!-- Donation Details -->
-            <div class="mb-4">
-                <label for="edit-entry-type" class="block text-sm font-medium text-gray-700">Type</label>
-                <select id="edit-entry-type" name="entry_type" class="mt-1 block w-full rounded border-gray-300" required>
-                    <option value="offer">Offer</option>
+            <!-- Type -->
+            <div>
+                <label class="block text-gray-700">Type</label>
+                <select id="edit-entry-type"
+                        name="entry_type"
+                        class="w-full border rounded p-1 text-sm"
+                        required>
                     <option value="request">Request</option>
+                    <option value="offer">Offer</option>
                 </select>
             </div>
 
-            <div class="mb-4">
-                <label for="edit-details" class="block text-sm font-medium text-gray-700">Details</label>
-                <textarea id="edit-details" name="details" rows="4" class="mt-1 block w-full rounded border-gray-300" required></textarea>
+            <!-- Details -->
+            <div>
+                <label class="block text-gray-700">Details</label>
+                <textarea id="edit-details"
+                          name="details"
+                          class="w-full border rounded p-1 h-20 text-sm"
+                          required></textarea>
             </div>
 
-            <div class="mb-4">
-                <label for="edit-target-location" class="block text-sm font-medium text-gray-700">Target Location</label>
-                <input type="text" id="edit-target-location" name="target_location" class="mt-1 block w-full rounded border-gray-300" required>
+            <!-- Target Area -->
+            <div>
+                <label class="block text-gray-700">Target Area</label>
+                <input type="text"
+                       id="edit-target-location"
+                       name="target_location"
+                       class="w-full border rounded p-1 text-sm"
+                       required>
             </div>
 
             <!-- Items -->
-            <div id="edit-items-list" class="mb-4">
-                <!-- Items will be populated here dynamically -->
+            <div>
+                <label class="block text-gray-700">Items</label>
+
+                <div id="edit-items-list"
+                     class="space-y-2 max-h-64 overflow-y-auto pr-2">
+                    <!-- items injected here -->
+                </div>
             </div>
 
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save Changes</button>
-            <button type="button" class="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 ml-4" onclick="closeEditModal()">Cancel</button>
+            <!-- Buttons -->
+            <div class="flex justify-end gap-2 mt-3">
+                <button type="button"
+                        onclick="closeEditModal()"
+                        class="px-3 py-1 bg-gray-200 rounded text-sm">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="px-3 py-1 bg-blue-500 text-white rounded text-sm">
+                    Save
+                </button>
+            </div>
+
         </form>
     </div>
 </div>
+
 
 
 <script>
