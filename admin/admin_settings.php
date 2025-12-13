@@ -133,40 +133,37 @@ $conn->close();
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
         <!-- Staff -->
-        <div class="bg-white rounded-xl shadow p-5 border">
-            <h3 class="text-lg font-semibold text-blue-700 mb-2">Staff</h3>
-            <ul class="text-sm text-gray-700 space-y-1 list-disc ml-4">
-                <li>View and manage users</li>
-                <li>Manage profiles</li>
-                <li>View donations and requests</li>
-                <li>View feedback</li>
-                <li class="text-gray-400">Cannot access system settings</li>
-            </ul>
-        </div>
+<div class="bg-white rounded-xl shadow p-5 border">
+    <h3 class="text-lg font-semibold text-blue-700 mb-2">Staff</h3>
+    <ul class="text-sm text-gray-700 space-y-1 list-disc ml-4">
+        <li>View users and profiles</li>
+        <li>View donations, requests, and feedback</li>
+        <li class="text-gray-400">No access to system settings</li>
+    </ul>
+</div>
 
-        <!-- Admin -->
-        <div class="bg-white rounded-xl shadow p-5 border">
-            <h3 class="text-lg font-semibold text-yellow-700 mb-2">Admin</h3>
-            <ul class="text-sm text-gray-700 space-y-1 list-disc ml-4">
-                <li>Full access to users and profiles</li>
-                <li>Manage donations and feedback</li>
-                <li>Access system settings</li>
-                <li>Assign roles to Staff and Admin</li>
-                <li class="text-gray-400">Cannot modify superusers</li>
-            </ul>
-        </div>
+<!-- Admin -->
+<div class="bg-white rounded-xl shadow p-5 border">
+    <h3 class="text-lg font-semibold text-yellow-700 mb-2">Admin</h3>
+    <ul class="text-sm text-gray-700 space-y-1 list-disc ml-4">
+        <li>Manage users and profiles</li>
+        <li>Manage donations and feedback</li>
+        <li>Access system modules</li>
+        <li>Assign roles to Staff and Admin</li>
+        <li class="text-gray-400">Cannot modify Superusers</li>
+    </ul>
+</div>
 
-        <!-- Superuser -->
-        <div class="bg-white rounded-xl shadow p-5 border">
-            <h3 class="text-lg font-semibold text-red-700 mb-2">Superuser</h3>
-            <ul class="text-sm text-gray-700 space-y-1 list-disc ml-4">
-                <li>Full system control</li>
-                <li>Manage all users and profiles</li>
-                <li>Access all system settings</li>
-                <li>Manage admins and superusers</li>
-                <li>Highest permission level</li>
-            </ul>
-        </div>
+<!-- Superuser -->
+<div class="bg-white rounded-xl shadow p-5 border">
+    <h3 class="text-lg font-semibold text-red-700 mb-2">Superuser</h3>
+    <ul class="text-sm text-gray-700 space-y-1 list-disc ml-4">
+        <li>Full system control</li>
+        <li>Manage all users and roles</li>
+        <li>Access audit logs</li>
+    </ul>
+</div>
+
 
     </div>
 

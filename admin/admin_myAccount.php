@@ -29,6 +29,20 @@ foreach ($required_fields as $field) {
     }
 }
 
+$roleSql = "SELECT role FROM users WHERE user_id = ?";
+$roleStmt = $conn->prepare($roleSql);
+$roleStmt->bind_param("i", $user_id);
+$roleStmt->execute();
+$roleResult = $roleStmt->get_result();
+$roleRow = $roleResult->fetch_assoc();
+
+$disabledClass = 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200';
+$currentRole = $roleRow['role'] ?? 'User';
+
+$isStaff = ($currentRole === 'Staff');
+$isAdmin = ($currentRole === 'Admin');
+$isSuperuser = ($currentRole === 'Superuser');
+
 if ($user_id) {
     // Fetch user info
     $stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
@@ -109,22 +123,26 @@ while($row = $result->fetch_assoc()) {
 
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
-            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
-                <a href="admin_items.php" class="block px-4 py-2 rounded hover:bg-gray-200">Item Management</a>
+            <li>
+                <a href="admin_items.php"
+                class="block px-4 py-2 rounded
+                <?= ($isStaff || $incomplete) ? $disabledClass : 'hover:bg-gray-200' ?>">
+                    Item Management
+                </a>
             </li>
-            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a>
             </li>
-            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a>
             </li>
-            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a>
             </li>
-            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a>
             </li>
-            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a>
             </li>
 
