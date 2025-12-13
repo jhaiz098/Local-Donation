@@ -22,7 +22,7 @@ $user = $result->fetch_assoc();
 // Check if any essential fields are missing
 $incomplete = false;
 $required_fields = [
-    'profile_pic', 'first_name', 'middle_name', 'last_name', 'date_of_birth', 
+    'first_name', 'last_name', 'date_of_birth', 
     'gender', 'zip_code', 'phone_number', 'email', 'password', 'role', 
     'region_id', 'province_id', 'city_id', 'barangay_id'
 ];
@@ -211,7 +211,7 @@ $feedback_received = $feedback['total_feedback'];
             <p class="text-red-700 text-sm">
                 Please complete your admin profile and required details to access all admin features.
             </p>
-            <a href="admin_account.php" class="text-red-800 font-semibold underline mt-2 inline-block">
+            <a href="admin_myAccount.php" class="text-red-800 font-semibold underline mt-2 inline-block">
                 Complete Setup
             </a>
         </div>

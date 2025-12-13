@@ -17,7 +17,7 @@ $user = $result->fetch_assoc();
 // Check if any essential fields are missing
 $incomplete = false;
 $required_fields = [
-    'profile_pic', 'first_name', 'middle_name', 'last_name', 'date_of_birth', 
+    'first_name', 'last_name', 'date_of_birth', 
     'gender', 'zip_code', 'phone_number', 'email', 'password', 'role', 
     'region_id', 'province_id', 'city_id', 'barangay_id'
 ];
