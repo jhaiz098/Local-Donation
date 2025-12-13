@@ -36,10 +36,9 @@
             </div>
 
             <!-- Target Area -->
-            <div>
+            <div id="edit-target-location">
                 <label class="block text-gray-700">Target Area</label>
                 <input type="text"
-                       id="edit-target-location"
                        name="target_location"
                        class="w-full border rounded p-1 text-sm"
                        required>
@@ -51,8 +50,11 @@
 
                 <div id="edit-items-list"
                      class="space-y-2 max-h-64 overflow-y-auto pr-2">
+                     
                     <!-- items injected here -->
                 </div>
+                <div id="itemsContainer" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
+                <button type="button" id="addItemBtn" class="mt-2 px-2 py-1 bg-green-500 text-white rounded text-sm">Add Item</button>
             </div>
 
             <!-- Buttons -->
@@ -89,9 +91,15 @@ function openEditModal(button) {
 
     // Populate the form with data
     document.getElementById('edit-entry-id').value = entryId;
+
+    if(entryType == 'request'){
+        document.getElementById('edit-target-location').classList.add('hidden')
+    }else{
+        document.getElementById('edit-target-location').value = targetLocation;
+    }
+
     document.getElementById('edit-entry-type').value = entryType;
     document.getElementById('edit-details').value = details;
-    document.getElementById('edit-target-location').value = targetLocation;
 
     // Populate the items
     const itemsList = document.getElementById('edit-items-list');
@@ -109,6 +117,11 @@ function openEditModal(button) {
 
                 <label class="block text-sm font-medium text-gray-700 mt-2">Unit</label>
                 <input type="text" name="unit_names[]" value="${item.unit_name}" class="mt-1 block w-full rounded border-gray-300" required>
+
+                <select class="border rounded p-1 flex-1 item-select text-sm">${item.item_name}</select>
+                <input type="number" class="border rounded p-1 w-20 text-sm" min="1" value="${item.quantity}">
+                <select class="border rounded p-1 w-20 unit-select text-sm">${item.unit_name}</select>
+                <button type="button" class="bg-red-500 text-white px-2 rounded text-sm">X</button>
             </div>
         `;
         itemsList.appendChild(itemDiv);
