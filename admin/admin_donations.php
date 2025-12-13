@@ -268,18 +268,28 @@ if ($result->num_rows > 0) {
                                 data-created-at="' . $entry['created_at'] . '" 
                                 data-updated-at="' . $entry['updated_at'] . '" 
                                 data-items=\'' . json_encode($entry['items']) . '\'>View</button>';
-                        echo '<button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onclick="openEditModal(this)" 
-                                data-entry-id="' . $entry['entry_id'] . '" 
-                                data-profile-id="' . $entry['profile_id'] . '" 
-                                data-entry-type="' . $entry['entry_type'] . '" 
-                                data-details="' . htmlspecialchars($entry['details'], ENT_QUOTES, 'UTF-8') . '" 
-                                data-target-location="' . $entry['target_location'] . '" 
-                                data-created-at="' . $entry['created_at'] . '" 
-                                data-updated-at="' . $entry['updated_at'] . '" 
-                                data-items=\'' . json_encode($entry['items']) . '\'>Edit</button>';
+                        // Check if user is Staff
+                        $disabledClass = $isStaff ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : '';  // Disabled class for Staff
+                        $disabledAttr = $isStaff ? 'disabled' : '';  // Disabled attribute for Staff
 
+                        // Edit Button
+                        echo '<button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 ' . $disabledClass . '" 
+                            onclick="openEditModal(this)" 
+                            data-entry-id="' . $entry['entry_id'] . '" 
+                            data-profile-id="' . $entry['profile_id'] . '" 
+                            data-entry-type="' . $entry['entry_type'] . '" 
+                            data-details="' . htmlspecialchars($entry['details'], ENT_QUOTES, 'UTF-8') . '" 
+                            data-target-location="' . $entry['target_location'] . '" 
+                            data-created-at="' . $entry['created_at'] . '" 
+                            data-updated-at="' . $entry['updated_at'] . '" 
+                            data-items=\'' . json_encode($entry['items']) . '\'
+                            ' . $disabledAttr . '>Edit</button>';
 
-                        echo '<button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" onclick="handleButtonClick(this, \'Delete\')" data-entry-id="' . $entry['entry_id'] . '">Delete</button>';
+                        // Delete Button
+                        echo '<button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 ' . $disabledClass . '" 
+                            onclick="handleButtonClick(this, \'Delete\')" 
+                            data-entry-id="' . $entry['entry_id'] . '" 
+                            ' . $disabledAttr . '>Delete</button>';
                         echo '</div>';
                         echo '</td>';
                         echo '</tr>';

@@ -204,7 +204,7 @@ $feedback_received = $feedback['total_feedback'];
 <main class="pt-24 p-6 md:ml-64">
     
     <?php 
-    // if ($isAdmin && !$adminAccountComplete): 
+    if ($incomplete): 
     ?>
         <div class="mb-6 bg-red-100 border-l-4 border-red-600 p-4 rounded">
             <p class="text-red-700 font-medium">⚠ Admin account setup incomplete.</p>
@@ -216,7 +216,7 @@ $feedback_received = $feedback['total_feedback'];
             </a>
         </div>
     <?php 
-    // endif; 
+    endif; 
     ?>
 
     <h2 class="text-2xl font-bold mb-6">Admin Dashboard</h2>

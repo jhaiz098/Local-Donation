@@ -1,5 +1,4 @@
 <?php
-session_start(); // Start session
 include 'db_connect.php'; // Include your DB connection
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -26,9 +25,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         FROM users 
         WHERE email = ? AND role IN ('Staff', 'Admin', 'Superuser')
     ");
+
+    if ($stmt === false) {
+        // Handle error - the statement couldn't be prepared
+        die('Error preparing query: ' . $conn->error);
+    }
+
     $stmt->bind_param("s", $email);
-    $stmt->execute();
+    if (!$stmt->execute()) {
+        // Handle error - the statement couldn't be executed
+        die('Error executing query: ' . $stmt->error);
+    }
+
     $stmt->store_result();
+
 
     if ($stmt->num_rows === 1) {
         $stmt->bind_result($user_id, $hashed_password, $first_name, $role);
