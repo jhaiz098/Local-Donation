@@ -51,7 +51,7 @@ if ($result->num_rows > 0) {
     }
 }
 
-$conn->close();
+// $conn->close();
 ?>
 
 
@@ -174,6 +174,7 @@ $conn->close();
                     <th class="p-3">Entry ID</th>
                     <th class="p-3">Profile ID</th>
                     <th class="p-3">Type</th>
+                    <th class="p-3">Details</th>
                     <th class="p-3">Items</th> <!-- New column for Items -->
                     <th class="p-3">Target Area</th>
                     <th class="p-3">Created At</th>
@@ -191,6 +192,7 @@ $conn->close();
                         echo '<td class="p-3">' . $entry['entry_id'] . '</td>';
                         echo '<td class="p-3">' . $entry['profile_id'] . '</td>';
                         echo '<td class="p-3"><span class="px-2 py-1 rounded ' . ($entry['entry_type'] == 'offer' ? 'bg-green-200' : 'bg-yellow-200') . ' text-xs">' . ucfirst($entry['entry_type']) . '</span></td>';
+                        echo '<td class="p-3"><span class="px-2 py-1 rounded">' . ucfirst($entry['details']) . '</span></td>';
                         
                         // Items column with vertical list
                         echo '<td class="p-3">';
@@ -212,21 +214,23 @@ $conn->close();
                         echo '<div class="flex gap-1 justify-center whitespace-nowrap">';
                         echo '<button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 view-btn" onclick="openModal(this)" 
                                 data-entry-id="' . $entry['entry_id'] . '" 
-                                data-profile-id="' . urlencode($entry['profile_id']) . '" 
-                                data-entry-type="' . urlencode($entry['entry_type']) . '" 
-                                data-details="' . urlencode($entry['details']) . '" 
-                                data-target-location="' . urlencode($entry['target_location']) . '" 
-                                data-created-at="' . urlencode($entry['created_at']) . '" 
-                                data-updated-at="' . urlencode($entry['updated_at']) . '" 
+                                data-profile-id="' . $entry['profile_id'] . '" 
+                                data-entry-type="' . $entry['entry_type'] . '" 
+                                data-details="' . htmlspecialchars($entry['details'], ENT_QUOTES, 'UTF-8') . '" 
+                                data-target-location="' . $entry['target_location'] . '" 
+                                data-created-at="' . $entry['created_at'] . '" 
+                                data-updated-at="' . $entry['updated_at'] . '" 
                                 data-items=\'' . json_encode($entry['items']) . '\'>View</button>';
-                        echo '<button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onclick="openEditModal(this)" data-entry-id="' . $entry['entry_id'] . '" 
-                                data-profile-id="' . urlencode($entry['profile_id']) . '" 
-                                data-entry-type="' . urlencode($entry['entry_type']) . '" 
-                                data-details="' . urlencode($entry['details']) . '" 
-                                data-target-location="' . urlencode($entry['target_location']) . '" 
-                                data-created-at="' . urlencode($entry['created_at']) . '" 
-                                data-updated-at="' . urlencode($entry['updated_at']) . '" 
+                        echo '<button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600" onclick="openEditModal(this)" 
+                                data-entry-id="' . $entry['entry_id'] . '" 
+                                data-profile-id="' . $entry['profile_id'] . '" 
+                                data-entry-type="' . $entry['entry_type'] . '" 
+                                data-details="' . htmlspecialchars($entry['details'], ENT_QUOTES, 'UTF-8') . '" 
+                                data-target-location="' . $entry['target_location'] . '" 
+                                data-created-at="' . $entry['created_at'] . '" 
+                                data-updated-at="' . $entry['updated_at'] . '" 
                                 data-items=\'' . json_encode($entry['items']) . '\'>Edit</button>';
+
 
                         echo '<button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" onclick="handleButtonClick(this, \'Delete\')" data-entry-id="' . $entry['entry_id'] . '">Delete</button>';
                         echo '</div>';
@@ -322,7 +326,6 @@ function openModal(button) {
 function closeModal() {
     document.getElementById('modal').classList.add('hidden');  // Add 'hidden' to hide the modal
 }
-
 
 </script>
 
