@@ -148,7 +148,7 @@ $feedback_received = $feedback['total_feedback'];
             <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_activities.php" class="block px-4 py-2 rounded">Activity</a>
             </li>
-            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+            <li class="<?= ($isStaff || $isAdmin || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_audit_trails.php" class="block px-4 py-2 rounded">Audit Trails</a>
             </li>
             <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">

@@ -166,7 +166,7 @@ if($result->num_rows > 0){
             <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a>
             </li>
-            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+            <li class="<?= ($isStaff || $isAdmin || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a>
             </li>
             <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
@@ -323,7 +323,12 @@ if($result->num_rows > 0){
                                 >View</button>
 
 
-                                <button class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 edit-btn"
+                                <!-- Edit button -->
+                                <button
+                                    class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 edit-btn
+                                    <?= $isStaff ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-yellow-600' ?>"
+                                    <?= $isStaff ? 'disabled' : '' ?>
+
                                     data-user_id="<?= $user['user_id'] ?>"
                                     data-profile_pic="<?= isset($user['profile_pic']) ? '../'.$user['profile_pic'] : '../uploads/profile_pic_placeholder1.png' ?>"
                                     data-first_name="<?= $user['first_name'] ?>"
@@ -339,13 +344,21 @@ if($result->num_rows > 0){
                                     data-province="<?= $user['province_id'] ?>"
                                     data-city="<?= $user['city_id'] ?>"
                                     data-barangay="<?= $user['barangay_id'] ?>"
-                                >Edit</button>
+                                >
+                                    Edit
+                                </button>
 
-                                <button 
-                                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 remove-btn"
-                                    data-user_id="<?= $user['user_id'] ?>">
+                                <!-- Remove button -->
+                                <button
+                                    class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 remove-btn
+                                    <?= $isStaff ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'hover:bg-red-600' ?>"
+                                    <?= $isStaff ? 'disabled' : '' ?>
+
+                                    data-user_id="<?= $user['user_id'] ?>"
+                                >
                                     Remove
                                 </button>
+
                             <?php endif; ?>
                     </div>
                 </td>

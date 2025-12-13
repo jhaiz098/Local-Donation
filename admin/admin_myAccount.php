@@ -139,7 +139,7 @@ while($row = $result->fetch_assoc()) {
             <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a>
             </li>
-            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+            <li class="<?= ($isStaff || $isAdmin || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a>
             </li>
             <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
