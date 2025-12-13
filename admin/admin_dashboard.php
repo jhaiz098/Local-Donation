@@ -6,6 +6,34 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     exit();
 }
 
+// Get the user ID from the session
+$user_id = $_SESSION['user_id'];
+
+// Query to check the user's details
+$sql = "SELECT * FROM users WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch the user's details
+$user = $result->fetch_assoc();
+
+// Check if any essential fields are missing
+$incomplete = false;
+$required_fields = [
+    'profile_pic', 'first_name', 'middle_name', 'last_name', 'date_of_birth', 
+    'gender', 'zip_code', 'phone_number', 'email', 'password', 'role', 
+    'region_id', 'province_id', 'city_id', 'barangay_id'
+];
+
+foreach ($required_fields as $field) {
+    if (empty($user[$field])) {
+        $incomplete = true;
+        break;
+    }
+}
+
 // Count all users by role
 $sql = "SELECT 
             COUNT(*) AS total_users,
@@ -74,26 +102,48 @@ $feedback_received = $feedback['total_feedback'];
             <!-- Accounts -->
             <li class="uppercase text-xs px-2 mt-4">Accounts</li>
             <li><a href="admin_myAccount.php" class="block px-4 py-2 rounded hover:bg-gray-200">My Account</a></li>
-            <li><a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a></li>
-            <li><a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a>
+            </li>
 
             <!-- Operations -->
             <li class="uppercase text-xs px-2 mt-4">Operations</li>
-            <li><a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a>
+            </li>
 
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
-            <li><a href="admin_items.php" class="block px-4 py-2 rounded hover:bg-gray-200">Item Management</a></li>
-            <li><a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a></li>
-            <li><a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a></li>
-            <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
-            <li><a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
-            <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_items.php" class="block px-4 py-2 rounded hover:bg-gray-200">Item Management</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a>
+            </li>
 
             <!-- Support -->
             <li class="uppercase text-xs px-2 mt-4">Support</li>
-            <li><a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a></li>
-            <li><a href="admin_help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a>
+            </li>
 
             <!-- Logout -->
             <li class="mt-6">
@@ -105,6 +155,7 @@ $feedback_received = $feedback['total_feedback'];
         </ul>
     </nav>
 </aside>
+
 
 <!-- ================= MOBILE SIDE MENU ================= -->
 <div id="side-menu"
@@ -148,21 +199,6 @@ $feedback_received = $feedback['total_feedback'];
     <?php 
     // endif; 
     ?>
-
-    <?php 
-    // if ($isAdmin && !$hasAllPermissions): 
-    ?>
-        <div class="mb-6 bg-blue-100 border-l-4 border-blue-600 p-4 rounded">
-            <p class="text-blue-700 font-medium">ℹ Limited admin access detected.</p>
-            <p class="text-blue-700 text-sm">
-                Some admin permissions are missing. Contact the system administrator if this is unexpected.
-            </p>
-        </div>
-    <?php 
-    // endif;
-    ?>
-
-
 
     <h2 class="text-2xl font-bold mb-6">Admin Dashboard</h2>
 

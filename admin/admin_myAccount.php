@@ -4,6 +4,31 @@ include '../db_connect.php'; // Make sure the path is correct
 // Assuming you have a logged-in user ID in session
 $user_id = $_SESSION['user_id'] ?? null;
 
+// Query to check the user's details
+$sql = "SELECT * FROM users WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Fetch the user's details
+$user = $result->fetch_assoc();
+
+// Check if any essential fields are missing
+$incomplete = false;
+$required_fields = [
+    'profile_pic', 'first_name', 'middle_name', 'last_name', 'date_of_birth', 
+    'gender', 'zip_code', 'phone_number', 'email', 'password', 'role', 
+    'region_id', 'province_id', 'city_id', 'barangay_id'
+];
+
+foreach ($required_fields as $field) {
+    if (empty($user[$field])) {
+        $incomplete = true;
+        break;
+    }
+}
+
 if ($user_id) {
     // Fetch user info
     $stmt = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
@@ -69,26 +94,48 @@ while($row = $result->fetch_assoc()) {
             <!-- Accounts -->
             <li class="uppercase text-xs px-2 mt-4">Accounts</li>
             <li><a href="admin_myAccount.php" class="block px-4 py-2 rounded bg-gray-300 font-semibold">My Account</a></li>
-            <li><a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a></li>
-            <li><a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_users.php" class="block px-4 py-2 rounded hover:bg-gray-200">Users</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_profiles.php" class="block px-4 py-2 rounded hover:bg-gray-200">Profiles</a>
+            </li>
 
             <!-- Operations -->
             <li class="uppercase text-xs px-2 mt-4">Operations</li>
-            <li><a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_donations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donations / Requests</a>
+            </li>
 
             <!-- System -->
             <li class="uppercase text-xs px-2 mt-4">System</li>
-            <li><a href="admin_items.php" class="block px-4 py-2 rounded hover:bg-gray-200">Item Management</a></li>
-            <li><a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a></li>
-            <li><a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a></li>
-            <li><a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a></li>
-            <li><a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a></li>
-            <li><a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_items.php" class="block px-4 py-2 rounded hover:bg-gray-200">Item Management</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_locations.php" class="block px-4 py-2 rounded hover:bg-gray-200">Location Management</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_donation_logs.php" class="block px-4 py-2 rounded hover:bg-gray-200">Donation Logs</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_activities.php" class="block px-4 py-2 rounded hover:bg-gray-200">Activity</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_audit_trails.php" class="block px-4 py-2 rounded hover:bg-gray-200">Audit Trails</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a>
+            </li>
 
             <!-- Support -->
             <li class="uppercase text-xs px-2 mt-4">Support</li>
-            <li><a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a></li>
-            <li><a href="admin_help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a></li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_feedback.php" class="block px-4 py-2 rounded hover:bg-gray-200">Feedback</a>
+            </li>
+            <li class="<?php echo ($incomplete) ? 'opacity-50 cursor-not-allowed pointer-events-none bg-gray-200' : ''; ?>">
+                <a href="admin_help.php" class="block px-4 py-2 rounded hover:bg-gray-200">Help / FAQ</a>
+            </li>
 
             <!-- Logout -->
             <li class="mt-6">
@@ -481,6 +528,7 @@ document.querySelector("form").addEventListener("submit", function(e) {
     .then(data => {
         if (data.status === "success") {
             alert("Profile updated successfully!");
+            window.location.reload();
         } else {
             alert("Error: " + data.message);
         }
