@@ -65,7 +65,7 @@ $result = $conn->query($sql);
 $counts = $result->fetch_assoc();
 
 // Count pending admin requests
-$pending_requests_sql = "SELECT COUNT(*) AS total_pending FROM pending_admins";
+$pending_requests_sql = "SELECT COUNT(*) AS total_pending FROM donation_entries where entry_type = 'request'";
 $pending_result = $conn->query($pending_requests_sql);
 $pending = $pending_result->fetch_assoc();
 $pending_requests = $pending['total_pending'];
@@ -147,10 +147,10 @@ $feedback_received = $feedback['total_feedback'];
             <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_locations.php" class="block px-4 py-2 rounded">Location Management</a>
             </li>
-            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+            <li class="<?= ($incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_donation_logs.php" class="block px-4 py-2 rounded">Donation Logs</a>
             </li>
-            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
+            <li class="<?= ($incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_activities.php" class="block px-4 py-2 rounded">Activity</a>
             </li>
             <li class="<?= ($isStaff || $isAdmin || $incomplete) ? $disabledClass : '' ?>">

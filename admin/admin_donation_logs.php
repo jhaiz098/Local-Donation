@@ -1,7 +1,13 @@
 <?php
-include "../db_connect.php"; // Include your database connection
+include "../admin_connect.php"; // Include your database connection
 
 $user_id = $_SESSION['user_id'];
+$php_role = $_SESSION['role'] ?? 'Staff'; // Default to Staff
+
+// ----------------- ACTIVATE MYSQL ROLE -----------------
+if (in_array($php_role, ['Staff', 'Admin', 'Superuser'])) {
+    $conn->query("SET ROLE " . strtolower($php_role));
+}
 
 $roleSql = "SELECT role FROM users WHERE user_id = ?";
 $roleStmt = $conn->prepare($roleSql);
@@ -29,6 +35,9 @@ $offset = ($page - 1) * $records_per_page;
 // Fetch donation logs from the database with LIMIT and OFFSET for pagination
 $query = "SELECT * FROM donation_logs ORDER BY created_at DESC LIMIT ?, ?";
 $stmt = $conn->prepare($query);
+if (!$stmt) {
+    die("Prepare failed: " . $conn->error);
+}
 $stmt->bind_param("ii", $offset, $records_per_page); // Bind offset and records per page as integers
 $stmt->execute();
 $result = $stmt->get_result();
