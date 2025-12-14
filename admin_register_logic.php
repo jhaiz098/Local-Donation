@@ -103,14 +103,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
 
-    $description = "New staff registration submitted for approval: "
+    // After inserting into pending_admins successfully
+    $activity_description = "New staff registration submitted for approval: "
                 . $first_name . " " . $last_name
                 . " (" . $email . ")";
 
-    $auditStmt = $conn->prepare("CALL log_audit(NULL, NULL, ?)");
-    $auditStmt->bind_param("s", $description);
-    $auditStmt->execute();
-    $auditStmt->close();
+    $activityStmt = $conn->prepare("CALL log_activity(NULL, NULL, ?, ?)");
+    $display_text = "Staff registration submitted for approval.";
+    $activityStmt->bind_param("ss", $activity_description, $display_text);
+    $activityStmt->execute();
+    $activityStmt->close();
+
 
 
     header("Location: admin_register.php?status=success&message=Registration+submitted+for+approval");
