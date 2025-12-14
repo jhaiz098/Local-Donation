@@ -52,12 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // -------------------------
             // Record login activity for user
             // -------------------------
-            $activity_stmt = $conn->prepare("INSERT INTO activities (user_id, profile_id, description, display_text) VALUES (?, NULL, ?, ?)");
+            $activity_stmt = $conn->prepare("CALL log_activity(?, NULL, ?, ?)");
             $description = "User logged in (ID: $user_id)";
             $display_text = "You logged in successfully.";
+
             $activity_stmt->bind_param("iss", $user_id, $description, $display_text);
             $activity_stmt->execute();
             $activity_stmt->close();
+
 
             // -------------------------
             // Redirect to user dashboard
@@ -69,22 +71,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // -------------------------
             // Log failed login due to wrong password
             // -------------------------
-            $audit_stmt = $conn->prepare("
-                INSERT INTO audit_logs (user_id, profile_id, description) 
-                VALUES (NULL, NULL, ?)
-            ");
+            $audit_stmt = $conn->prepare("CALL log_audit(NULL, NULL, ?)");
             $desc = "Failed login attempt for email '$email': incorrect password";
+
             $audit_stmt->bind_param("s", $desc);
             $audit_stmt->execute();
             $audit_stmt->close();
+
 
             header("Location: login.php?status=error&message=" . urlencode("Incorrect password."));
             exit();
         }
     } else {
         // -------------------------
-        // Email not found
+        // Log failed login: email not found
         // -------------------------
+        $audit_stmt = $conn->prepare("CALL log_audit(NULL, NULL, ?)");
+        $desc = "Failed login attempt: email '$email' not found";
+
+        $audit_stmt->bind_param("s", $desc);
+        $audit_stmt->execute();
+        $audit_stmt->close();
+
         header("Location: login.php?status=error&message=" . urlencode("Email not found."));
         exit();
     }

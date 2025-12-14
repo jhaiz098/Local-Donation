@@ -64,11 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt->close();
 
-    // ❌ STOP if errors exist
     if (!empty($errors)) {
+        $desc = "Failed staff registration attempt for email '$email': " . implode("; ", $errors);
+        $auditStmt = $conn->prepare("CALL log_audit(NULL, NULL, ?)");
+        $auditStmt->bind_param("s", $desc);
+        $auditStmt->execute();
+        $auditStmt->close();
+
         header("Location: admin_register.php?status=error&message=" . urlencode(implode("\n", $errors)));
         exit;
     }
+
 
     // ✅ Hash password
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
@@ -97,15 +103,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute();
     $stmt->close();
 
-    // ✅ Insert audit trail (no user_id yet, pending only)
     $description = "New staff registration submitted for approval: "
                 . $first_name . " " . $last_name
                 . " (" . $email . ")";
 
-    $auditStmt = $conn->prepare("
-        INSERT INTO audit_logs (user_id, profile_id, description)
-        VALUES (NULL, NULL, ?)
-    ");
+    $auditStmt = $conn->prepare("CALL log_audit(NULL, NULL, ?)");
     $auditStmt->bind_param("s", $description);
     $auditStmt->execute();
     $auditStmt->close();

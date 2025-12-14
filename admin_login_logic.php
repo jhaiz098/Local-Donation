@@ -27,18 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ");
 
     if ($stmt === false) {
-        // Handle error - the statement couldn't be prepared
         die('Error preparing query: ' . $conn->error);
     }
 
     $stmt->bind_param("s", $email);
-    if (!$stmt->execute()) {
-        // Handle error - the statement couldn't be executed
-        die('Error executing query: ' . $stmt->error);
-    }
-
+    $stmt->execute();
     $stmt->store_result();
-
 
     if ($stmt->num_rows === 1) {
         $stmt->bind_result($user_id, $hashed_password, $first_name, $role);
@@ -48,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Verify password
         // -------------------------
         if (password_verify($password, $hashed_password)) {
+
             // -------------------------
             // Set session variables
             // -------------------------
@@ -57,12 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['role'] = $role;
 
             // -------------------------
-            // Record login activity
+            // Record login activity via stored procedure
             // -------------------------
-            $activity_stmt = $conn->prepare("
-                INSERT INTO activities (user_id, profile_id, description, display_text) 
-                VALUES (?, NULL, ?, ?)
-            ");
+            $activity_stmt = $conn->prepare("CALL log_activity(?, NULL, ?, ?)");
             $description = "Admin logged in (ID: $user_id, Role: $role)";
             $display_text = "You logged in successfully.";
             $activity_stmt->bind_param("iss", $user_id, $description, $display_text);
@@ -77,12 +69,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
             // -------------------------
-            // Log failed login due to wrong password
+            // Log failed login due to wrong password via stored procedure
             // -------------------------
-            $audit_stmt = $conn->prepare("
-                INSERT INTO audit_logs (user_id, profile_id, description) 
-                VALUES (NULL, NULL, ?)
-            ");
+            $audit_stmt = $conn->prepare("CALL log_audit(NULL, NULL, ?)");
             $desc = "Failed admin login attempt for email '$email': incorrect password";
             $audit_stmt->bind_param("s", $desc);
             $audit_stmt->execute();
@@ -94,8 +83,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
         // -------------------------
-        // Email not found or not an admin
+        // Log failed login: email not found or not an admin
         // -------------------------
+        $audit_stmt = $conn->prepare("CALL log_audit(NULL, NULL, ?)");
+        $desc = "Failed admin login attempt: email '$email' not found or not an admin";
+        $audit_stmt->bind_param("s", $desc);
+        $audit_stmt->execute();
+        $audit_stmt->close();
+
         header("Location: admin_login.php?status=error&message=" . urlencode("Admin account not found."));
         exit();
     }
