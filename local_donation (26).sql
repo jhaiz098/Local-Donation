@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 13, 2025 at 02:40 PM
+-- Generation Time: Dec 14, 2025 at 04:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -36,10 +36,6 @@ INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`,
 (6, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-13 04:51:54'),
 (7, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 04:52:10'),
 (8, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-13 05:17:17'),
-(9, 1, 1, 'New individual profile created: James Emmanuel wewew Fernandez (Profile ID: 1)', 'You created a new individual profile: James Emmanuel wewew Fernandez', '2025-12-13 05:17:22'),
-(10, NULL, 1, 'User ID 1 was added to Profile ID 1 as owner', 'A member was added with role: owner', '2025-12-13 05:17:22'),
-(11, NULL, 1, 'Added new donation entry #1: request', 'You added a new donation entry request.', '2025-12-13 05:17:40'),
-(12, NULL, 1, 'Added new donation entry #2: offer', 'You added a new donation entry offer.', '2025-12-13 05:18:02'),
 (13, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 05:18:12'),
 (14, 2, NULL, 'Admin logged in (ID: 2, Role: Superuser)', 'You logged in successfully.', '2025-12-13 08:25:06'),
 (15, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-13 09:14:50'),
@@ -384,12 +380,12 @@ INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`,
 (354, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:13'),
 (355, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:13'),
 (356, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:13'),
-(357, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:13');
-INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`, `display_text`, `created_at`) VALUES
+(357, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:13'),
 (358, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:13'),
 (359, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:14'),
 (360, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:14'),
-(361, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:14'),
+(361, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:14');
+INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`, `display_text`, `created_at`) VALUES
 (362, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:14'),
 (363, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:14'),
 (364, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 16:32:14'),
@@ -701,7 +697,70 @@ INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`,
 (670, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 20:10:33'),
 (671, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 20:10:40'),
 (672, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 20:14:31'),
-(673, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 20:21:43');
+(673, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-13 20:21:43'),
+(677, 1, NULL, 'New user created: James Emmanuel wewew Fernandez (ID: 1)', 'You created a new account: James Emmanuel wewew Fernandez', '2025-12-14 07:36:03'),
+(678, 2, NULL, 'New user created: James Emmanuel Fernandez (ID: 2)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(679, 3, NULL, 'New user created: James Emmanuel Fernandez (ID: 3)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(680, 4, NULL, 'New user created: James Emmanuel Fernandez (ID: 4)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(681, 5, NULL, 'New user created: James Emmanuel Fernandez (ID: 5)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(682, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-14 07:36:16'),
+(683, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 07:36:49'),
+(684, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 07:37:15'),
+(685, 5, NULL, 'User updated: James Emmanuel Fernandez (ID: 5)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 07:37:38'),
+(686, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 07:48:16'),
+(687, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 07:49:26'),
+(688, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 07:50:06'),
+(689, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 07:50:21'),
+(690, 2, NULL, 'Admin logged in (ID: 2, Role: Admin)', 'You logged in successfully.', '2025-12-14 07:52:02'),
+(691, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 07:52:35'),
+(692, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 07:52:39'),
+(693, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 07:57:55'),
+(694, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 07:58:11'),
+(695, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 08:20:36'),
+(696, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 09:40:13'),
+(697, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-14 09:41:37'),
+(698, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 09:41:47'),
+(699, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 09:42:03'),
+(700, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 09:42:22'),
+(701, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 09:44:10'),
+(702, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 09:46:55'),
+(703, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 09:50:27'),
+(704, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 09:50:38'),
+(705, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 09:52:50'),
+(706, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-14 09:53:02'),
+(707, 1, 2, 'New individual profile created: James Emmanuel wewew Fernandez (Profile ID: 2)', 'You created a new individual profile: James Emmanuel wewew Fernandez', '2025-12-14 09:53:05'),
+(708, NULL, 2, 'User ID 1 was added to Profile ID 2 as owner', 'A member was added with role: owner', '2025-12-14 09:53:05'),
+(709, NULL, 2, 'Added new donation entry #3: request', 'You added a new donation entry request.', '2025-12-14 09:53:23'),
+(710, NULL, 2, 'Added new donation entry #4: offer', 'You added a new donation entry offer.', '2025-12-14 09:53:34'),
+(711, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 09:53:47'),
+(712, 1, 2, 'New individual profile created: James Emmanuel wewew Fernandez (Profile ID: 2)', 'You created a new individual profile: James Emmanuel wewew Fernandez', '2025-12-14 03:16:30'),
+(713, NULL, 2, 'User ID 1 was added to Profile ID 2 as owner', 'A member was added with role: owner', '2025-12-14 03:16:30'),
+(714, NULL, 2, 'User ID 1 was added to Profile ID 2 as owner', 'A member was added with role: owner', '2025-12-14 03:16:30'),
+(715, 1, NULL, 'New user created: James Emmanuel wewew Fernandez (ID: 1)', 'You created a new account: James Emmanuel wewew Fernandez', '2025-12-14 03:16:30'),
+(716, 2, NULL, 'New user created: James Emmanuel Fernandez (ID: 2)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(717, 3, NULL, 'New user created: James Emmanuel Fernandez (ID: 3)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(718, 4, NULL, 'New user created: James Emmanuel Fernandez (ID: 4)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(719, 5, NULL, 'New user created: James Emmanuel Fernandez (ID: 5)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(720, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-14 11:16:59'),
+(721, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 11:17:08'),
+(722, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 12:23:37');
+INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`, `display_text`, `created_at`) VALUES
+(723, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 12:31:33'),
+(724, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 12:38:02'),
+(725, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 12:39:46'),
+(726, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 12:40:54'),
+(727, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 12:41:07'),
+(728, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 14:24:07'),
+(729, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 15:02:44'),
+(730, 2, NULL, 'User updated: James Emmanuel Fernandez (ID: 2)', 'Your account was updated: James Emmanuel Fernandez', '2025-12-14 15:03:19'),
+(731, 5, NULL, 'Admin logged in (ID: 5, Role: Superuser)', 'You logged in successfully.', '2025-12-14 21:30:54'),
+(732, 2, NULL, 'Admin logged in (ID: 2, Role: Staff)', 'You logged in successfully.', '2025-12-14 21:31:17'),
+(733, 6, NULL, 'New user created: James Emmanuel Fernandez (ID: 6)', 'You created a new account: James Emmanuel Fernandez', '2025-12-14 21:58:02'),
+(734, 6, NULL, 'New user registered (ID: 6, Email: james.fernandez1233@gmail.com)', 'You have successfully registered.', '2025-12-14 21:58:02'),
+(735, 4, NULL, 'User logged in (ID: 4)', 'You logged in successfully.', '2025-12-14 22:15:17'),
+(736, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-14 22:24:37'),
+(737, 1, 3, 'New family profile created: ddddd (Profile ID: 3)', 'You created a new family profile: ddddd', '2025-12-14 22:53:11'),
+(738, NULL, 3, 'User ID 1 was added to Profile ID 3 as owner', 'A member was added with role: owner', '2025-12-14 22:53:11');
 
 --
 -- Dumping data for table `audit_logs`
@@ -1395,7 +1454,54 @@ INSERT INTO `audit_logs` (`activity_id`, `user_id`, `profile_id`, `description`,
 (684, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-13 20:10:33'),
 (685, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-13 20:10:40'),
 (686, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-13 20:14:31'),
-(687, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-13 20:21:43');
+(687, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-13 20:21:43'),
+(688, NULL, 1, 'Profile ID: 1 added a new donation entry', '2025-12-13 23:33:14'),
+(689, 1, 1, 'New member 1added to profile: Profile ID 1', '2025-12-13 23:33:14'),
+(690, 1, 1, 'New profile created: 1', '2025-12-13 23:33:14'),
+(691, 1, 1, 'Profile deleted: 1', '2025-12-14 07:33:50'),
+(692, 1, NULL, 'New user account created: James Emmanuel wewew Fernandez', '2025-12-14 07:36:03'),
+(693, 2, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(694, 3, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(695, 4, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(696, 5, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 07:36:03'),
+(697, 5, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 07:37:38'),
+(698, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 07:50:21'),
+(699, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 07:52:35'),
+(700, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 07:52:39'),
+(701, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 07:57:55'),
+(702, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 07:58:11'),
+(703, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 08:20:36'),
+(704, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 09:50:38'),
+(705, 1, 2, 'New member 1added to profile: Profile ID 2', '2025-12-14 09:53:05'),
+(706, 1, 2, 'New profile created: 2', '2025-12-14 09:53:05'),
+(707, NULL, 2, 'Profile ID: 2 added a new donation entry', '2025-12-14 09:53:23'),
+(708, NULL, 2, 'Profile ID: 2 added a new donation entry', '2025-12-14 09:53:34'),
+(709, NULL, 2, 'Profile ID: 2 updated a donation entry', '2025-12-14 09:53:52'),
+(710, NULL, 2, 'Profile ID: 2 added a new donation entry', '2025-12-14 03:16:30'),
+(711, NULL, 2, 'Profile ID: 2 added a new donation entry', '2025-12-14 03:16:30'),
+(712, 1, 2, 'New member 1added to profile: Profile ID 2', '2025-12-14 03:16:30'),
+(713, 1, 2, 'New profile created: 2', '2025-12-14 03:16:30'),
+(714, 1, 2, 'New member 1added to profile: Profile ID 2', '2025-12-14 03:16:30'),
+(715, 1, NULL, 'New user account created: James Emmanuel wewew Fernandez', '2025-12-14 03:16:30'),
+(716, 2, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(717, 3, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(718, 4, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(719, 5, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 03:16:30'),
+(720, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 14:24:07'),
+(721, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 15:02:44'),
+(722, 2, NULL, 'User account updated: James Emmanuel Fernandez', '2025-12-14 15:03:19'),
+(723, NULL, NULL, 'Failed login attempt: email \'asd@sad\' not found', '2025-12-14 20:59:34'),
+(724, NULL, NULL, 'Failed login attempt: email \'sadaa@d\' not found', '2025-12-14 21:00:31'),
+(725, NULL, NULL, 'Failed admin login attempt: email \'asd@asd\' not found or not an admin', '2025-12-14 21:20:31'),
+(726, NULL, NULL, 'Failed admin login attempt for email \'admin@gmail.com\': incorrect password', '2025-12-14 21:20:44'),
+(727, NULL, NULL, 'Failed staff registration attempt for email \'admin3@gmail.com\': Email already exists.', '2025-12-14 21:29:43'),
+(728, NULL, NULL, 'Failed staff registration attempt for email \'james.fernandez1231@gmail.com\': Email already exists.', '2025-12-14 21:30:01'),
+(729, NULL, NULL, 'New staff registration submitted for approval: James Emmanuel Fernandez (james.fernandez1232@gmail.com)', '2025-12-14 21:30:18'),
+(730, NULL, NULL, 'Failed registration attempt for email \'james.fernandez1230@gmail.com\': Email already registered.', '2025-12-14 21:57:35'),
+(731, 6, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 21:58:02'),
+(732, NULL, NULL, 'Failed login attempt: email \'james.fernandez1239@gmail.com\' not found', '2025-12-14 22:24:17'),
+(733, 1, 3, 'New member 1added to profile: Profile ID 3', '2025-12-14 22:53:11'),
+(734, 1, 3, 'New profile created: 3', '2025-12-14 22:53:11');
 
 --
 -- Dumping data for table `barangays`
@@ -1461,7 +1567,8 @@ INSERT INTO `barangays` (`id`, `city_id`, `name`) VALUES
 (57, 93, 'San Roque'),
 (58, 93, 'Santa Cruz'),
 (59, 93, 'Zone 1'),
-(60, 93, 'Zone 3');
+(60, 93, 'Zone 3'),
+(61, 103, 'aa');
 
 --
 -- Dumping data for table `cities`
@@ -1569,30 +1676,39 @@ INSERT INTO `cities` (`id`, `province_id`, `name`) VALUES
 (99, 49, 'Caibiran'),
 (100, 49, 'Culaba'),
 (101, 49, 'Kawayan'),
-(102, 49, 'Maripipi');
+(102, 49, 'Maripipi'),
+(103, 99, 'aaa');
 
 --
 -- Dumping data for table `donation_entries`
 --
 
 INSERT INTO `donation_entries` (`entry_id`, `profile_id`, `entry_type`, `details`, `created_at`, `updated_at`, `target_area`) VALUES
-(2, 1, 'request', 'qqqq asdas', '2025-12-12 21:18:02', '2025-12-13 09:15:28', 'philippines');
+(3, 2, 'request', 'asdasd asdas', '2025-12-14 01:53:23', '2025-12-14 01:53:52', 'philippines'),
+(4, 2, 'offer', '1231231', '2025-12-14 01:53:34', '2025-12-14 01:53:34', 'philippines');
 
 --
 -- Dumping data for table `donation_entry_items`
 --
 
 INSERT INTO `donation_entry_items` (`item_entry_id`, `entry_id`, `item_id`, `quantity`, `unit_name`) VALUES
-(65, 2, 7, 53, 'pcs'),
-(66, 2, 19, 3, 'pcs'),
-(67, 2, 14, 6, 'bottles');
+(70, 4, 13, 5, 'pcs'),
+(71, 3, 12, 5, 'kits'),
+(72, 3, 20, 3, 'liters');
+
+--
+-- Dumping data for table `feedback`
+--
+
+INSERT INTO `feedback` (`feedback_id`, `user_id`, `profile_id`, `feedback`, `created_at`) VALUES
+(1, 1, NULL, 'adddasdasd', '2025-12-14 07:36:32');
 
 --
 -- Dumping data for table `items`
 --
 
 INSERT INTO `items` (`item_id`, `item_name`) VALUES
-(21, 'aa'),
+(21, 'aa asdas'),
 (22, 'bae'),
 (17, 'Batteries'),
 (6, 'Blankets'),
@@ -1642,25 +1758,42 @@ INSERT INTO `item_units` (`item_unit_id`, `item_id`, `unit_name`) VALUES
 (31, 20, 'gallons');
 
 --
+-- Dumping data for table `pending_admins`
+--
+
+INSERT INTO `pending_admins` (`pending_admin_id`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `gender`, `email`, `password`, `role`, `created_at`) VALUES
+(1, 'James Emmanuel', 'Palongpong', 'Fernandez', '2000-11-11', 'Male', 'james.fernandez1232@gmail.com', '$2y$10$eM3JrJMKk9duPJGqrRHnK.12QzPg7UAyPwkF1TXKs588NiSX3KmCq', 'Staff', '2025-12-14 13:30:18');
+
+--
 -- Dumping data for table `profiles`
 --
 
 INSERT INTO `profiles` (`profile_id`, `user_id`, `profile_type`, `profile_name`, `profile_pic`, `created_at`, `updated_at`) VALUES
-(1, 1, 'individual', 'James Emmanuel wewew Fernandez', 'uploads/1765486686_IMG_20231007_180326.JPG', '2025-12-12 21:17:22', '2025-12-12 21:17:22');
+(2, 1, 'individual', 'James Emmanuel wewew Fernandez', 'uploads/1765486686_IMG_20231007_180326.JPG', '2025-12-14 01:53:05', '2025-12-14 01:53:05'),
+(3, 1, 'family', 'ddddd', 'uploads/profile_pic_placeholder1.png', '2025-12-14 14:53:11', '2025-12-14 14:53:11');
+
+--
+-- Dumping data for table `profiles_family`
+--
+
+INSERT INTO `profiles_family` (`profile_id`, `household_name`, `primary_contact_person`, `contact_number`, `email`, `region_id`, `province_id`, `city_id`, `barangay_id`, `zip_code`) VALUES
+(3, 'ddddd', 'asdasd', '09310241773', 'aaaaaa@aaa.com', 10, 53, 1, 2, '6720');
 
 --
 -- Dumping data for table `profiles_individual`
 --
 
 INSERT INTO `profiles_individual` (`profile_id`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `gender`, `phone_number`, `email`, `region_id`, `province_id`, `city_id`, `barangay_id`, `zip_code`) VALUES
-(1, 'James Emmanuel wewew', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '09310241773', 'james.fernandez1230@gmail.com', 10, 51, 24, 26, '6720');
+(2, 'James Emmanuel wewew', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '09310241773', 'james.fernandez1230@gmail.com', 10, 51, 24, 26, '6720');
 
 --
 -- Dumping data for table `profile_members`
 --
 
 INSERT INTO `profile_members` (`id`, `user_id`, `profile_id`, `role`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'owner', '2025-12-12 21:17:22', '2025-12-12 21:17:22');
+(1, 1, 2, 'owner', '2025-12-14 03:16:30', '2025-12-14 03:16:30'),
+(2, 1, 2, 'owner', '2025-12-14 01:53:05', '2025-12-14 01:53:05'),
+(3, 1, 3, 'owner', '2025-12-14 14:53:11', '2025-12-14 14:53:11');
 
 --
 -- Dumping data for table `provinces`
@@ -1764,7 +1897,8 @@ INSERT INTO `provinces` (`id`, `region_id`, `name`) VALUES
 (95, 17, 'Lanao del Sur'),
 (96, 17, 'Maguindanao'),
 (97, 17, 'Sulu'),
-(98, 17, 'Tawi-Tawi');
+(98, 17, 'Tawi-Tawi'),
+(99, 18, 'bbb');
 
 --
 -- Dumping data for table `regions`
@@ -1787,18 +1921,20 @@ INSERT INTO `regions` (`id`, `name`) VALUES
 (14, 'Region XI - Davao Region'),
 (15, 'Region XII - SOCCSKSARGEN'),
 (16, 'Region XIII - Caraga'),
-(17, 'BARMM - Bangsamoro Autonomous Region in Muslim Min');
+(17, 'BARMM - Bangsamoro Autonomous Region in Muslim Min'),
+(18, 'aaa');
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`user_id`, `profile_pic`, `first_name`, `middle_name`, `last_name`, `date_of_birth`, `gender`, `zip_code`, `phone_number`, `email`, `password`, `role`, `created_at`, `region_id`, `province_id`, `city_id`, `barangay_id`) VALUES
-(1, 'uploads/1765486686_IMG_20231007_180326.JPG', 'James Emmanuel wewew', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'james.fernandez1230@gmail.com', '$2y$10$360P2lsH9hZxXTmyuXpvTOcuCso/Sm9W.fRRj.ooDa7ULhRxKxbAe', 'User', '2025-12-11 12:06:17', 10, 51, 24, 26),
-(2, 'uploads/1765497537_FB_IMG_1698376370669.jpg', 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'admin@gmail.com', '$2y$10$jHHGTXoTA6keNUeg4TPWu.quRoecSYytckiCNsmgI1rX9ZMC.yrqq', 'Staff', '2025-12-11 12:06:36', 10, 53, 1, 1),
-(3, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin3@gmail.com', '$2y$10$/nPU6amabRJRc0/ep/rCXu.nVW9nCCdXTy9ukjVGSvy5gnnmWUpbe', 'User', '2025-12-11 12:07:57', NULL, NULL, NULL, NULL),
-(4, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2003-01-02', 'Male', NULL, NULL, 'james.fernandez1231@gmail.com', '$2y$10$jZ6/I3SNgHP8Iup04orqgO/osAx3AakogieFxIFPtKfGLD5QOEfpi', 'User', '2025-12-11 23:05:43', NULL, NULL, NULL, NULL),
-(5, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin2@gmail.com', '$2y$10$ZM4uC30Djbz09gINdCBWd.f8vtttgETyjNv8Q0s7V1WJuSFttAIYe', 'Superuser', '2025-12-12 08:41:52', NULL, NULL, NULL, NULL);
+(1, 'uploads/1765486686_IMG_20231007_180326.JPG', 'James Emmanuel wewew', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'james.fernandez1230@gmail.com', '$2y$10$360P2lsH9hZxXTmyuXpvTOcuCso/Sm9W.fRRj.ooDa7ULhRxKxbAe', 'User', '2025-12-11 04:06:17', 10, 51, 24, 26),
+(2, 'uploads/1765497537_FB_IMG_1698376370669.jpg', 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'admin@gmail.com', '$2y$10$1CoCvkIS6Uu4tk3VXirkVuM/KytxCDjoYSptcWU1yGrQyRn1q40rC', 'Staff', '2025-12-11 04:06:36', 10, 53, 1, 1),
+(3, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', NULL, NULL, 'admin3@gmail.com', '$2y$10$/nPU6amabRJRc0/ep/rCXu.nVW9nCCdXTy9ukjVGSvy5gnnmWUpbe', 'User', '2025-12-11 04:07:57', NULL, NULL, NULL, NULL),
+(4, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2003-01-02', 'Male', NULL, NULL, 'james.fernandez1231@gmail.com', '$2y$10$jZ6/I3SNgHP8Iup04orqgO/osAx3AakogieFxIFPtKfGLD5QOEfpi', 'User', '2025-12-11 15:05:43', NULL, NULL, NULL, NULL),
+(5, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2001-08-23', 'Male', '6720', '09310241773', 'admin2@gmail.com', '$2y$10$CpfjPuR.Q3Ct.hDhjsnbGe7sl5ii7baGJda8iRDO29ENkaMulRgx6', 'Superuser', '2025-12-12 00:41:52', 10, 51, 24, 29),
+(6, NULL, 'James Emmanuel', 'Palongpong', 'Fernandez', '2000-02-22', 'Male', NULL, NULL, 'james.fernandez1233@gmail.com', '$2y$10$5A1t9N/BdSSlNzPTN/wmLu3KhhUM9YcYhQYIk4xWrMTIKsLRhH9Bi', 'User', '2025-12-14 13:58:02', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1819,6 +1955,16 @@ DROP TABLE IF EXISTS `view_recent_feedback`;
 
 DROP VIEW IF EXISTS `view_recent_feedback`;
 CREATE OR REPLACE VIEW `view_recent_feedback`  AS SELECT `f`.`feedback_id` AS `feedback_id`, `f`.`feedback` AS `feedback`, `f`.`created_at` AS `created_at`, `f`.`user_id` AS `user_id`, `f`.`profile_id` AS `profile_id`, `u`.`first_name` AS `first_name`, `p`.`profile_name` AS `profile_name`, `p`.`profile_type` AS `profile_type` FROM ((`feedback` `f` left join `users` `u` on(`f`.`user_id` = `u`.`user_id`)) left join `profiles` `p` on(`f`.`profile_id` = `p`.`profile_id`)) ORDER BY `f`.`created_at` DESC ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `vw_users_with_location`
+--
+DROP TABLE IF EXISTS `vw_users_with_location`;
+
+DROP VIEW IF EXISTS `vw_users_with_location`;
+CREATE OR REPLACE VIEW `vw_users_with_location`  AS SELECT `u`.`user_id` AS `user_id`, `u`.`profile_pic` AS `profile_pic`, `u`.`first_name` AS `first_name`, `u`.`middle_name` AS `middle_name`, `u`.`last_name` AS `last_name`, `u`.`date_of_birth` AS `date_of_birth`, `u`.`gender` AS `gender`, `u`.`zip_code` AS `zip_code`, `u`.`phone_number` AS `phone_number`, `u`.`email` AS `email`, `u`.`role` AS `role`, `u`.`created_at` AS `created_at`, `u`.`region_id` AS `region_id`, `u`.`province_id` AS `province_id`, `u`.`city_id` AS `city_id`, `u`.`barangay_id` AS `barangay_id`, `get_region_name`(`u`.`region_id`) AS `region_name`, `get_province_name`(`u`.`province_id`) AS `province_name`, `get_city_name`(`u`.`city_id`) AS `city_name`, `get_barangay_name`(`u`.`barangay_id`) AS `barangay_name`, timestampdiff(YEAR,`u`.`date_of_birth`,curdate()) AS `age` FROM `users` AS `u` ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

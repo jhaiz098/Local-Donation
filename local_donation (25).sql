@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 13, 2025 at 02:40 PM
+-- Generation Time: Dec 14, 2025 at 04:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -27,6 +27,40 @@ DELIMITER $$
 --
 -- Procedures
 --
+DROP PROCEDURE IF EXISTS `log_activity`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `log_activity` (IN `p_user_id` INT, IN `p_profile_id` INT, IN `p_description` TEXT, IN `p_display_text` TEXT)   BEGIN
+    INSERT INTO activities (
+        user_id,
+        profile_id,
+        description,
+        display_text,
+        created_at
+    )
+    VALUES (
+        p_user_id,
+        p_profile_id,
+        p_description,
+        p_display_text,
+        NOW()
+    );
+END$$
+
+DROP PROCEDURE IF EXISTS `log_audit`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `log_audit` (IN `p_user_id` INT, IN `p_profile_id` INT, IN `p_description` TEXT)   BEGIN
+    INSERT INTO audit_logs (
+        user_id,
+        profile_id,
+        description,
+        created_at
+    )
+    VALUES (
+        p_user_id,
+        p_profile_id,
+        p_description,
+        NOW()
+    );
+END$$
+
 DROP PROCEDURE IF EXISTS `sp_insert_user`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_user` (IN `p_first_name` VARCHAR(100), IN `p_middle_name` VARCHAR(100), IN `p_last_name` VARCHAR(100), IN `p_date_of_birth` DATE, IN `p_gender` ENUM('Male','Female','Other'), IN `p_zip_code` VARCHAR(10), IN `p_phone_number` VARCHAR(20), IN `p_email` VARCHAR(255), IN `p_password` VARCHAR(255), IN `p_role` ENUM('User','Staff','Admin','Superuser'), IN `p_region_id` INT, IN `p_province_id` INT, IN `p_city_id` INT, IN `p_barangay_id` INT)   BEGIN
     INSERT INTO users (
@@ -38,6 +72,61 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_user` (IN `p_first_name` 
         p_zip_code, p_phone_number, p_email, p_password, p_role,
         p_region_id, p_province_id, p_city_id, p_barangay_id
     );
+END$$
+
+--
+-- Functions
+--
+DROP FUNCTION IF EXISTS `get_barangay_name`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_barangay_name` (`p_barangay_id` INT) RETURNS VARCHAR(255) CHARSET utf8mb4 COLLATE utf8mb4_general_ci DETERMINISTIC BEGIN
+    DECLARE b_name VARCHAR(255);
+
+    SELECT name
+    INTO b_name
+    FROM barangays
+    WHERE id = p_barangay_id
+    LIMIT 1;
+
+    RETURN b_name;
+END$$
+
+DROP FUNCTION IF EXISTS `get_city_name`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_city_name` (`p_city_id` INT) RETURNS VARCHAR(255) CHARSET utf8mb4 COLLATE utf8mb4_general_ci DETERMINISTIC BEGIN
+    DECLARE c_name VARCHAR(255);
+
+    SELECT name
+    INTO c_name
+    FROM cities
+    WHERE id = p_city_id
+    LIMIT 1;
+
+    RETURN c_name;
+END$$
+
+DROP FUNCTION IF EXISTS `get_province_name`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_province_name` (`p_province_id` INT) RETURNS VARCHAR(255) CHARSET utf8mb4 COLLATE utf8mb4_general_ci DETERMINISTIC BEGIN
+    DECLARE p_name VARCHAR(255);
+
+    SELECT name
+    INTO p_name
+    FROM provinces
+    WHERE id = p_province_id
+    LIMIT 1;
+
+    RETURN p_name;
+END$$
+
+DROP FUNCTION IF EXISTS `get_region_name`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_region_name` (`p_region_id` INT) RETURNS VARCHAR(255) CHARSET utf8mb4 COLLATE utf8mb4_general_ci DETERMINISTIC BEGIN
+    DECLARE r_name VARCHAR(255);
+
+    SELECT name
+    INTO r_name
+    FROM regions
+    WHERE id = p_region_id
+    LIMIT 1;
+
+    RETURN r_name;
 END$$
 
 DELIMITER ;
@@ -882,6 +971,37 @@ CREATE TABLE `view_recent_feedback` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `vw_users_with_location`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `vw_users_with_location`;
+CREATE TABLE `vw_users_with_location` (
+`user_id` int(11)
+,`profile_pic` varchar(255)
+,`first_name` varchar(100)
+,`middle_name` varchar(100)
+,`last_name` varchar(100)
+,`date_of_birth` date
+,`gender` enum('Male','Female','Other')
+,`zip_code` varchar(10)
+,`phone_number` varchar(20)
+,`email` varchar(255)
+,`role` enum('User','Staff','Admin','Superuser')
+,`created_at` timestamp
+,`region_id` int(11)
+,`province_id` int(11)
+,`city_id` int(11)
+,`barangay_id` int(11)
+,`region_name` varchar(255)
+,`province_name` varchar(255)
+,`city_name` varchar(255)
+,`barangay_name` varchar(255)
+,`age` bigint(21)
+);
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `view_donation_entries`
 --
 DROP TABLE IF EXISTS `view_donation_entries`;
@@ -898,6 +1018,16 @@ DROP TABLE IF EXISTS `view_recent_feedback`;
 
 DROP VIEW IF EXISTS `view_recent_feedback`;
 CREATE OR REPLACE VIEW `view_recent_feedback`  AS SELECT `f`.`feedback_id` AS `feedback_id`, `f`.`feedback` AS `feedback`, `f`.`created_at` AS `created_at`, `f`.`user_id` AS `user_id`, `f`.`profile_id` AS `profile_id`, `u`.`first_name` AS `first_name`, `p`.`profile_name` AS `profile_name`, `p`.`profile_type` AS `profile_type` FROM ((`feedback` `f` left join `users` `u` on(`f`.`user_id` = `u`.`user_id`)) left join `profiles` `p` on(`f`.`profile_id` = `p`.`profile_id`)) ORDER BY `f`.`created_at` DESC ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `vw_users_with_location`
+--
+DROP TABLE IF EXISTS `vw_users_with_location`;
+
+DROP VIEW IF EXISTS `vw_users_with_location`;
+CREATE OR REPLACE VIEW `vw_users_with_location`  AS SELECT `u`.`user_id` AS `user_id`, `u`.`profile_pic` AS `profile_pic`, `u`.`first_name` AS `first_name`, `u`.`middle_name` AS `middle_name`, `u`.`last_name` AS `last_name`, `u`.`date_of_birth` AS `date_of_birth`, `u`.`gender` AS `gender`, `u`.`zip_code` AS `zip_code`, `u`.`phone_number` AS `phone_number`, `u`.`email` AS `email`, `u`.`role` AS `role`, `u`.`created_at` AS `created_at`, `u`.`region_id` AS `region_id`, `u`.`province_id` AS `province_id`, `u`.`city_id` AS `city_id`, `u`.`barangay_id` AS `barangay_id`, `get_region_name`(`u`.`region_id`) AS `region_name`, `get_province_name`(`u`.`province_id`) AS `province_name`, `get_city_name`(`u`.`city_id`) AS `city_name`, `get_barangay_name`(`u`.`barangay_id`) AS `barangay_name`, timestampdiff(YEAR,`u`.`date_of_birth`,curdate()) AS `age` FROM `users` AS `u` ;
 
 --
 -- Indexes for dumped tables
