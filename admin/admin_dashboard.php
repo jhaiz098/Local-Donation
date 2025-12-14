@@ -250,21 +250,30 @@ $feedback_received = $feedback['total_feedback'];
 
     <!-- Quick Actions -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a href="admin_users.php" class="block bg-blue-100 p-6 rounded-xl shadow-md hover:bg-blue-200 transition">
-            <h4 class="font-semibold text-lg mb-1">Manage Users</h4>
-            <p>View and control user accounts.</p>
-        </a>
 
-        <a href="admin_donations.php" class="block bg-green-100 p-6 rounded-xl shadow-md hover:bg-green-200 transition">
-            <h4 class="font-semibold text-lg mb-1">Donations</h4>
-            <p>Monitor donation activity.</p>
-        </a>
+    <a href="<?= $incomplete ? '#' : 'admin_users.php' ?>"
+       class="block bg-blue-100 p-6 rounded-xl shadow-md transition
+              <?= $incomplete ? $disabledClass : 'hover:bg-blue-200' ?>">
+        <h4 class="font-semibold text-lg mb-1">Manage Users</h4>
+        <p>View and control user accounts.</p>
+    </a>
 
-        <a href="admin_feedback.php" class="block bg-yellow-100 p-6 rounded-xl shadow-md hover:bg-yellow-200 transition">
-            <h4 class="font-semibold text-lg mb-1">Feedback</h4>
-            <p>Check user feedback.</p>
-        </a>
-    </div>
+    <a href="<?= $incomplete ? '#' : 'admin_donations.php' ?>"
+       class="block bg-green-100 p-6 rounded-xl shadow-md transition
+              <?= $incomplete ? $disabledClass : 'hover:bg-green-200' ?>">
+        <h4 class="font-semibold text-lg mb-1">Donations</h4>
+        <p>Monitor donation activity.</p>
+    </a>
+
+    <a href="<?= $incomplete ? '#' : 'admin_feedback.php' ?>"
+       class="block bg-yellow-100 p-6 rounded-xl shadow-md transition
+              <?= $incomplete ? $disabledClass : 'hover:bg-yellow-200' ?>">
+        <h4 class="font-semibold text-lg mb-1">Feedback</h4>
+        <p>Check user feedback.</p>
+    </a>
+
+</div>
+
 
 </main>
 
