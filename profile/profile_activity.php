@@ -1,66 +1,72 @@
 <?php
 require '../db_connect.php';
 
+/* ---------------- PROFILE CONTEXT ---------------- */
+
 if (isset($_GET['profile_id'])) {
-    $_SESSION['profile_id'] = intval($_GET['profile_id']);
-} elseif (!isset($_SESSION['profile_id'])) {
-    echo "No profile selected.";
-    exit;
+    $_SESSION['profile_id'] = (int)$_GET['profile_id'];
+}
+if (!isset($_SESSION['profile_id'])) {
+    die("No profile selected.");
 }
 
 $profileId = $_SESSION['profile_id'];
-$role = $_SESSION['role'];
+$role = $_SESSION['role'] ?? 'member';
 
-// Disable links depending on role
+/* ---------------- PERMISSIONS ---------------- */
+
 function isDisabled($permission, $role) {
-    $permissionsMap = [
-        'Manage Members' => ['owner', 'admin', 'manager'],
-        'Manage Offers & Requests' => ['owner', 'admin', 'manager'],
-        'View Activities' => ['owner', 'admin', 'manager', 'member'],
-        'Manage Settings' => ['owner', 'admin', 'manager', 'member']
+    $map = [
+        'Manage Members'            => ['owner','admin','manager'],
+        'Manage Offers & Requests'  => ['owner','admin','manager'],
+        'View Activities'           => ['owner','admin','manager','member'],
+        'Manage Settings'           => ['owner','admin','manager','member'],
     ];
-    return !in_array($role, $permissionsMap[$permission]);
+    return !in_array($role, $map[$permission] ?? []);
 }
 
-// Get profile details
-$stmt = $conn->prepare("SELECT profile_type, profile_name, profile_pic FROM profiles WHERE profile_id = ?");
-$stmt->bind_param("i", $profileId);
-$stmt->execute();
-$result = $stmt->get_result();
-$profileMain = $result->fetch_assoc();
-$stmt->close();
+/* ---------------- PAGINATION ---------------- */
 
-if (!$profileMain) {
-    echo "Profile not found.";
-    exit;
-}
-
-$profileType = $profileMain['profile_type'];
-$profileName = $profileMain['profile_name'];
-$profilePic = !empty($profileMain['profile_pic']) ? "../" . $profileMain['profile_pic'] : "../uploads/profile_pic_placeholder1.png";
-
-// Pagination logic
 $itemsPerPage = 10;
-$page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+$page = max(1, (int)($_GET['page'] ?? 1));
 $offset = ($page - 1) * $itemsPerPage;
 
-// Fetch activity logs
-$logQuery = $conn->prepare("
-    SELECT activity_id, description, display_text, created_at
-    FROM activities
+/* ---------------- FETCH ACTIVITIES + PROFILE ---------------- */
+
+$stmt = $conn->prepare("
+    SELECT activity_id, description, display_text, created_at,
+           profile_type, profile_name, profile_pic
+    FROM v_profile_activities
     WHERE profile_id = ?
     ORDER BY created_at DESC
     LIMIT ? OFFSET ?
 ");
-$logQuery->bind_param("iii", $profileId, $itemsPerPage, $offset);
-$logQuery->execute();
-$logs = $logQuery->get_result();
+$stmt->bind_param("iii", $profileId, $itemsPerPage, $offset);
+$stmt->execute();
+$logs = $stmt->get_result();
 
-// Count total logs
-$countQuery = $conn->prepare("SELECT COUNT(*) AS total FROM activities WHERE profile_id = ?");
-$countQuery->bind_param("i", $profileId);
-$countQuery->execute();
-$totalLogs = $countQuery->get_result()->fetch_assoc()['total'];
+/* ---------------- PROFILE INFO (from first row if exists) ---------------- */
+
+if ($row = $logs->fetch_assoc()) {
+    $profileType = $row['profile_type'];
+    $profileName = $row['profile_name'];
+    $profilePic  = $row['profile_pic'] 
+        ? "../{$row['profile_pic']}" 
+        : "../uploads/profile_pic_placeholder1.png";
+    // Reset pointer for later loop
+    $logs->data_seek(0);
+} else {
+    die("Profile not found.");
+}
+
+/* ---------------- COUNT TOTAL LOGS ---------------- */
+
+$countStmt = $conn->prepare("
+    SELECT COUNT(*) FROM activities WHERE profile_id = ?
+");
+$countStmt->bind_param("i", $profileId);
+$countStmt->execute();
+$totalLogs = $countStmt->get_result()->fetch_row()[0];
 $totalPages = ceil($totalLogs / $itemsPerPage);
 ?>
 

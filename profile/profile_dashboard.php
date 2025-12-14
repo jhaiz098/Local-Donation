@@ -1,180 +1,111 @@
 <?php
-// profile_dashboard.php
-require '../db_connect.php'; // adjust path
+require '../db_connect.php';
 
-if (isset($_GET['profile_id'])) {
-    $_SESSION['profile_id'] = intval($_GET['profile_id']);
-} elseif (!isset($_SESSION['profile_id'])) {
-    echo "No profile selected.";
-    exit;
-}
-
+/* ---------------- PROFILE CONTEXT ---------------- */
+$profileId = $_GET['profile_id'] ?? $_SESSION['profile_id'] ?? die("No profile selected.");
+$_SESSION['profile_id'] = (int)$profileId;
 $userId = $_SESSION['user_id'];
-$profileId = $_SESSION['profile_id'];
 
-// Fetch the role for the user and set it in the session
-$stmt = $conn->prepare("SELECT pm.role FROM profile_members pm
-                        JOIN users u ON pm.user_id = u.user_id
-                        WHERE pm.profile_id = ? AND u.user_id = ?");
-$stmt->bind_param("ii", $profileId, $userId);
-$stmt->execute();
-$result = $stmt->get_result();
+/* ---------------- FETCH USER ROLE ---------------- */
+$role = $conn->query("
+    SELECT role
+    FROM profile_members
+    WHERE profile_id=$profileId AND user_id=$userId
+")->fetch_assoc()['role'] ?? die("No role found");
+$_SESSION['role'] = $role;
 
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $_SESSION['role'] = $row['role'];
-} else {
-    echo "No role found for the given user and profile.";
-    exit;
-}
-$stmt->close();
-
-$role = $_SESSION['role'];
-
-// Helper function to disable links if user doesn't have permission
-function isDisabled($permission, $role) {
-    $permissionsMap = [
-        'Manage Members' => ['owner', 'admin', 'manager'],
-        'Manage Offers & Requests' => ['owner', 'admin', 'manager'],
-        'View Activities' => ['owner', 'admin', 'manager', 'member'],
-        'Manage Settings' => ['owner', 'admin', 'manager', 'member']
+/* ---------------- PERMISSIONS ---------------- */
+function isDisabled($permission, $role){
+    $map = [
+        'Manage Members'=>['owner','admin','manager'],
+        'Manage Offers & Requests'=>['owner','admin','manager'],
+        'View Activities'=>['owner','admin','manager','member'],
+        'Manage Settings'=>['owner','admin','manager','member']
     ];
-    return !in_array($role, $permissionsMap[$permission]);
+    return !in_array($role,$map[$permission]??[]);
 }
 
-// Get main profile info
-$stmt = $conn->prepare("SELECT profile_type, profile_name, profile_pic FROM profiles WHERE profile_id = ?");
-$stmt->bind_param("i", $profileId);
-$stmt->execute();
-$result = $stmt->get_result();
-$profileMain = $result->fetch_assoc();
-$stmt->close();
+/* ---------------- FETCH PROFILE DASHBOARD ---------------- */
+$profile = $conn->query("SELECT * FROM v_profile_dashboard WHERE profile_id=$profileId")->fetch_assoc() ?? die("Profile not found");
 
-if (!$profileMain) {
-    echo "Profile not found.";
-    exit;
-}
+$profileName = $profile['profile_name'];
+$profileType = $profile['profile_type'];
+$profilePic  = $profile['profile_pic'] ? "../{$profile['profile_pic']}" : "../uploads/profile_pic_placeholder1.png";
 
-$profileType = $profileMain['profile_type'];
-$profileName = $profileMain['profile_name'];
+$fullName = $profile['first_name'] ?? $profile['household_name'] ?? $profile['institution_name'] ?? $profile['organization_name'] ?? $profileName;
 
-// Fetch profile data based on type
-switch ($profileType) {
-    case 'individual':
-        $stmt = $conn->prepare("SELECT * FROM profiles_individual WHERE profile_id = ?");
-        break;
-    case 'family':
-        $stmt = $conn->prepare("SELECT * FROM profiles_family WHERE profile_id = ?");
-        break;
-    case 'institution':
-        $stmt = $conn->prepare("SELECT * FROM profiles_institution WHERE profile_id = ?");
-        break;
-    case 'organization':
-        $stmt = $conn->prepare("SELECT * FROM profiles_organization WHERE profile_id = ?");
-        break;
-    default:
-        echo "Unknown profile type.";
-        exit;
-}
+/* ---------------- LOCATION ---------------- */
+$regionId   = $profile['individual_region_id'] ?? $profile['family_region_id'] ?? $profile['institution_region_id'] ?? $profile['org_region_id'];
+$provinceId = $profile['individual_province_id'] ?? $profile['family_province_id'] ?? $profile['institution_province_id'] ?? $profile['org_province_id'];
+$cityId     = $profile['individual_city_id'] ?? $profile['family_city_id'] ?? $profile['institution_city_id'] ?? $profile['org_city_id'];
+$barangayId = $profile['individual_barangay_id'] ?? $profile['family_barangay_id'] ?? $profile['institution_barangay_id'] ?? $profile['org_barangay_id'];
+$zipCode    = $profile['individual_zip_code'] ?? $profile['family_zip_code'] ?? $profile['institution_zip_code'] ?? $profile['org_zip_code'] ?? 'N/A';
 
-$stmt->bind_param("i", $profileId);
-$stmt->execute();
-$result = $stmt->get_result();
-$profile = $result->fetch_assoc();
-$stmt->close();
-
-if (!$profile) {
-    echo "Profile data not found.";
-    exit;
-}
-
-// Common variables
-$profilePic = !empty($profileMain['profile_pic']) ? "../" . $profileMain['profile_pic'] : "../uploads/profile_pic_placeholder1.png";
-$fullName = isset($profile['first_name']) ? trim("{$profile['first_name']} {$profile['middle_name']} {$profile['last_name']}") : $profileName;
-
-// Helper function to get location name by table
-function getLocationName($conn, $table, $id) {
-    if (empty($id)) return 'N/A';
-    $stmt = $conn->prepare("SELECT name FROM $table WHERE id = ?");
-    if (!$stmt) return 'N/A';
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $name = $result->fetch_assoc()['name'] ?? 'N/A';
-    $stmt->close();
+function getLocation($conn,$table,$id){
+    if(!$id) return 'N/A';
+    $name = $conn->query("SELECT name FROM $table WHERE id=$id")->fetch_assoc()['name'] ?? 'N/A';
     return $name;
 }
 
-// Fetch location names if IDs exist
-$regionName   = isset($profile['region_id'])   ? getLocationName($conn, 'regions', $profile['region_id'])   : 'N/A';
-$provinceName = isset($profile['province_id']) ? getLocationName($conn, 'provinces', $profile['province_id']) : 'N/A';
-$cityName     = isset($profile['city_id'])     ? getLocationName($conn, 'cities', $profile['city_id'])     : 'N/A';
-$barangayName = isset($profile['barangay_id']) ? getLocationName($conn, 'barangays', $profile['barangay_id']) : 'N/A';
-$zipCode      = $profile['zip_code'] ?? 'N/A';
-
-$personalInfo = [];
 $locationInfo = [
-    'Region' => $regionName,
-    'Province' => $provinceName,
-    'City/Municipality' => $cityName,
-    'Barangay' => $barangayName,
-    'ZIP Code' => $zipCode
+    'Region'=>getLocation($conn,'regions',$regionId),
+    'Province'=>getLocation($conn,'provinces',$provinceId),
+    'City/Municipality'=>getLocation($conn,'cities',$cityId),
+    'Barangay'=>getLocation($conn,'barangays',$barangayId),
+    'ZIP Code'=>$zipCode
 ];
 
-if ($profileType === 'individual') {
+/* ---------------- PERSONAL INFO ---------------- */
+$personalInfo = [];
+if($profileType==='individual'){
     $dob = $profile['date_of_birth'] ?? null;
-    $age = $dob ? date_diff(date_create($dob), date_create('today'))->y : 'N/A';
     $personalInfo = [
-        'Full Name' => $fullName,
-        'Age' => $age,
-        'Gender' => $profile['gender'] ?? 'N/A',
-        'Phone' => $profile['phone_number'] ?? 'N/A',
-        'Email' => $profile['email'] ?? 'N/A'
+        'Full Name'=>$fullName,
+        'Age'=>$dob?date_diff(date_create($dob),date_create('today'))->y:'N/A',
+        'Gender'=>$profile['gender'] ?? 'N/A',
+        'Phone'=>$profile['individual_phone'] ?? 'N/A',
+        'Email'=>$profile['individual_email'] ?? 'N/A'
     ];
-} else {
-    foreach ($profile as $key => $value) {
-        if (in_array($key, ['profile_id', 'profile_pic', 'region_id', 'province_id', 'city_id', 'barangay_id', 'zip_code'])) continue;
-        $label = ucwords(str_replace('_',' ',$key));
-        $personalInfo[$label] = $value ?? 'N/A';
-    }
+}elseif($profileType==='family'){
+    $personalInfo = [
+        'Household Name'=>$profile['household_name'] ?? 'N/A',
+        'Primary Contact'=>$profile['primary_contact_person'] ?? 'N/A',
+        'Phone'=>$profile['family_contact_number'] ?? 'N/A',
+        'Email'=>$profile['family_email'] ?? 'N/A'
+    ];
+}elseif($profileType==='institution'){
+    $personalInfo = [
+        'Institution Name'=>$profile['institution_name'] ?? 'N/A',
+        'Contact Person'=>$profile['official_contact_person'] ?? 'N/A',
+        'Phone'=>$profile['official_contact_number'] ?? 'N/A',
+        'Email'=>$profile['official_email'] ?? 'N/A'
+    ];
+}else{
+    $personalInfo = [
+        'Organization Name'=>$profile['organization_name'] ?? 'N/A',
+        'Contact Person'=>$profile['org_contact_person'] ?? 'N/A',
+        'Phone'=>$profile['org_contact_number'] ?? 'N/A',
+        'Email'=>$profile['org_email'] ?? 'N/A',
+        'Registration Number'=>$profile['registration_number'] ?? 'N/A'
+    ];
 }
 
-// ----------------- Enhanced Donations Queries -----------------
+/* ---------------- DONATIONS ---------------- */
+function getDonations($conn,$profileId,$type='received',$limit=5){
+    $res=[];
+    $stmt = $conn->prepare("CALL sp_profile_dashboard_get_donations(?,?,?)");
+    $stmt->bind_param("isi",$profileId,$type,$limit);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if($result) $res=$result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+    return $res;
+}
 
-// Donations Received
-$stmt = $conn->prepare("
-    SELECT dl.log_id, dl.item_id, dl.quantity, dl.created_at, 
-           i.item_name, dl.unit_name, p.profile_name AS donor_name, p.profile_type AS donor_type
-    FROM donation_logs dl
-    JOIN profiles p ON dl.donor_profile_id = p.profile_id
-    LEFT JOIN items i ON dl.item_id = i.item_id
-    WHERE dl.recipient_profile_id = ?
-    ORDER BY dl.created_at DESC
-    LIMIT 5
-");
-$stmt->bind_param("i", $profileId);
-$stmt->execute();
-$result = $stmt->get_result();
-$donationsReceived = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
-
-// Donations Given
-$stmt = $conn->prepare("
-    SELECT dl.log_id, dl.item_id, dl.quantity, dl.created_at, 
-           i.item_name, dl.unit_name, p.profile_name AS recipient_name, p.profile_type AS recipient_type
-    FROM donation_logs dl
-    JOIN profiles p ON dl.recipient_profile_id = p.profile_id
-    LEFT JOIN items i ON dl.item_id = i.item_id
-    WHERE dl.donor_profile_id = ?
-    ORDER BY dl.created_at DESC
-    LIMIT 5
-");
-$stmt->bind_param("i", $profileId);
-$stmt->execute();
-$result = $stmt->get_result();
-$donationsGiven = $result->fetch_all(MYSQLI_ASSOC);
-$stmt->close();
+$donationsReceived = getDonations($conn,$profileId,'received');
+$donationsGiven    = getDonations($conn,$profileId,'given');
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
