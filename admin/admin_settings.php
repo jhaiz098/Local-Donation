@@ -6,11 +6,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['rol
     $user_id = $_POST['user_id'];
     $new_role = $_POST['role'];
 
-    // Prevent changing the only superuser
+    // Get the current role of the logged-in user
+    $user_id_logged_in = $_SESSION['user_id'];
+    $current_user_role = $roleRow['role'] ?? 'User';
+
+    // Prevent changing the only superuser's role
     $superusers = $conn->query("SELECT user_id FROM users WHERE role='Superuser'")->fetch_all(MYSQLI_ASSOC);
     if (count($superusers) == 1 && $user_id == $superusers[0]['user_id'] && $new_role != 'Superuser') {
         echo "<script>alert('The only Superuser cannot have their role changed.');</script>";
-    } else {
+    }
+    // Prevent non-superusers from changing a Superuser's role
+    else if ($new_role == 'Superuser' && $current_user_role != 'Superuser') {
+        echo "<script>alert('You cannot promote a user to Superuser.');</script>";
+    }
+    // Prevent non-superusers from changing the role of a Superuser
+    else if ($user_id != $user_id_logged_in && $current_user_role != 'Superuser') {
+        $current_user_role_check = $conn->query("SELECT role FROM users WHERE user_id = {$user_id}")->fetch_assoc();
+        if ($current_user_role_check['role'] == 'Superuser') {
+            echo "<script>alert('You cannot change the role of a Superuser.');</script>";
+        }
+    }
+    else {
+        // Proceed with the role change if conditions are met
         $conn->query("UPDATE users SET role='{$new_role}' WHERE user_id={$user_id}");
         // Redirect to avoid resubmitting POST
         header("Location: admin_settings.php?role_changed=1");
@@ -20,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['rol
 
 // Fetch users
 $users = $conn->query("SELECT user_id, CONCAT(first_name,' ',middle_name,' ',last_name) AS name, email, role FROM users WHERE role!='User'")->fetch_all(MYSQLI_ASSOC);
-
 
 $user_id = $_SESSION['user_id'];
 
@@ -38,9 +54,9 @@ $isStaff = ($currentRole === 'Staff');
 $isAdmin = ($currentRole === 'Admin');
 $isSuperuser = ($currentRole === 'Superuser');
 
-
 $conn->close();
 ?>
+
 
 
 

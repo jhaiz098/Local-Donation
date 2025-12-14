@@ -1,13 +1,18 @@
 <?php
-require '../db_connect.php';
+require '../admin_connect.php';
 
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     header("Location: ../login.php");
     exit();
 }
 
-// Get the user ID from the session
 $user_id = $_SESSION['user_id'];
+$php_role = $_SESSION['role'] ?? 'Staff'; // Default to Staff
+
+// ----------------- ACTIVATE MYSQL ROLE -----------------
+if (in_array($php_role, ['Staff', 'Admin', 'Superuser'])) {
+    $conn->query("SET ROLE " . strtolower($php_role));
+}
 
 // Query to check the user's details
 $sql = "SELECT * FROM users WHERE user_id = ?";
@@ -151,7 +156,7 @@ $feedback_received = $feedback['total_feedback'];
             <li class="<?= ($isStaff || $isAdmin || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_audit_trails.php" class="block px-4 py-2 rounded">Audit Trails</a>
             </li>
-            <li class="<?= ($isStaff || $isAdmin|| $incomplete) ? $disabledClass : '' ?>">
+            <li class="<?= ($isStaff || $incomplete) ? $disabledClass : '' ?>">
                 <a href="admin_settings.php" class="block px-4 py-2 rounded hover:bg-gray-200">Access Level Management</a>
             </li>
 
