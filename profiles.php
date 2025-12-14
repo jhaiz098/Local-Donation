@@ -1,109 +1,46 @@
 <?php
-// profiles.php (top of file)
-require 'db_connect.php'; // your DB connection
+require 'db_connect.php';
 
-$user_id = $_SESSION['user_id']; // or however you store logged-in user
-
-// First query: Get distinct profile_ids for the user
-    $stmtProfiles = $conn->prepare("SELECT DISTINCT profile_id FROM profile_members WHERE user_id = ?");
-    $stmtProfiles->bind_param("i", $user_id);
-    $stmtProfiles->execute();
-    $resultProfiles = $stmtProfiles->get_result();
-
-    // Fetch all profile IDs
-    $userProfiles = $resultProfiles->fetch_all(MYSQLI_ASSOC);
-
-    // Check if profiles were found
-    if (count($userProfiles) > 0) {
-        // Iterate through each profile_id and fetch details from the profiles table
-        foreach ($userProfiles as &$profile) { // Use reference to modify the original array
-            // Inside the loop: Fetch profile details for each profile_id
-            $stmtProfileDetails = $conn->prepare("SELECT * FROM profiles WHERE profile_id = ?");
-            $stmtProfileDetails->bind_param("i", $profile['profile_id']);
-            $stmtProfileDetails->execute();
-            $resultProfileDetails = $stmtProfileDetails->get_result();
-
-            // Fetch the profile details
-            $profileDetails = $resultProfileDetails->fetch_assoc();
-
-            // Add the profile details to the $userProfiles array
-            if ($profileDetails) {
-                $profile['profile_name'] = $profileDetails['profile_name'];
-                $profile['profile_pic'] = $profileDetails['profile_pic'];
-                $profile['profile_type'] = $profileDetails['profile_type'];
-                $profile['created_at'] = $profileDetails['created_at'];
-            }
-        }
-        unset($profile);
-
-        // Now $userProfiles contains the profile details, and you can access it outside the loop
-        // echo "<pre>";
-        // print_r($userProfiles);  // Print the entire array to see the results
-        // echo "</pre>";
-
-    } else {
-        echo "No profiles found for this user.";
-    }
-
-$userAccount = [];
-
-if ($user_id) {
-    $stmt = $conn->prepare("SELECT first_name, middle_name, last_name, date_of_birth, gender, phone_number, email, region_id, province_id, city_id, barangay_id, zip_code, profile_pic FROM users WHERE user_id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $userAccount = $result->fetch_assoc() ?? [];
+$user_id = $_SESSION['user_id'] ?? null;
+if (!$user_id) {
+    header("Location: login.php");
+    exit;
 }
 
-// Fetch names for region, province, city, barangay
-if (!empty($userAccount)) {
-    // Region
-    if (!empty($userAccount['region_id'])) {
-        $stmtRegion = $conn->prepare("SELECT name FROM regions WHERE id = ?");
-        $stmtRegion->bind_param("i", $userAccount['region_id']);
-        $stmtRegion->execute();
-        $userAccount['region_name'] = $stmtRegion->get_result()->fetch_assoc()['name'] ?? '';
-    }
+// --- Fetch user account info (with location names and age) from the view ---
+$stmt = $conn->prepare("
+    SELECT *, YEAR(CURDATE()) - YEAR(date_of_birth) AS age
+    FROM vw_users_with_location
+    WHERE user_id = ?
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$userAccount = $result->fetch_assoc() ?? [];
+$stmt->close();
 
-    // Province
-    if (!empty($userAccount['province_id'])) {
-        $stmtProvince = $conn->prepare("SELECT name FROM provinces WHERE id = ?");
-        $stmtProvince->bind_param("i", $userAccount['province_id']);
-        $stmtProvince->execute();
-        $userAccount['province_name'] = $stmtProvince->get_result()->fetch_assoc()['name'] ?? '';
-    }
+// Set default values for optional fields
+$userAccount['phone_number'] = $userAccount['phone_number'] ?? "N/A";
+$userAccount['middle_name'] = $userAccount['middle_name'] ?? "N/A";
+$userAccount['age'] = $userAccount['age'] ?? '';
 
-    // City
-    if (!empty($userAccount['city_id'])) {
-        $stmtCity = $conn->prepare("SELECT name FROM cities WHERE id = ?");
-        $stmtCity->bind_param("i", $userAccount['city_id']);
-        $stmtCity->execute();
-        $userAccount['city_name'] = $stmtCity->get_result()->fetch_assoc()['name'] ?? '';
-    }
+// --- Fetch all profiles for this user in one query ---
+$stmt = $conn->prepare("
+    SELECT DISTINCT p.profile_id, p.profile_name, p.profile_pic, p.profile_type, p.created_at
+    FROM profile_members pm
+    JOIN profiles p ON pm.profile_id = p.profile_id
+    WHERE pm.user_id = ?
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$userProfiles = $result->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
 
-    // Barangay
-    if (!empty($userAccount['barangay_id'])) {
-        $stmtBarangay = $conn->prepare("SELECT name FROM barangays WHERE id = ?");
-        $stmtBarangay->bind_param("i", $userAccount['barangay_id']);
-        $stmtBarangay->execute();
-        $userAccount['barangay_name'] = $stmtBarangay->get_result()->fetch_assoc()['name'] ?? '';
-    }
-}
-
-// --- Calculate age ---
-if (!empty($userAccount['date_of_birth'])) {
-    $dob = new DateTime($userAccount['date_of_birth']);
-    $today = new DateTime();
-    $userAccount['age'] = $today->diff($dob)->y;
-} else {
-    $userAccount['age'] = '';
-}
-
-// --- Set default phone if empty ---
-$userAccount['phone_number'] = !empty($userAccount['phone_number']) ? $userAccount['phone_number'] : "N/A";
-$userAccount['middle_name'] = !empty($userAccount['middle_name']) ? $userAccount['middle_name'] : "N/A";
-
+// Now $userAccount has all user info (with location names & age)
+// and $userProfiles contains all profiles in one simple array
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

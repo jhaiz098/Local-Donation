@@ -5,19 +5,23 @@ $user_id = $_SESSION['user_id']; // Logged-in user
 
 // Fetch user profiles with allowed roles
 $profiles = [];
-$profile_sql = "SELECT pm.profile_id, p.profile_name, p.profile_type, pm.role 
-                FROM profile_members pm
-                JOIN profiles p ON pm.profile_id = p.profile_id
-                WHERE pm.user_id = ?";
+$profile_sql = "
+    SELECT DISTINCT pm.profile_id, p.profile_name, p.profile_type, pm.role
+    FROM profile_members pm
+    JOIN profiles p ON pm.profile_id = p.profile_id
+    WHERE pm.user_id = ?
+";
 $stmt = $conn->prepare($profile_sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $profile_result = $stmt->get_result();
-while($row = $profile_result->fetch_assoc()) {
-    if(in_array($row['role'], ['owner', 'admin', 'manager'])) {
+
+while ($row = $profile_result->fetch_assoc()) {
+    if (in_array($row['role'], ['owner', 'admin', 'manager'])) {
         $profiles[] = $row;
     }
 }
+
 
 // Handle feedback submission
 if($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['feedback'])) {

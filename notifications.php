@@ -4,38 +4,37 @@ include 'db_connect.php';
 $user_id = $_SESSION['user_id']; // logged-in user
 
 // Pagination setup
-$items_per_page = 5; // Number of items per page
-$page = isset($_GET['page']) ? intval($_GET['page']) : 1; // Current page
-$offset = ($page - 1) * $items_per_page; // Calculate offset
+$items_per_page = 5;
+$page = max(1, isset($_GET['page']) ? intval($_GET['page']) : 1);
+$offset = ($page - 1) * $items_per_page;
 
-// Get total number of activities
-$sqlTotal = "SELECT COUNT(*) AS total FROM activities WHERE user_id = ?";
-$stmtTotal = $conn->prepare($sqlTotal);
-$stmtTotal->bind_param("i", $user_id);
-$stmtTotal->execute();
-$resultTotal = $stmtTotal->get_result();
-$totalActivities = $resultTotal->fetch_assoc()['total'];
-$stmtTotal->close();
-
-// Get activities for this user with pagination
-$sql = "SELECT * FROM activities 
-        WHERE user_id = ? 
-        ORDER BY created_at DESC 
-        LIMIT ?, ?";
+// Fetch activities with pagination and total count
+$sql = "
+    SELECT SQL_CALC_FOUND_ROWS * 
+    FROM activities
+    WHERE user_id = ?
+    ORDER BY created_at DESC
+    LIMIT ?, ?
+";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("iii", $user_id, $offset, $items_per_page);
 $stmt->execute();
 $result = $stmt->get_result();
 
 $activities = [];
-while($row = $result->fetch_assoc()) {
+while ($row = $result->fetch_assoc()) {
     $activities[] = $row;
 }
 $stmt->close();
 
+// Get total number of rows without running COUNT(*) separately
+$totalResult = $conn->query("SELECT FOUND_ROWS() AS total");
+$totalActivities = $totalResult->fetch_assoc()['total'];
+
 // Calculate total pages
 $total_pages = ceil($totalActivities / $items_per_page);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

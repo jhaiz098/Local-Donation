@@ -86,90 +86,63 @@
     <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Frequently Asked Questions</h2>
 
     <div class="space-y-6">
-    <!-- FAQ Item -->
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How do I reset my password?</p>
+        <!-- FAQ Item -->
+        <div class="rounded-lg shadow-sm overflow-hidden">
+            <div class="bg-gray-100 px-6 py-4">
+                <p class="font-semibold text-gray-800 text-lg">Q: How do I update my account to enable profile creation?</p>
+            </div>
+            <div class="bg-white px-6 py-4 border-t border-gray-200">
+                <p class="text-gray-700">A: Go to <strong>My Account</strong>, complete all required fields including your personal and location information. Once your account is complete, you can create a profile.</p>
+            </div>
         </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Go to My Account &gt; Change Password, enter your new password, and save changes.</p>
+
+        <div class="rounded-lg shadow-sm overflow-hidden">
+            <div class="bg-gray-100 px-6 py-4">
+                <p class="font-semibold text-gray-800 text-lg">Q: How do I create a profile?</p>
+            </div>
+            <div class="bg-white px-6 py-4 border-t border-gray-200">
+                <p class="text-gray-700">A: Navigate to the <strong>Profiles</strong> page and click <strong>Add Profile</strong>. Fill in the profile name, type, and other required details, then submit.</p>
+            </div>
+        </div>
+
+        <div class="rounded-lg shadow-sm overflow-hidden">
+            <div class="bg-gray-100 px-6 py-4">
+                <p class="font-semibold text-gray-800 text-lg">Q: How do I request or offer a donation?</p>
+            </div>
+            <div class="bg-white px-6 py-4 border-t border-gray-200">
+                <p class="text-gray-700">A: Select a profile and click the <strong>Add Request / Offer</strong> button. Fill in the details about the items or assistance you want to request or offer, then submit.</p>
+            </div>
+        </div>
+
+        <div class="rounded-lg shadow-sm overflow-hidden">
+            <div class="bg-gray-100 px-6 py-4">
+                <p class="font-semibold text-gray-800 text-lg">Q: How does matching work?</p>
+            </div>
+            <div class="bg-white px-6 py-4 border-t border-gray-200">
+                <p class="text-gray-700">A: The system matches donation offers with requests based on the target area location. When a match is found, the request or offer is listed below the corresponding donation entry.</p>
+            </div>
+        </div>
+
+        <div class="rounded-lg shadow-sm overflow-hidden">
+            <div class="bg-gray-100 px-6 py-4">
+                <p class="font-semibold text-gray-800 text-lg">Q: Can I submit feedback?</p>
+            </div>
+            <div class="bg-white px-6 py-4 border-t border-gray-200">
+                <p class="text-gray-700">A: Yes! Go to the <strong>Feedback</strong> page and submit feedback either as your user account or as a profile you manage. Feedback helps us improve the system.</p>
+            </div>
+        </div>
+
+        <div class="rounded-lg shadow-sm overflow-hidden">
+            <div class="bg-gray-100 px-6 py-4">
+                <p class="font-semibold text-gray-800 text-lg">Q: How do I delete my account?</p>
+            </div>
+            <div class="bg-white px-6 py-4 border-t border-gray-200">
+                <p class="text-gray-700">A: Go to <strong>Settings &gt; Danger Zone</strong> and click "Delete My Account". This action is permanent and cannot be undone.</p>
+            </div>
         </div>
     </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How can I update my profile?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Navigate to Profiles, select the profile you want to update, and edit the information.</p>
-        </div>
-    </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How do I create a donation request?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Go to the Profiles page, select a profile, and click "Create Request". Fill in the details about the items you need and submit.</p>
-        </div>
-    </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How do I offer a donation?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Go to the Profiles page, select a profile, and click "Offer Donation". Provide details of the items and target area, then submit.</p>
-        </div>
-    </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How does matching work?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: The system matches donation offers with requests based on location and profile type. You will be notified when a match is found.</p>
-        </div>
-    </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: Can I submit feedback?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Yes! Go to the Feedback page and submit feedback either as your user account or as a profile you manage. Feedback helps us improve the system.</p>
-        </div>
-    </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How do I know my donation is being used?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Donations are tied to profiles and tracked in the system. You can check the donation status in the Activity page.</p>
-        </div>
-    </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How do I manage notifications?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Go to Notifications from the main menu, and toggle your email or in-app notifications.</p>
-        </div>
-    </div>
-
-    <div class="rounded-lg shadow-sm overflow-hidden">
-        <div class="bg-gray-100 px-6 py-4">
-            <p class="font-semibold text-gray-800 text-lg">Q: How do I delete my account?</p>
-        </div>
-        <div class="bg-white px-6 py-4 border-t border-gray-200">
-            <p class="text-gray-700">A: Go to Settings &gt; Danger Zone, and click "Delete My Account". This action is permanent.</p>
-        </div>
-    </div>
-</div>
-
 </section>
+
 
 <script>
 // MOBILE MENU
