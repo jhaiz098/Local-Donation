@@ -1,5 +1,12 @@
 <?php
-include('../db_connect.php');
+require '../admin_connect.php';
+
+$php_role = $_SESSION['role'] ?? 'Staff'; // Default to Staff
+
+// ----------------- ACTIVATE MYSQL ROLE -----------------
+if (in_array($php_role, ['Staff', 'Admin', 'Superuser'])) {
+    $conn->query("SET ROLE " . strtolower($php_role));
+}
 
 // Check if the database connection is successful
 if ($conn->connect_error) {
