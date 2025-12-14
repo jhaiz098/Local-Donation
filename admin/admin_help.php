@@ -1,8 +1,14 @@
 <?php
 
-include '../db_connect.php';
+include "../admin_connect.php";
 
 $user_id = $_SESSION['user_id'] ?? null;
+$php_role = $_SESSION['role'] ?? 'Staff'; // Default to Staff
+
+// ----------------- ACTIVATE MYSQL ROLE -----------------
+if (in_array($php_role, ['Staff', 'Admin', 'Superuser'])) {
+    $conn->query("SET ROLE " . strtolower($php_role));
+}
 
 $roleSql = "SELECT role FROM users WHERE user_id = ?";
 $roleStmt = $conn->prepare($roleSql);

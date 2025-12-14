@@ -1,5 +1,13 @@
 <?php
-include "../db_connect.php"; // Include your database connection
+include "../admin_connect.php"; // Include your database connection
+
+$user_id = $_SESSION['user_id'];
+$php_role = $_SESSION['role'] ?? 'Staff'; // Default to Staff
+
+// ----------------- ACTIVATE MYSQL ROLE -----------------
+if (in_array($php_role, ['Staff', 'Admin', 'Superuser'])) {
+    $conn->query("SET ROLE " . strtolower($php_role));
+}
 
 // Number of records to display per page
 $records_per_page = 10;

@@ -45,6 +45,9 @@ switch($filter) {
 }
 
 $countResult = $conn->query($countSql);
+if (!$countResult) {
+    die("Prepare failed: " . $conn->error);
+}
 $totalUsers = $countResult->fetch_assoc()['total'];
 $totalPages = ceil($totalUsers / $perPage);
 
