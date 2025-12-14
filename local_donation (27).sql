@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 14, 2025 at 04:45 PM
+-- Generation Time: Dec 14, 2025 at 10:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -72,6 +72,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_insert_user` (IN `p_first_name` 
         p_zip_code, p_phone_number, p_email, p_password, p_role,
         p_region_id, p_province_id, p_city_id, p_barangay_id
     );
+END$$
+
+DROP PROCEDURE IF EXISTS `sp_profile_dashboard_get_donations`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_profile_dashboard_get_donations` (IN `in_profile_id` INT, IN `in_type` ENUM('received','given'), IN `in_limit` INT)   BEGIN
+    IF in_type='received' THEN
+        SELECT dl.log_id, dl.item_id, dl.quantity, dl.created_at, i.item_name, dl.unit_name,
+               p.profile_name AS donor_name, p.profile_type AS donor_type
+        FROM donation_logs dl
+        JOIN profiles p ON dl.donor_profile_id = p.profile_id
+        LEFT JOIN items i ON dl.item_id = i.item_id
+        WHERE dl.recipient_profile_id = in_profile_id
+        ORDER BY dl.created_at DESC
+        LIMIT in_limit;
+    ELSE
+        SELECT dl.log_id, dl.item_id, dl.quantity, dl.created_at, i.item_name, dl.unit_name,
+               p.profile_name AS recipient_name, p.profile_type AS recipient_type
+        FROM donation_logs dl
+        JOIN profiles p ON dl.recipient_profile_id = p.profile_id
+        LEFT JOIN items i ON dl.item_id = i.item_id
+        WHERE dl.donor_profile_id = in_profile_id
+        ORDER BY dl.created_at DESC
+        LIMIT in_limit;
+    END IF;
 END$$
 
 --
@@ -1002,6 +1025,78 @@ CREATE TABLE `vw_users_with_location` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `v_profile_activities`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `v_profile_activities`;
+CREATE TABLE `v_profile_activities` (
+`activity_id` int(11)
+,`profile_id` int(11)
+,`description` text
+,`display_text` varchar(255)
+,`created_at` datetime
+,`profile_type` enum('individual','family','institution','organization')
+,`profile_name` varchar(255)
+,`profile_pic` varchar(255)
+);
+
+-- --------------------------------------------------------
+
+--
+-- Stand-in structure for view `v_profile_dashboard`
+-- (See below for the actual view)
+--
+DROP VIEW IF EXISTS `v_profile_dashboard`;
+CREATE TABLE `v_profile_dashboard` (
+`profile_id` int(11)
+,`profile_type` enum('individual','family','institution','organization')
+,`profile_name` varchar(255)
+,`profile_pic` varchar(255)
+,`first_name` varchar(100)
+,`middle_name` varchar(100)
+,`last_name` varchar(100)
+,`date_of_birth` date
+,`gender` enum('Male','Female','Other')
+,`individual_phone` varchar(20)
+,`individual_email` varchar(100)
+,`individual_region_id` int(11)
+,`individual_province_id` int(11)
+,`individual_city_id` int(11)
+,`individual_barangay_id` int(11)
+,`individual_zip_code` varchar(10)
+,`household_name` varchar(255)
+,`primary_contact_person` varchar(255)
+,`family_contact_number` varchar(50)
+,`family_email` varchar(255)
+,`family_region_id` int(11)
+,`family_province_id` int(11)
+,`family_city_id` int(11)
+,`family_barangay_id` int(11)
+,`family_zip_code` varchar(20)
+,`institution_name` varchar(255)
+,`official_contact_person` varchar(255)
+,`official_contact_number` varchar(50)
+,`official_email` varchar(255)
+,`institution_region_id` int(11)
+,`institution_province_id` int(11)
+,`institution_city_id` int(11)
+,`institution_barangay_id` int(11)
+,`institution_zip_code` varchar(20)
+,`organization_name` varchar(255)
+,`org_contact_person` varchar(255)
+,`org_contact_number` varchar(50)
+,`org_email` varchar(255)
+,`registration_number` varchar(100)
+,`org_region_id` int(11)
+,`org_province_id` int(11)
+,`org_city_id` int(11)
+,`org_barangay_id` int(11)
+,`org_zip_code` varchar(20)
+);
+
+-- --------------------------------------------------------
+
+--
 -- Structure for view `view_donation_entries`
 --
 DROP TABLE IF EXISTS `view_donation_entries`;
@@ -1028,6 +1123,26 @@ DROP TABLE IF EXISTS `vw_users_with_location`;
 
 DROP VIEW IF EXISTS `vw_users_with_location`;
 CREATE OR REPLACE VIEW `vw_users_with_location`  AS SELECT `u`.`user_id` AS `user_id`, `u`.`profile_pic` AS `profile_pic`, `u`.`first_name` AS `first_name`, `u`.`middle_name` AS `middle_name`, `u`.`last_name` AS `last_name`, `u`.`date_of_birth` AS `date_of_birth`, `u`.`gender` AS `gender`, `u`.`zip_code` AS `zip_code`, `u`.`phone_number` AS `phone_number`, `u`.`email` AS `email`, `u`.`role` AS `role`, `u`.`created_at` AS `created_at`, `u`.`region_id` AS `region_id`, `u`.`province_id` AS `province_id`, `u`.`city_id` AS `city_id`, `u`.`barangay_id` AS `barangay_id`, `get_region_name`(`u`.`region_id`) AS `region_name`, `get_province_name`(`u`.`province_id`) AS `province_name`, `get_city_name`(`u`.`city_id`) AS `city_name`, `get_barangay_name`(`u`.`barangay_id`) AS `barangay_name`, timestampdiff(YEAR,`u`.`date_of_birth`,curdate()) AS `age` FROM `users` AS `u` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_profile_activities`
+--
+DROP TABLE IF EXISTS `v_profile_activities`;
+
+DROP VIEW IF EXISTS `v_profile_activities`;
+CREATE OR REPLACE VIEW `v_profile_activities`  AS SELECT `a`.`activity_id` AS `activity_id`, `a`.`profile_id` AS `profile_id`, `a`.`description` AS `description`, `a`.`display_text` AS `display_text`, `a`.`created_at` AS `created_at`, `p`.`profile_type` AS `profile_type`, `p`.`profile_name` AS `profile_name`, `p`.`profile_pic` AS `profile_pic` FROM (`activities` `a` join `profiles` `p` on(`a`.`profile_id` = `p`.`profile_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_profile_dashboard`
+--
+DROP TABLE IF EXISTS `v_profile_dashboard`;
+
+DROP VIEW IF EXISTS `v_profile_dashboard`;
+CREATE OR REPLACE VIEW `v_profile_dashboard`  AS SELECT `p`.`profile_id` AS `profile_id`, `p`.`profile_type` AS `profile_type`, `p`.`profile_name` AS `profile_name`, `p`.`profile_pic` AS `profile_pic`, `i`.`first_name` AS `first_name`, `i`.`middle_name` AS `middle_name`, `i`.`last_name` AS `last_name`, `i`.`date_of_birth` AS `date_of_birth`, `i`.`gender` AS `gender`, `i`.`phone_number` AS `individual_phone`, `i`.`email` AS `individual_email`, `i`.`region_id` AS `individual_region_id`, `i`.`province_id` AS `individual_province_id`, `i`.`city_id` AS `individual_city_id`, `i`.`barangay_id` AS `individual_barangay_id`, `i`.`zip_code` AS `individual_zip_code`, `f`.`household_name` AS `household_name`, `f`.`primary_contact_person` AS `primary_contact_person`, `f`.`contact_number` AS `family_contact_number`, `f`.`email` AS `family_email`, `f`.`region_id` AS `family_region_id`, `f`.`province_id` AS `family_province_id`, `f`.`city_id` AS `family_city_id`, `f`.`barangay_id` AS `family_barangay_id`, `f`.`zip_code` AS `family_zip_code`, `ins`.`institution_name` AS `institution_name`, `ins`.`official_contact_person` AS `official_contact_person`, `ins`.`official_contact_number` AS `official_contact_number`, `ins`.`official_email` AS `official_email`, `ins`.`region_id` AS `institution_region_id`, `ins`.`province_id` AS `institution_province_id`, `ins`.`city_id` AS `institution_city_id`, `ins`.`barangay_id` AS `institution_barangay_id`, `ins`.`zip_code` AS `institution_zip_code`, `o`.`organization_name` AS `organization_name`, `o`.`contact_person` AS `org_contact_person`, `o`.`contact_number` AS `org_contact_number`, `o`.`email` AS `org_email`, `o`.`registration_number` AS `registration_number`, `o`.`region_id` AS `org_region_id`, `o`.`province_id` AS `org_province_id`, `o`.`city_id` AS `org_city_id`, `o`.`barangay_id` AS `org_barangay_id`, `o`.`zip_code` AS `org_zip_code` FROM ((((`profiles` `p` left join `profiles_individual` `i` on(`p`.`profile_id` = `i`.`profile_id` and `p`.`profile_type` = 'individual')) left join `profiles_family` `f` on(`p`.`profile_id` = `f`.`profile_id` and `p`.`profile_type` = 'family')) left join `profiles_institution` `ins` on(`p`.`profile_id` = `ins`.`profile_id` and `p`.`profile_type` = 'institution')) left join `profiles_organization` `o` on(`p`.`profile_id` = `o`.`profile_id` and `p`.`profile_type` = 'organization')) ;
 
 --
 -- Indexes for dumped tables

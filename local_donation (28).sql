@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 14, 2025 at 04:45 PM
+-- Generation Time: Dec 14, 2025 at 10:30 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -760,7 +760,12 @@ INSERT INTO `activities` (`activity_id`, `user_id`, `profile_id`, `description`,
 (735, 4, NULL, 'User logged in (ID: 4)', 'You logged in successfully.', '2025-12-14 22:15:17'),
 (736, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-14 22:24:37'),
 (737, 1, 3, 'New family profile created: ddddd (Profile ID: 3)', 'You created a new family profile: ddddd', '2025-12-14 22:53:11'),
-(738, NULL, 3, 'User ID 1 was added to Profile ID 3 as owner', 'A member was added with role: owner', '2025-12-14 22:53:11');
+(738, NULL, 3, 'User ID 1 was added to Profile ID 3 as owner', 'A member was added with role: owner', '2025-12-14 22:53:11'),
+(739, 1, NULL, 'User logged in (ID: 1)', 'You logged in successfully.', '2025-12-15 04:15:11'),
+(740, NULL, 3, 'Added new donation entry #5: offer', 'You added a new donation entry offer.', '2025-12-15 05:28:21'),
+(741, NULL, 3, 'Added new donation entry #6: offer', 'You added a new donation entry offer.', '2025-12-15 05:28:46'),
+(742, NULL, 3, 'Donated item (First Aid Kits) of 2 kits to profile James Emmanuel wewew Fernandez. (individual)', 'You donated 2 kits of item: First Aid Kits.', '2025-12-15 05:28:53'),
+(743, NULL, 2, 'Received item (First Aid Kits) of 2 kits from profile ddddd. (family)', 'You received 2 kits of item: First Aid Kits.', '2025-12-15 05:28:53');
 
 --
 -- Dumping data for table `audit_logs`
@@ -1501,7 +1506,9 @@ INSERT INTO `audit_logs` (`activity_id`, `user_id`, `profile_id`, `description`,
 (731, 6, NULL, 'New user account created: James Emmanuel Fernandez', '2025-12-14 21:58:02'),
 (732, NULL, NULL, 'Failed login attempt: email \'james.fernandez1239@gmail.com\' not found', '2025-12-14 22:24:17'),
 (733, 1, 3, 'New member 1added to profile: Profile ID 3', '2025-12-14 22:53:11'),
-(734, 1, 3, 'New profile created: 3', '2025-12-14 22:53:11');
+(734, 1, 3, 'New profile created: 3', '2025-12-14 22:53:11'),
+(735, NULL, 3, 'Profile ID: 3 added a new donation entry', '2025-12-15 05:28:21'),
+(736, NULL, 3, 'Profile ID: 3 added a new donation entry', '2025-12-15 05:28:46');
 
 --
 -- Dumping data for table `barangays`
@@ -1685,7 +1692,9 @@ INSERT INTO `cities` (`id`, `province_id`, `name`) VALUES
 
 INSERT INTO `donation_entries` (`entry_id`, `profile_id`, `entry_type`, `details`, `created_at`, `updated_at`, `target_area`) VALUES
 (3, 2, 'request', 'asdasd asdas', '2025-12-14 01:53:23', '2025-12-14 01:53:52', 'philippines'),
-(4, 2, 'offer', '1231231', '2025-12-14 01:53:34', '2025-12-14 01:53:34', 'philippines');
+(4, 2, 'offer', '1231231', '2025-12-14 01:53:34', '2025-12-14 01:53:34', 'philippines'),
+(5, 3, 'offer', 'asdasd', '2025-12-14 21:28:21', '2025-12-14 21:28:21', 'philippines'),
+(6, 3, 'offer', 'asd', '2025-12-14 21:28:46', '2025-12-14 21:28:46', 'philippines');
 
 --
 -- Dumping data for table `donation_entry_items`
@@ -1693,8 +1702,19 @@ INSERT INTO `donation_entries` (`entry_id`, `profile_id`, `entry_type`, `details
 
 INSERT INTO `donation_entry_items` (`item_entry_id`, `entry_id`, `item_id`, `quantity`, `unit_name`) VALUES
 (70, 4, 13, 5, 'pcs'),
-(71, 3, 12, 5, 'kits'),
-(72, 3, 20, 3, 'liters');
+(71, 3, 12, 3, 'kits'),
+(72, 3, 20, 3, 'liters'),
+(73, 5, 17, 5, 'pcs'),
+(74, 5, 7, 3, 'pcs'),
+(75, 6, 12, 8, 'kits'),
+(76, 6, 20, 3, 'liters');
+
+--
+-- Dumping data for table `donation_logs`
+--
+
+INSERT INTO `donation_logs` (`log_id`, `donor_profile_id`, `recipient_profile_id`, `item_id`, `quantity`, `unit_name`, `created_at`) VALUES
+(1, 3, 2, 12, 2, 'kits', '2025-12-14 21:28:53');
 
 --
 -- Dumping data for table `feedback`
@@ -1965,6 +1985,26 @@ DROP TABLE IF EXISTS `vw_users_with_location`;
 
 DROP VIEW IF EXISTS `vw_users_with_location`;
 CREATE OR REPLACE VIEW `vw_users_with_location`  AS SELECT `u`.`user_id` AS `user_id`, `u`.`profile_pic` AS `profile_pic`, `u`.`first_name` AS `first_name`, `u`.`middle_name` AS `middle_name`, `u`.`last_name` AS `last_name`, `u`.`date_of_birth` AS `date_of_birth`, `u`.`gender` AS `gender`, `u`.`zip_code` AS `zip_code`, `u`.`phone_number` AS `phone_number`, `u`.`email` AS `email`, `u`.`role` AS `role`, `u`.`created_at` AS `created_at`, `u`.`region_id` AS `region_id`, `u`.`province_id` AS `province_id`, `u`.`city_id` AS `city_id`, `u`.`barangay_id` AS `barangay_id`, `get_region_name`(`u`.`region_id`) AS `region_name`, `get_province_name`(`u`.`province_id`) AS `province_name`, `get_city_name`(`u`.`city_id`) AS `city_name`, `get_barangay_name`(`u`.`barangay_id`) AS `barangay_name`, timestampdiff(YEAR,`u`.`date_of_birth`,curdate()) AS `age` FROM `users` AS `u` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_profile_activities`
+--
+DROP TABLE IF EXISTS `v_profile_activities`;
+
+DROP VIEW IF EXISTS `v_profile_activities`;
+CREATE OR REPLACE VIEW `v_profile_activities`  AS SELECT `a`.`activity_id` AS `activity_id`, `a`.`profile_id` AS `profile_id`, `a`.`description` AS `description`, `a`.`display_text` AS `display_text`, `a`.`created_at` AS `created_at`, `p`.`profile_type` AS `profile_type`, `p`.`profile_name` AS `profile_name`, `p`.`profile_pic` AS `profile_pic` FROM (`activities` `a` join `profiles` `p` on(`a`.`profile_id` = `p`.`profile_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_profile_dashboard`
+--
+DROP TABLE IF EXISTS `v_profile_dashboard`;
+
+DROP VIEW IF EXISTS `v_profile_dashboard`;
+CREATE OR REPLACE VIEW `v_profile_dashboard`  AS SELECT `p`.`profile_id` AS `profile_id`, `p`.`profile_type` AS `profile_type`, `p`.`profile_name` AS `profile_name`, `p`.`profile_pic` AS `profile_pic`, `i`.`first_name` AS `first_name`, `i`.`middle_name` AS `middle_name`, `i`.`last_name` AS `last_name`, `i`.`date_of_birth` AS `date_of_birth`, `i`.`gender` AS `gender`, `i`.`phone_number` AS `individual_phone`, `i`.`email` AS `individual_email`, `i`.`region_id` AS `individual_region_id`, `i`.`province_id` AS `individual_province_id`, `i`.`city_id` AS `individual_city_id`, `i`.`barangay_id` AS `individual_barangay_id`, `i`.`zip_code` AS `individual_zip_code`, `f`.`household_name` AS `household_name`, `f`.`primary_contact_person` AS `primary_contact_person`, `f`.`contact_number` AS `family_contact_number`, `f`.`email` AS `family_email`, `f`.`region_id` AS `family_region_id`, `f`.`province_id` AS `family_province_id`, `f`.`city_id` AS `family_city_id`, `f`.`barangay_id` AS `family_barangay_id`, `f`.`zip_code` AS `family_zip_code`, `ins`.`institution_name` AS `institution_name`, `ins`.`official_contact_person` AS `official_contact_person`, `ins`.`official_contact_number` AS `official_contact_number`, `ins`.`official_email` AS `official_email`, `ins`.`region_id` AS `institution_region_id`, `ins`.`province_id` AS `institution_province_id`, `ins`.`city_id` AS `institution_city_id`, `ins`.`barangay_id` AS `institution_barangay_id`, `ins`.`zip_code` AS `institution_zip_code`, `o`.`organization_name` AS `organization_name`, `o`.`contact_person` AS `org_contact_person`, `o`.`contact_number` AS `org_contact_number`, `o`.`email` AS `org_email`, `o`.`registration_number` AS `registration_number`, `o`.`region_id` AS `org_region_id`, `o`.`province_id` AS `org_province_id`, `o`.`city_id` AS `org_city_id`, `o`.`barangay_id` AS `org_barangay_id`, `o`.`zip_code` AS `org_zip_code` FROM ((((`profiles` `p` left join `profiles_individual` `i` on(`p`.`profile_id` = `i`.`profile_id` and `p`.`profile_type` = 'individual')) left join `profiles_family` `f` on(`p`.`profile_id` = `f`.`profile_id` and `p`.`profile_type` = 'family')) left join `profiles_institution` `ins` on(`p`.`profile_id` = `ins`.`profile_id` and `p`.`profile_type` = 'institution')) left join `profiles_organization` `o` on(`p`.`profile_id` = `o`.`profile_id` and `p`.`profile_type` = 'organization')) ;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
