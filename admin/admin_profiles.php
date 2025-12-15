@@ -8,7 +8,7 @@ $php_role = $_SESSION['role'] ?? 'Staff'; // Default to Staff
 if (in_array($php_role, ['Staff', 'Admin', 'Superuser'])) {
     $conn->query("SET ROLE " . strtolower($php_role));
 }
-
+// var_dump($php_role);
 $roleSql = "SELECT role FROM users WHERE user_id = ?";
 $roleStmt = $conn->prepare($roleSql);
 $roleStmt->bind_param("i", $user_id);
@@ -82,6 +82,9 @@ if ($result->num_rows > 0) {
         // Step 6: Get the user_id with owner role from profile_members table
         $queryOwner = "SELECT user_id FROM profile_members WHERE profile_id = ? AND role = 'owner'";
         $stmtOwner = $conn->prepare($queryOwner);
+        if (!$stmtOwner) {
+            die("Prepare failed: " . $conn->error);
+        }
         $stmtOwner->bind_param("i", $profileId);
         $stmtOwner->execute();
         $ownerResult = $stmtOwner->get_result();
