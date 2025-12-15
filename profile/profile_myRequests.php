@@ -304,6 +304,8 @@ $otherStmt->close();
 
 $entryStmt->close();
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

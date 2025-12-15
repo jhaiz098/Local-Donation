@@ -39,48 +39,54 @@ $profileType = $profileMain['profile_type'];
 $profileName = $profileMain['profile_name'];
 $profilePic = !empty($profileMain['profile_pic']) ? "../" . $profileMain['profile_pic'] : "../uploads/profile_pic_placeholder1.png";
 
-// Fetch all requests and offers with items
+// Fetch all requests and offers using the view
 $allEntries = [];
-$sql = "SELECT de.entry_id, de.entry_type, de.details, de.target_area, de.created_at, 
-               p.profile_name, p.profile_type
-        FROM donation_entries de
-        JOIN profiles p ON de.profile_id = p.profile_id
-        ORDER BY de.created_at DESC";
+$tempEntries = [];
+
+$sql = "SELECT * FROM vw_donation_entries ORDER BY created_at DESC";
 $result = $conn->query($sql);
 
 while ($row = $result->fetch_assoc()) {
-    // Fetch items for this entry
-    $itemsStmt = $conn->prepare("
-        SELECT i.item_name, dei.quantity, dei.unit_name
-        FROM donation_entry_items dei
-        JOIN items i ON dei.item_id = i.item_id
-        WHERE dei.entry_id = ?
-    ");
-    $itemsStmt->bind_param("i", $row['entry_id']);
-    $itemsStmt->execute();
-    $itemsResult = $itemsStmt->get_result();
-    $items = [];
-    while ($it = $itemsResult->fetch_assoc()) {
-        $items[] = [
-            'name' => $it['item_name'],
-            'quantity' => $it['quantity'],
-            'unit' => $it['unit_name'] ?: 'pcs'
+    $entry_id = $row['entry_id'];
+
+    // Initialize entry only once
+    if (!isset($tempEntries[$entry_id])) {
+        $tempEntries[$entry_id] = [
+            'entry_id' => $row['entry_id'],
+            'type' => $row['entry_type'],
+            'details' => $row['details'],
+            'target_area' => $row['target_area'],
+            'date' => date('Y-m-d', strtotime($row['created_at'])),
+            'profile_id' => $row['profile_id'],
+            'profile_name' => $row['profile_name'],
+            'profile_type' => $row['profile_type'],
+            'region_id' => $row['region_id'],
+            'province_id' => $row['province_id'],
+            'city_id' => $row['city_id'],
+            'barangay_id' => $row['barangay_id'],
+            'region_name' => $row['region_name'] ?? 'N/A',
+            'province_name' => $row['province_name'] ?? 'N/A',
+            'city_name' => $row['city_name'] ?? 'N/A',
+            'barangay_name' => $row['barangay_name'] ?? 'N/A',
+            'items' => []
         ];
     }
-    $itemsStmt->close();
 
-    $allEntries[] = [
-        'entry_id' => $row['entry_id'],
-        'type' => $row['entry_type'],
-        'profileName' => $row['profile_name'],
-        'profileType' => $row['profile_type'],
-        'details' => $row['details'],
-        'items' => $items,
-        'targetArea' => $row['target_area'] ?: 'Philippines',
-        'date' => date('Y-m-d', strtotime($row['created_at']))
-    ];
+    // Add item if exists
+    if ($row['item_id']) {
+        $tempEntries[$entry_id]['items'][] = [
+            'item_id' => $row['item_id'],
+            'item_name' => $row['item_name'],
+            'quantity' => $row['quantity'],
+            'unit_name' => $row['unit_name'] ?: 'pcs'
+        ];
+    }
 }
+
+// Convert to indexed array
+$allEntries = array_values($tempEntries);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -187,11 +193,11 @@ const reqPage = document.getElementById("reqPage");
 const offPage = document.getElementById("offPage");
 
 function getProfileColor(type){
-    switch(type){
-        case "Individual": return "bg-blue-500 text-white";
-        case "Family": return "bg-green-500 text-white";
-        case "Organization": return "bg-orange-500 text-white";
-        case "Community": return "bg-violet-500 text-white";
+    switch(type.toLowerCase()){ // convert to lowercase for matching
+        case "individual": return "bg-blue-500 text-white";
+        case "family": return "bg-green-500 text-white";
+        case "organization": return "bg-orange-500 text-white";
+        case "community": return "bg-violet-500 text-white";
         default: return "bg-gray-200 text-gray-800";
     }
 }
@@ -206,14 +212,14 @@ function renderRequests(){
         const row = document.createElement("div");
         row.className="grid grid-cols-[60px_2fr_2fr_2fr_2fr_2fr] gap-2 p-2 rounded border-b border-gray-100 items-start";
 
-        const itemsText = r.items.map(it=>`<span class='inline-block bg-gray-200 px-2 py-0.5 rounded text-sm'>${it.name} x${it.quantity} ${it.unit}</span>`).join(" ");
+        const itemsText = r.items.map(it=>`<span class='inline-block bg-gray-200 px-2 py-0.5 rounded text-sm'>${it.item_name} x${it.quantity} ${it.unit_name}</span>`).join(" ");
 
         row.innerHTML=`
             <div class="font-medium text-gray-700 break-words whitespace-normal">${start+i+1}</div>
-            <div class="break-words whitespace-normal">${r.profileName} <span class="px-2 py-0.5 rounded-full text-sm ${getProfileColor(r.profileType)}">${r.profileType}</span></div>
+            <div class="break-words whitespace-normal">${r.profile_name} <span class="px-2 py-0.5 rounded-full text-sm ${getProfileColor(r.profile_type)}">${r.profile_type}</span></div>
             <div class="text-gray-800 break-words whitespace-normal">${r.details}</div>
             <div class="flex flex-wrap gap-1">${itemsText}</div>
-            <div class="break-words whitespace-normal">${r.targetArea}</div>
+            <div class="break-words whitespace-normal">${r.target_area}</div>
             <div class="text-gray-500 text-sm whitespace-normal">${r.date}</div>
         `;
         requestTable.appendChild(row);
@@ -233,14 +239,14 @@ function renderOffers(){
         const row = document.createElement("div");
         row.className="grid grid-cols-[60px_2fr_2fr_2fr_2fr_2fr] gap-2 p-2 rounded border-b border-gray-100 items-start";
 
-        const itemsText = r.items.map(it=>`<span class='inline-block bg-gray-200 px-2 py-0.5 rounded text-sm'>${it.name} x${it.quantity} ${it.unit}</span>`).join(" ");
+        const itemsText = r.items.map(it=>`<span class='inline-block bg-gray-200 px-2 py-0.5 rounded text-sm'>${it.item_name} x${it.quantity} ${it.unit_name}</span>`).join(" ");
 
         row.innerHTML=`
             <div class="font-medium text-gray-700 break-words whitespace-normal">${start+i+1}</div>
-            <div class="break-words whitespace-normal">${r.profileName} <span class="px-2 py-0.5 rounded-full text-sm ${getProfileColor(r.profileType)}">${r.profileType}</span></div>
+            <div class="break-words whitespace-normal">${r.profile_name} <span class="px-2 py-0.5 rounded-full text-sm ${getProfileColor(r.profile_type)}">${r.profile_type}</span></div>
             <div class="text-gray-800 break-words whitespace-normal">${r.details}</div>
             <div class="flex flex-wrap gap-1">${itemsText}</div>
-            <div class="break-words whitespace-normal">${r.targetArea}</div>
+            <div class="break-words whitespace-normal">${r.target_area}</div>
             <div class="text-gray-500 text-sm whitespace-normal">${r.date}</div>
         `;
         offerTable.appendChild(row);
