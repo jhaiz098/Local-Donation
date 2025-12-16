@@ -28,12 +28,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['rol
         echo "<script>alert('You cannot promote a user to Superuser.');</script>";
     }
     // Prevent non-superusers from changing the role of a Superuser
-    else if ($user_id != $user_id_logged_in && $current_user_role != 'Superuser') {
-        $current_user_role_check = $conn->query("SELECT role FROM users WHERE user_id = {$user_id}")->fetch_assoc();
-        if ($current_user_role_check['role'] == 'Superuser') {
-            echo "<script>alert('You cannot change the role of a Superuser.');</script>";
-        }
-    }
+    // else if ($user_id != $user_id_logged_in && $current_user_role != 'Superuser') {
+    //     $current_user_role_check = $conn->query("SELECT role FROM users WHERE user_id = {$user_id}")->fetch_assoc();
+    //     if ($current_user_role_check['role'] == 'Superuser') {
+    //         echo "<script>alert('You cannot change the role of a Superuser.');</script>";
+    //     }
+    // }
     else {
         // Proceed with the role change if conditions are met
         $conn->query("UPDATE users SET role='{$new_role}' WHERE user_id={$user_id}");
