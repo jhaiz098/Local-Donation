@@ -469,6 +469,47 @@ function renderRequests() {
         reqNo++;
 
         row.addEventListener("click", () => openModal(r));
+
+        // --- Pending Donations under request ---
+        if (r.pending && r.pending.length > 0) {
+            const pendingDiv = document.createElement("div");
+            pendingDiv.className = "ml-16 mt-1 border border-gray-200 rounded text-xs hidden";
+
+            const pendingToggle = document.createElement("div");
+            pendingToggle.className = "ml-16 mt-1 text-blue-600 text-sm font-semibold cursor-pointer";
+            pendingToggle.innerText = `View ${r.pending.length} Pending Donation${r.pending.length > 1 ? 's' : ''}`;
+            
+            pendingToggle.addEventListener("click", () => pendingDiv.classList.toggle("hidden"));
+
+            r.pending.forEach((p, i) => {
+                // Deduplicate items for this donor
+                let itemsMap = {};
+                if (p.items && Array.isArray(p.items)) {
+                    p.items.forEach(it => {
+                        const key = it.item_id ?? `${it.name}-${it.unit}`;
+                        if (!itemsMap[key]) itemsMap[key] = { ...it };
+                        else itemsMap[key].quantity += it.quantity;
+                    });
+                }
+                const uniqueItems = Object.values(itemsMap);
+
+                const pRow = document.createElement("div");
+                pRow.className = "grid grid-cols-[60px_2fr_2fr_150px_100px] gap-1 p-1 border-b border-gray-100 items-center text-xs";
+                pRow.innerHTML = `
+                    <div class="text-gray-700">${i + 1}</div>
+                    <div class="text-blue-700"><a href="#" class="profile-link" data-profile-id="${p.donor_profile_id}">${p.donor_name} (${p.donor_type})</a></div>
+                    <div class="flex flex-wrap gap-1">
+                        ${uniqueItems.map(it => `<span class='inline-block bg-gray-100 px-1 py-0.5 rounded text-xs'>${it.name} x${it.quantity} ${it.unit || 'pcs'}</span>`).join(' ')}
+                    </div>
+                    <div class="text-gray-500">${p.date}</div>
+                    <div><button class="px-2 py-0.5 bg-red-500 text-white rounded cancel-btn" data-pending-id="${p.pending_id}">Cancel</button></div>
+                `;
+                pendingDiv.appendChild(pRow);
+            });
+
+            requestTable.appendChild(pendingToggle);
+            requestTable.appendChild(pendingDiv);
+        }
     });
 
     const uniqueOffers = Object.values(
