@@ -92,7 +92,7 @@ $totalPages = ceil($totalLogs / $itemsPerPage);
         <li><a href="profile_activity.php" class="nav-item block p-2 rounded hover:bg-gray-200 <?= isDisabled('View Activities', $role) ? 'disabled-link' : '' ?>">Activity</a></li>
         <li><a href="profile_myRequests.php" class="nav-item block p-2 rounded hover:bg-gray-200 <?= isDisabled('Manage Offers & Requests', $role) ? 'disabled-link' : '' ?>">My Requests & Offers</a></li>
         <li><a href="profile_allRequests.php" class="nav-item block p-2 rounded hover:bg-gray-200 <?= isDisabled('Manage Offers & Requests', $role) ? 'disabled-link' : '' ?>">All Requests & Offers</a></li>
-        <li><a href="profile_pending_donations.php" class="nav-item block p-2 rounded hover:bg-gray-200 cursor-pointer <?= isDisabled('Manage Offers & Requests', $role) ? 'disabled-link' : '' ?>">Pending Donations</a></li>
+        <li><a href="profile_pending_donations.php" class="nav-item block p-2 rounded hover:bg-gray-200 cursor-pointer <?= isDisabled('Manage Offers & Requests', $role) ? 'disabled-link' : '' ?>">My Pending Donations</a></li>
         <?php if ($profileType !== 'individual'): ?>
         <li><a href="profile_members.php" class="nav-item block p-2 rounded hover:bg-gray-200 <?= isDisabled('Manage Members', $role) ? 'disabled-link' : '' ?>">Members</a></li>
         <?php endif; ?>

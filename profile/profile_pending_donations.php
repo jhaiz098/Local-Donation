@@ -11,6 +11,7 @@ $profile = $conn->query("SELECT * FROM v_profile_dashboard WHERE profile_id=$pro
 
 $profileName = $profile['profile_name'];
 $profileType = $profile['profile_type'];
+$profilePic  = $profile['profile_pic'] ? "../{$profile['profile_pic']}" : "../uploads/profile_pic_placeholder1.png";
 
 /* ---------------- FETCH USER ROLE ---------------- */
 $role = $conn->query("
@@ -30,6 +31,35 @@ function isDisabled($permission, $role){
     ];
     return !in_array($role,$map[$permission]??[]);
 }
+
+// Fetch pending donations MADE BY this profile (donor side)
+$sql = "
+    SELECT 
+        pdi.pending_item_id,
+        pdi.quantity,
+        pdi.unit_name,
+        pdi.created_at,
+
+        i.item_name,
+
+        r.profile_name AS requester_name,
+        r.profile_type AS profile_type,
+
+        de.entry_id
+    FROM pending_donation_items pdi
+    JOIN donation_entries de ON de.entry_id = pdi.entry_id
+    JOIN profiles r ON r.profile_id = de.profile_id
+    JOIN items i ON i.item_id = pdi.item_id
+    WHERE pdi.donor_profile_id = ?
+    ORDER BY pdi.created_at DESC
+";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $profileId);
+$stmt->execute();
+$result = $stmt->get_result();
+?>
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -61,7 +91,7 @@ function isDisabled($permission, $role){
                 <a href="profile_allRequests.php" class="nav-item block p-2 rounded hover:bg-gray-200 cursor-pointer <?= isDisabled('Manage Offers & Requests', $role) ? 'disabled-link' : '' ?>">All Requests & Offers</a>
             </li>
             <li>
-                <a href="profile_pending_donations.php" class="nav-item block p-2 rounded hover:bg-gray-200 cursor-pointer <?= isDisabled('Manage Offers & Requests', $role) ? 'disabled-link' : '' ?>">Pending Donations</a>
+                <a href="profile_pending_donations.php" class="nav-item block p-2 rounded hover:bg-gray-200 cursor-pointer <?= isDisabled('Manage Offers & Requests', $role) ? 'disabled-link' : '' ?>">My Pending Donations</a>
             </li>
 
             <?php if ($profileType !== 'individual'): ?>
@@ -75,5 +105,104 @@ function isDisabled($permission, $role){
             </li>
         </ul>
     </nav>
+
+<!-- MAIN CONTENT -->
+<div class="flex-1 p-8 overflow-y-auto">
+
+    <h2 class="text-2xl font-bold mb-1">My Pending Donations</h2>
+    <p class="text-gray-600 text-sm mb-6">
+        These donations are waiting for the requester’s confirmation.
+    </p>
+
+    <?php if ($result->num_rows === 0): ?>
+        <div class="bg-white p-6 rounded shadow text-center text-gray-500">
+            You have no pending donations.
+        </div>
+    <?php else: ?>
+        <div class="bg-white rounded shadow overflow-x-auto">
+            <table class="w-full text-sm border-collapse">
+                <thead class="bg-gray-100">
+                    <tr class="text-left border-b">
+                        <th class="p-3 w-16">#</th>
+                        <th class="p-3 w-40">Item</th>
+                        <th class="p-3 w-32">Quantity</th>
+                        <th class="p-3 w-48">Requester</th>
+                        <th class="p-3 w-32">Request ID</th>
+                        <th class="p-3 w-40">Date</th>
+                        <th class="p-3 w-32">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $no = 1; while ($row = $result->fetch_assoc()): ?>
+                        <tr class="border-b hover:bg-gray-50">
+                            <td class="p-3"><?= $no++ ?></td>
+
+                            <td class="p-3 font-medium">
+                                <?= htmlspecialchars($row['item_name']) ?>
+                            </td>
+
+                            <td class="p-3">
+                                <?= $row['quantity'] . ' ' . htmlspecialchars($row['unit_name']) ?>
+                            </td>
+
+                            <td class="p-3 text-blue-700">
+                                <?= htmlspecialchars($row['requester_name']) ?>
+                            </td>
+
+                            <td class="p-3">
+                                #<?= $row['entry_id'] ?>
+                            </td>
+
+                            <td class="p-3 text-gray-600">
+                                <?= date('Y-m-d', strtotime($row['created_at'])) ?>
+                            </td>
+
+                            <td class="p-3">
+                                <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
+                                    Pending
+                                </span>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
+
+<!-- ACTION SCRIPT -->
+<script>
+document.addEventListener('click', function (e) {
+
+    if (e.target.classList.contains('accept-btn')) {
+        processPending(e.target.dataset.id, 'accept');
+    }
+
+    if (e.target.classList.contains('reject-btn')) {
+        processPending(e.target.dataset.id, 'reject');
+    }
+});
+
+function processPending(id, action) {
+    if (!confirm(`Are you sure you want to ${action} this item?`)) return;
+
+    fetch('../ajax/process_pending_donation.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            pending_item_id: id,
+            action: action
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert(data.message || 'Action failed.');
+        }
+    });
+}
+</script>
 </body>
 </html>
