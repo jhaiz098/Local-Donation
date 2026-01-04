@@ -75,6 +75,53 @@ $stmt = $conn->prepare("SELECT reason_id, reason_name FROM reasons ORDER BY reas
 $stmt->execute();
 $reasons = $stmt->get_result();
 
+// ===== PAGINATION =====
+$limit = 5; // rows per page
+$page  = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
+
+$countStmt = $conn->prepare("
+    SELECT COUNT(DISTINCT entry_id) AS total
+    FROM vw_donation_entries
+");
+$countStmt->execute();
+$totalRows = $countStmt->get_result()->fetch_assoc()['total'];
+$countStmt->close();
+
+$totalPages = ceil($totalRows / $limit);
+$donationEntries = [];
+
+$stmt = $conn->prepare("
+    SELECT
+        entry_id,
+        entry_type,
+        details,
+        target_area,
+        created_at,
+        profile_name,
+
+        reason_id,
+        reason_name,
+
+        region_name,
+        province_name,
+        city_name,
+        barangay_name
+    FROM vw_donation_entries
+    GROUP BY entry_id
+    ORDER BY created_at DESC
+    LIMIT ? OFFSET ?
+");
+
+$stmt->bind_param("ii", $limit, $offset);
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $donationEntries[] = $row;
+}
+$stmt->close();
+
 ?>
 
 <!DOCTYPE html>
@@ -255,7 +302,7 @@ $reasons = $stmt->get_result();
                         <?php while ($row = $reasons->fetch_assoc()): ?>
                             <option value="<?= htmlspecialchars($row['reason_id']) ?>">
                                 <?= htmlspecialchars($row['reason_name']) ?>
-                            </option>asdasd
+                            </option>
                         <?php endwhile; ?>
                     </select>
                 </div>
@@ -266,6 +313,101 @@ $reasons = $stmt->get_result();
             <p class="text-gray-600 text-sm">
                 Select a reason to view donation offers or requests related to a specific community need.
             </p>
+
+            <div class="mt-6 overflow-x-auto">
+                <table class="min-w-full border border-gray-200 rounded text-sm">
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="px-3 py-2 border">Type</th>
+                            <th class="px-3 py-2 border">Reason</th>
+                            <th class="px-3 py-2 border">Details</th>
+                            <th class="px-3 py-2 border target-area-col hidden">Target Area</th>
+                            <th class="px-3 py-2 border">Location</th>
+                            <th class="px-3 py-2 border">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($donationEntries as $entry): ?>
+                            <tr class="hover:bg-gray-50">
+
+                                <!-- Type -->
+                                <td class="px-3 py-2 border font-semibold
+                                    <?= strtolower($entry['entry_type']) === 'offer'
+                                        ? 'text-green-600'
+                                        : 'text-blue-600' ?>">
+                                    <?= htmlspecialchars(ucfirst($entry['entry_type'])) ?>
+                                </td>
+
+                                <!-- Reason -->
+                                <td class="px-3 py-2 border">
+                                    <?= htmlspecialchars($entry['reason_name'] ?? '—') ?>
+                                </td>
+
+                                <!-- Details -->
+                                <td class="px-3 py-2 border max-w-xs break-words text-gray-700">
+                                    <?= htmlspecialchars($entry['details'] ?? '—') ?>
+                                </td>
+
+                                <!-- Target Area (ONLY FOR OFFERS) -->
+                                <td class="px-3 py-2 border target-area-col hidden">
+                                    <?php if (strtolower($entry['entry_type']) === 'offer'): ?>
+                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-xs">
+                                            <?= htmlspecialchars(ucfirst($entry['target_area'])) ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+
+                                <!-- Location -->
+                                <td class="px-3 py-2 border text-xs text-gray-600">
+                                    <?= htmlspecialchars($entry['barangay_name'] ?? '') ?><br>
+                                    <?= htmlspecialchars($entry['city_name'] ?? '') ?><br>
+                                    <?= htmlspecialchars($entry['province_name'] ?? '') ?>
+                                </td>
+
+                                <!-- Date -->
+                                <td class="px-3 py-2 border text-gray-500">
+                                    <?= date("Y-m-d", strtotime($entry['created_at'])) ?>
+                                </td>
+
+                            </tr>
+                            <?php endforeach; ?>
+
+                    </tbody>
+                </table>
+
+                <?php if ($totalPages > 1): ?>
+                    <div class="flex justify-center items-center gap-2 mt-6 text-sm">
+
+                        <!-- Prev -->
+                        <a href="?page=<?= max(1, $page - 1) ?>"
+                        class="px-3 py-1 border rounded
+                        <?= $page <= 1 ? 'text-gray-400 pointer-events-none' : 'hover:bg-gray-100' ?>">
+                            Prev
+                        </a>
+
+                        <!-- Page numbers -->
+                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                            <a href="?page=<?= $i ?>"
+                            class="px-3 py-1 border rounded
+                            <?= $i == $page
+                                    ? 'bg-blue-500 text-white'
+                                    : 'hover:bg-gray-100' ?>">
+                                <?= $i ?>
+                            </a>
+                        <?php endfor; ?>
+
+                        <!-- Next -->
+                        <a href="?page=<?= min($totalPages, $page + 1) ?>"
+                        class="px-3 py-1 border rounded
+                        <?= $page >= $totalPages ? 'text-gray-400 pointer-events-none' : 'hover:bg-gray-100' ?>">
+                            Next
+                        </a>
+
+                    </div>
+                    <?php endif; ?>
+
+            </div>
+
         </div>
 
 
@@ -802,6 +944,18 @@ function generateForm(type){
     }
 
 }
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const hasOffer = [...document.querySelectorAll("td")]
+        .some(td => td.textContent.trim().toLowerCase() === "offer");
+
+    if (hasOffer) {
+        document.querySelectorAll(".target-area-col")
+            .forEach(el => el.classList.remove("hidden"));
+    }
+});
 </script>
 
 
