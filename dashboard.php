@@ -70,6 +70,11 @@ $userAccount['phone_number'] = $userAccount['phone_number'] ?? "N/A";
 $userAccount['middle_name'] = $userAccount['middle_name'] ?? "N/A";
 $userAccount['age'] = $userAccount['age'] ?? "";
 
+
+$stmt = $conn->prepare("SELECT reason_id, reason_name FROM reasons ORDER BY reason_name");
+$stmt->execute();
+$reasons = $stmt->get_result();
+
 ?>
 
 <!DOCTYPE html>
@@ -208,13 +213,46 @@ $userAccount['age'] = $userAccount['age'] ?? "";
                     <span class="text-red-600 text-2xl">💡</span>
                     <h3 class="text-xl font-semibold">Tips & How to Use</h3>
                 </div>
-                <p class="text-gray-600 text-sm">
-                    Start by completing your account and creating a profile. 
-                    Once you have a profile, you can request help or offer donations.
-                </p>
+                    <p class="text-gray-600 text-sm">
+                        Start by completing your account and creating a profile. 
+                        Once you have a profile, you can request help or offer donations.
+                    </p>
+                </div>
             </div>
-        </div>
     </div>
+
+    <div class="grid my-5 grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
+        <!-- Suggested Offers & Requests -->
+        <div class="bg-white p-3 rounded shadow md:col-span-1">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-blue-600 text-2xl">🤝</span>
+                <h3 class="text-xl font-semibold">Offers & Requests You May Be Interested In</h3>
+            </div>
+
+            <!-- Reason Filter -->
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                Filter by Reason
+            </label>
+
+            <select class="w-full border rounded p-2 text-sm mb-2" name="reason_id">
+                <option value="">All Reasons</option>
+
+                <?php while ($row = $reasons->fetch_assoc()): ?>
+                    <option value="<?= htmlspecialchars($row['reason_id']) ?>">
+                        <?= htmlspecialchars($row['reason_name']) ?>
+                    </option>
+                <?php endwhile; ?>
+            </select>
+
+
+            <p class="text-gray-600 text-sm">
+                Select a reason to view donation offers or requests related to a specific community need.
+            </p>
+        </div>
+
+
+    </div>
+    
     </section>
     
     <!-- Profile Dashboard Container -->

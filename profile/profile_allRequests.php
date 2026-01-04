@@ -55,6 +55,7 @@ while ($row = $result->fetch_assoc()) {
             'entry_id' => $row['entry_id'],
             'type' => $row['entry_type'],
             'details' => $row['details'],
+            'reason_name' => $row['reason_name'],
             'target_area' => $row['target_area'],
             'date' => date('Y-m-d', strtotime($row['created_at'])),
             'profile_id' => $row['profile_id'],
@@ -148,6 +149,7 @@ $allEntries = array_values($tempEntries);
             <div>No.</div>
             <div>Profile</div>
             <div>Details</div>
+            <div>Reason</div>
             <div>Items</div>
             <div>Target Area</div>
             <div>Date Added</div>
@@ -167,6 +169,7 @@ $allEntries = array_values($tempEntries);
             <div>No.</div>
             <div>Profile</div>
             <div>Details</div>
+            <div>Reason</div>
             <div>Items</div>
             <div>Target Area</div>
             <div>Date Added</div>
@@ -218,6 +221,7 @@ function renderRequests(){
             <div class="font-medium text-gray-700 break-words whitespace-normal">${start+i+1}</div>
             <div class="break-words whitespace-normal">${r.profile_name} <span class="px-2 py-0.5 rounded-full text-sm ${getProfileColor(r.profile_type)}">${r.profile_type}</span></div>
             <div class="text-gray-800 break-words whitespace-normal">${r.details}</div>
+            <div class="text-gray-800 break-words whitespace-normal">${r.reason_name}</div>
             <div class="flex flex-wrap gap-1">${itemsText}</div>
             <div class="break-words whitespace-normal">${r.target_area}</div>
             <div class="text-gray-500 text-sm whitespace-normal">${r.date}</div>
@@ -245,6 +249,7 @@ function renderOffers(){
             <div class="font-medium text-gray-700 break-words whitespace-normal">${start+i+1}</div>
             <div class="break-words whitespace-normal">${r.profile_name} <span class="px-2 py-0.5 rounded-full text-sm ${getProfileColor(r.profile_type)}">${r.profile_type}</span></div>
             <div class="text-gray-800 break-words whitespace-normal">${r.details}</div>
+            <div class="text-gray-800 break-words whitespace-normal">${r.reason_name}</div>
             <div class="flex flex-wrap gap-1">${itemsText}</div>
             <div class="break-words whitespace-normal">${r.target_area}</div>
             <div class="text-gray-500 text-sm whitespace-normal">${r.date}</div>

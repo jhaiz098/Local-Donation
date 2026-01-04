@@ -64,23 +64,9 @@ $requests = [];
 
 // Fetch donation entries for this profile
 $entryStmt = $conn->prepare("
-    SELECT 
-        de.entry_id, 
-        de.entry_type, 
-        de.details, 
-        de.created_at, 
-        de.target_area, 
-        p.profile_name, 
-        p.profile_id, 
-        p.profile_type
-    FROM 
-        donation_entries de
-    JOIN 
-        profiles p ON de.profile_id = p.profile_id
-    WHERE 
-        de.profile_id = ? 
-    ORDER BY 
-        de.created_at DESC
+    SELECT * from vw_donation_entries
+    WHERE profile_id = ? 
+    ORDER BY created_at DESC
 ");
 
 $entryStmt->bind_param("i", $profileId);
@@ -166,6 +152,7 @@ while ($entry = $entryResult->fetch_assoc()) {
             "entry_id" => $entry['entry_id'],
             "type" => ucfirst($entry['entry_type']),
             "details" => $entry['details'],
+            "reason_name" => $entry['reason_name'],
             "items" => $entryItems, // Add items related to this entry
             "target_area" => $entry['target_area'] ?? "philippines",
             "date" => date("Y-m-d", strtotime($entry['created_at'])),
@@ -189,12 +176,9 @@ $otherRequests = [];
 
 // Fetch donation entries
 $otherStmt = $conn->prepare("
-    SELECT de.entry_id, de.entry_type, de.details, de.target_area, de.created_at, 
-           p.profile_name, p.profile_id, p.profile_type
-    FROM donation_entries de
-    JOIN profiles p ON de.profile_id = p.profile_id
-    WHERE de.profile_id != ? 
-    ORDER BY de.created_at DESC
+    SELECT * from vw_donation_entries
+    WHERE profile_id != ? 
+    ORDER BY created_at DESC
 ");
 $otherStmt->bind_param("i", $profileId);
 $otherStmt->execute();
@@ -371,6 +355,7 @@ $entryStmt->close();
             <div class="grid grid-cols-[60px_2fr_1fr_150px_100px] font-bold border-b-2 border-gray-300 p-2 text-sm">
                 <div>No.</div>
                 <div>Details</div>
+                <div>Reason</div>
                 <div>Items</div>
                 <!-- <div>Target Area</div> -->
                 <div>Date Added</div>
@@ -381,9 +366,10 @@ $entryStmt->close();
         <!-- OFFERS TABLE -->
         <div class="bg-white shadow p-4 rounded">
             <h4 class="text-xl font-semibold mb-2">My Donation Offers</h4>
-            <div class="grid grid-cols-[60px_2fr_1fr_150px_100px] font-bold border-b-2 border-gray-300 p-2 text-sm">
+            <div class="grid grid-cols-[60px_2fr_1fr_150px_100px_100px] font-bold border-b-2 border-gray-300 p-2 text-sm">
                 <div>No.</div>
                 <div>Details</div>
+                <div>Reason</div>
                 <div>Items</div>
                 <div>Target Area</div>
                 <div>Date Added</div>
@@ -486,6 +472,7 @@ function renderRequests() {
         row.innerHTML = `
             <div class="font-medium text-gray-700">${reqNo}</div>
             <div class="text-gray-800 break-words">${r.details || "---"}</div>
+            <div class="text-gray-800 break-words">${r.reason_name}</div>
             <div class="flex flex-wrap gap-1">${itemsText}</div>
             <div class="text-gray-500">${r.date}</div>
         `;
@@ -498,7 +485,7 @@ function renderRequests() {
     // --- Offers ---
     myOffers.forEach((o, offIndex) => {
         const row = document.createElement("div");
-        row.className = "grid grid-cols-[60px_2fr_1fr_150px_100px] gap-2 p-2 rounded hover:bg-gray-50 border-b border-gray-100 items-start cursor-pointer text-sm";
+        row.className = "grid grid-cols-[60px_2fr_1fr_150px_100px_100px] gap-2 p-2 rounded hover:bg-gray-50 border-b border-gray-100 items-start cursor-pointer text-sm";
         row.dataset.profileId = o.profile_id;
 
         const itemsText = (o.items && Array.isArray(o.items)) 
@@ -513,6 +500,7 @@ function renderRequests() {
         row.innerHTML = `
             <div class="font-medium text-gray-700">${offIndex + 1}</div>
             <div class="text-gray-800 break-words">${o.details || "---"}</div>
+            <div class="text-gray-800 break-words">${o.reason_name}</div>
             <div class="flex flex-wrap gap-1">${itemsText}</div>
             <div class="text-gray-700">${o.target_area || 'philippines'}</div>
             <div class="text-gray-500">${o.date}</div>
@@ -592,6 +580,16 @@ modal.innerHTML = `
                     <option value="barangay">Same Barangay</option>
                 </select>
             </div>
+
+            <div>
+                <label class="block text-gray-700">Reason</label>
+                <select id="modalReason" class="w-full border rounded p-1 text-sm">
+                    <option value="">Select a reason</option>
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+
+            
             <div>
                 <label class="block text-gray-700">Items</label>
                 <div id="itemsContainer" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>

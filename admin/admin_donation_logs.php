@@ -169,9 +169,10 @@ $total_pages = ceil($total_donation_logs / $records_per_page); // Calculate tota
             <thead class="bg-gray-100 text-left">
                 <tr>
                     <th class="p-3">#</th>
-                    <th class="p-3">Donor Name</th>
+                    <th class="p-3">Donor ID</th>
+                    <th class="p-3">Recipient ID</th>
+                    <th class="p-3">Item ID</th>
                     <th class="p-3">Amount</th>
-                    <th class="p-3">Donation Type</th>
                     <th class="p-3">Created At</th>
                 </tr>
             </thead>
@@ -179,9 +180,10 @@ $total_pages = ceil($total_donation_logs / $records_per_page); // Calculate tota
                 <?php foreach ($donationLogs as $log): ?>
                     <tr class="border-t hover:bg-gray-50">
                         <td class="p-3"><?= $log['log_id'] ?></td>
-                        <td class="p-3"><?= htmlspecialchars($log['donor_name']) ?></td>
-                        <td class="p-3"><?= htmlspecialchars($log['amount']) ?></td>
-                        <td class="p-3"><?= htmlspecialchars($log['donation_type']) ?></td>
+                        <td class="p-3"><?= htmlspecialchars($log['donor_profile_id']) ?></td>
+                        <td class="p-3"><?= htmlspecialchars($log['recipient_profile_id']) ?></td>
+                        <td class="p-3"><?= htmlspecialchars($log['item_id']) ?></td>
+                        <td class="p-3"><?= htmlspecialchars($log['quantity']) ?></td>
                         <td class="p-3"><?= $log['created_at'] ?></td>
                     </tr>
                 <?php endforeach; ?>
