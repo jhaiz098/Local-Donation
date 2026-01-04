@@ -16,6 +16,7 @@ if (!$profile_id) {
 
 $type = $_POST['type'] ?? null;
 $details = $_POST['details'] ?? null;
+$reason_id = $_POST['reason_id'] ?? null;
 $items = isset($_POST['items']) ? json_decode($_POST['items'], true) : [];
 $target_area = $_POST['target_area'] ?? null;
 $entry_id = isset($_POST['entry_id']) ? intval($_POST['entry_id']) : null; // for editing
@@ -33,10 +34,10 @@ try {
         // Update donation entry details
         $stmt = $conn->prepare("
             UPDATE donation_entries 
-            SET entry_type = ?, details = ?, target_area = ? 
+            SET entry_type = ?, details = ?, reason_id = ?, target_area = ? 
             WHERE entry_id = ? AND profile_id = ?
         ");
-        $stmt->bind_param("sssii", $type, $details, $target_area, $entry_id, $profile_id);
+        $stmt->bind_param("ssisii", $type, $details, $reason_id, $target_area, $entry_id, $profile_id);
         $stmt->execute();
         $stmt->close();
 
@@ -58,10 +59,10 @@ try {
     } else {
         // === INSERT NEW ENTRY ===
         $stmt = $conn->prepare("
-            INSERT INTO donation_entries (profile_id, entry_type, details, target_area)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO donation_entries (profile_id, entry_type, details, reason_id, target_area)
+            VALUES (?, ?, ?, ?, ?)
         ");
-        $stmt->bind_param("isss", $profile_id, $type, $details, $target_area);
+        $stmt->bind_param("issis", $profile_id, $type, $details, $reason_id, $target_area);
         $stmt->execute();
         $entry_id = $stmt->insert_id;
         $stmt->close();

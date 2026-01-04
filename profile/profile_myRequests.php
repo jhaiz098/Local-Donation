@@ -152,7 +152,8 @@ while ($entry = $entryResult->fetch_assoc()) {
             "entry_id" => $entry['entry_id'],
             "type" => ucfirst($entry['entry_type']),
             "details" => $entry['details'],
-            "reason_name" => $entry['reason_name'],
+            "reason_id" => $entry['reason_id'],   // <-- add this
+            "reason_name" => $entry['reason_name'], // optional
             "items" => $entryItems, // Add items related to this entry
             "target_area" => $entry['target_area'] ?? "philippines",
             "date" => date("Y-m-d", strtotime($entry['created_at'])),
@@ -266,6 +267,8 @@ while ($entry = $otherResult->fetch_assoc()) {
         $otherRequests[] = [
             "entry_id" => $entry['entry_id'],
             "details" => $entry['details'],
+            "reason_id" => $entry['reason_id'],   // <-- add this
+            "reason_name" => $entry['reason_name'], // optional
             "items" => $entryItems, // Add items related to this entry
             "target_area" => $entry['target_area'] ?? "philippines",
             "date" => date("Y-m-d", strtotime($entry['created_at'])),
@@ -507,22 +510,35 @@ function renderRequests() {
         `;
         offerTable.appendChild(row);
 
+        
+
         const matchingRequests = findMatchesForOffer(o);
-        if (matchingRequests.length > 0) {
+
+        const uniqueMatchingRequests = Object.values(
+            matchingRequests.reduce((acc, req) => {
+                if (!acc[req.entry_id]) {
+                    acc[req.entry_id] = req;
+                }
+                return acc;
+            }, {})
+        );
+
+        if (uniqueMatchingRequests.length > 0) {
             const matchDiv = document.createElement("div");
             matchDiv.className = "ml-16 mt-1 text-blue-600 text-sm font-semibold cursor-pointer";
-            matchDiv.innerText = `View ${matchingRequests.length} Match${matchingRequests.length > 1 ? 'es' : ''}`;
+            matchDiv.innerText = `View ${uniqueMatchingRequests.length} Match${uniqueMatchingRequests.length > 1 ? 'es' : ''}`;
 
             const expandedDiv = document.createElement("div");
             expandedDiv.className = "ml-16 mt-1 border border-gray-200 rounded text-xs hidden";
 
-            matchingRequests.forEach((m, i) => {
+            uniqueMatchingRequests.forEach((m, i) => {
                 const matchRow = document.createElement("div");
-                matchRow.className = "grid grid-cols-[60px_2fr_2fr_150px_100px_100px] gap-1 p-1 border-b border-gray-100 items-center text-xs";
+                matchRow.className = "grid grid-cols-[60px_2fr_2fr_150px_100px_100px_100px] gap-1 p-1 border-b border-gray-100 items-center text-xs";
                 matchRow.innerHTML = `
                     <div class="text-gray-700">${i + 1}</div>
                     <div class="text-blue-700"><a href="#" class="profile-link" data-profile-id="${m.profile_id}">${m.profile_name} (${m.profile_type})</a></div>
                     <div class="text-gray-800 break-words">${m.details || "---"}</div>
+                    <div class="text-gray-800 break-words">${m.reason_name || "---"}</div>
                     <div class="flex flex-wrap gap-1">
                     ${(m.items && Array.isArray(m.items)) 
                         ? m.items.map(it => `<span class='inline-block bg-gray-100 px-1 py-0.5 rounded text-xs'>${it.name} x${it.quantity} ${it.unit || 'pcs'}</span>`).join(' ') 
@@ -693,13 +709,16 @@ function openModal(req = null) {
     modal.classList.remove("hidden");
     itemsContainer.innerHTML = "";
     const details = document.getElementById("modalDetails");
+    const reason = document.getElementById("modalReason");
     const targetArea = document.getElementById("modalTargetArea");
 
     if (req) {
         document.getElementById("modalTitle").innerText = "Edit Request/Offer";
         document.getElementById("modalType").value = req.type;
         details.value = req.details || "";
+        // alert(JSON.stringify(req, null, 2));
 
+        reason.value = req.reason_id || "";  // <-- use reason_id, not value
         
 
         req.items.forEach(it => createItemRow(it));
@@ -711,6 +730,7 @@ function openModal(req = null) {
         document.getElementById("modalTitle").innerText = "Add Request/Offer";
         document.getElementById("modalType").value = "Request";
         details.value = "";
+        reason.value = "";
         targetArea.value = "philippines";
 
         createItemRow(); // Always add one item row by default
@@ -748,6 +768,7 @@ document.getElementById("modalForm").addEventListener("submit", e => {
     formData.append("details", details);
     formData.append("items", JSON.stringify(items));
     formData.append("target_area", document.getElementById("modalTargetArea").value);
+    formData.append("reason_id", document.getElementById("modalReason").value);
 
     // If editing, append entry_id to the form data
     if (editingRequest && editingRequest.entry_id) {
