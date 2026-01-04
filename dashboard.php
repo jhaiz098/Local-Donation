@@ -255,7 +255,7 @@ $reasons = $stmt->get_result();
                         <?php while ($row = $reasons->fetch_assoc()): ?>
                             <option value="<?= htmlspecialchars($row['reason_id']) ?>">
                                 <?= htmlspecialchars($row['reason_name']) ?>
-                            </option>
+                            </option>asdasd
                         <?php endwhile; ?>
                     </select>
                 </div>
