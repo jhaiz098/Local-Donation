@@ -589,12 +589,12 @@ modal.innerHTML = `
                 </select>
             </div>
 
-            
             <div>
                 <label class="block text-gray-700">Items</label>
                 <div id="itemsContainer" class="space-y-2 max-h-64 overflow-y-auto pr-2"></div>
                 <button type="button" id="addItemBtn" class="mt-2 px-2 py-1 bg-green-500 text-white rounded text-sm">Add Item</button>
             </div>
+
             <div class="flex justify-end gap-2 mt-3">
                 <button type="button" id="modalCancel" class="px-3 py-1 bg-gray-200 rounded text-sm">Cancel</button>
                 <button type="submit" class="px-3 py-1 bg-blue-500 text-white rounded text-sm">Save</button>
@@ -604,6 +604,21 @@ modal.innerHTML = `
     </div>
 `;
 document.body.appendChild(modal);
+
+// ===== Populate Reason Dropdown =====
+fetch('get_reasons.php')
+    .then(res => res.json())
+    .then(data => {
+        const reasonSelect = document.getElementById('modalReason');
+        data.forEach(reason => {
+            const option = document.createElement('option');
+            option.value = reason.reason_id; // use id as value
+            option.textContent = reason.reason_name; // display name
+            reasonSelect.appendChild(option);
+        });
+    })
+    .catch(err => console.error('Error fetching reasons:', err));
+
 
 // Get modal elements
 const modalType = document.getElementById("modalType");
