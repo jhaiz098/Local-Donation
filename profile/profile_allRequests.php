@@ -145,7 +145,7 @@ $allEntries = array_values($tempEntries);
     <!-- Requests Table -->
     <div class="bg-white shadow p-4 rounded mb-6">
         <h4 class="text-xl font-semibold mb-2">Donation Requests</h4>
-        <div class="grid grid-cols-[60px_2fr_2fr_2fr_2fr_2fr] font-bold border-b-2 border-gray-300 p-2">
+        <div class="grid grid-cols-[60px_3fr_2fr_2fr_2fr_2fr_2fr] font-bold border-b-2 border-gray-300 p-2">
             <div>No.</div>
             <div>Profile</div>
             <div>Details</div>
@@ -165,7 +165,7 @@ $allEntries = array_values($tempEntries);
     <!-- Offers Table -->
     <div class="bg-white shadow p-4 rounded">
         <h4 class="text-xl font-semibold mb-2">Donation Offers</h4>
-        <div class="grid grid-cols-[60px_2fr_2fr_2fr_2fr_2fr] font-bold border-b-2 border-gray-300 p-2">
+        <div class="grid grid-cols-[60px_3fr_2fr_2fr_2fr_2fr_2fr] font-bold border-b-2 border-gray-300 p-2">
             <div>No.</div>
             <div>Profile</div>
             <div>Details</div>
@@ -213,7 +213,7 @@ function renderRequests(){
 
     paginated.forEach((r,i)=>{
         const row = document.createElement("div");
-        row.className="grid grid-cols-[60px_2fr_2fr_2fr_2fr_2fr] gap-2 p-2 rounded border-b border-gray-100 items-start";
+        row.className="grid grid-cols-[60px_3fr_2fr_2fr_2fr_2fr_2fr] gap-2 p-2 rounded border-b border-gray-100 items-start";
 
         const itemsText = r.items.map(it=>`<span class='inline-block bg-gray-200 px-2 py-0.5 rounded text-sm'>${it.item_name} x${it.quantity} ${it.unit_name}</span>`).join(" ");
 
@@ -241,7 +241,7 @@ function renderOffers(){
 
     paginated.forEach((r,i)=>{
         const row = document.createElement("div");
-        row.className="grid grid-cols-[60px_2fr_2fr_2fr_2fr_2fr] gap-2 p-2 rounded border-b border-gray-100 items-start";
+        row.className="grid grid-cols-[60px_3fr_2fr_2fr_2fr_2fr_2fr] gap-2 p-2 rounded border-b border-gray-100 items-start";
 
         const itemsText = r.items.map(it=>`<span class='inline-block bg-gray-200 px-2 py-0.5 rounded text-sm'>${it.item_name} x${it.quantity} ${it.unit_name}</span>`).join(" ");
 

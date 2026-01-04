@@ -268,37 +268,35 @@ $stmt->close();
             </div>
     </div>
 
-    <div class="grid my-5 grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6">
-        <!-- Suggested Offers & Requests -->
+    <div class="grid my-5 grid-cols-1 gap-6">
         <div class="bg-white p-3 rounded shadow md:col-span-1">
-            <div class="flex items-center gap-2 mb-2">
+
+            <!-- Title / Header -->
+            <div class="flex items-center gap-2 mb-4">
                 <span class="text-blue-600 text-2xl">🤝</span>
                 <h3 class="text-xl font-semibold">Offers & Requests You May Be Interested In</h3>
             </div>
-            
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <!-- Reason Filter -->
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Filter by Request / Offer
-                    </label>
+            <!-- Optional short description -->
+            <p class="text-gray-600 text-sm mb-6">
+                Select a type and reason to filter donation entries.
+            </p>
 
-                    <select class="w-full border rounded p-2 text-sm mb-5" name="reason_id">
+            <div class="grid grid-cols-2 gap-6">
+                <!-- Type Filter -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Request / Offer</label>
+                    <select id="filterType" class="w-full border rounded p-2 text-sm mb-5">
                         <option value="">All Donation Entries</option>
                         <option value="offers">Offers</option>
                         <option value="requests">Requests</option>
                     </select>
                 </div>
 
+                <!-- Reason Filter -->
                 <div>
-                    <!-- Reason Filter -->
-                    <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Filter by Reason
-                    </label>
-
-                    <select class="w-full border rounded p-2 text-sm mb-5" name="reason_id">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Reason</label>
+                    <select id="filterReason" class="w-full border rounded p-2 text-sm mb-5">
                         <option value="">All Reasons</option>
-
                         <?php while ($row = $reasons->fetch_assoc()): ?>
                             <option value="<?= htmlspecialchars($row['reason_id']) ?>">
                                 <?= htmlspecialchars($row['reason_name']) ?>
@@ -307,111 +305,15 @@ $stmt->close();
                     </select>
                 </div>
             </div>
-            
 
-
-            <p class="text-gray-600 text-sm">
-                Select a reason to view donation offers or requests related to a specific community need.
-            </p>
-
-            <div class="mt-6 overflow-x-auto">
-                <table class="min-w-full border border-gray-200 rounded text-sm">
-                    <thead class="bg-gray-100 text-gray-700">
-                        <tr>
-                            <th class="px-3 py-2 border">Type</th>
-                            <th class="px-3 py-2 border">Reason</th>
-                            <th class="px-3 py-2 border">Details</th>
-                            <th class="px-3 py-2 border target-area-col hidden">Target Area</th>
-                            <th class="px-3 py-2 border">Location</th>
-                            <th class="px-3 py-2 border">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($donationEntries as $entry): ?>
-                            <tr class="hover:bg-gray-50">
-
-                                <!-- Type -->
-                                <td class="px-3 py-2 border font-semibold
-                                    <?= strtolower($entry['entry_type']) === 'offer'
-                                        ? 'text-green-600'
-                                        : 'text-blue-600' ?>">
-                                    <?= htmlspecialchars(ucfirst($entry['entry_type'])) ?>
-                                </td>
-
-                                <!-- Reason -->
-                                <td class="px-3 py-2 border">
-                                    <?= htmlspecialchars($entry['reason_name'] ?? '—') ?>
-                                </td>
-
-                                <!-- Details -->
-                                <td class="px-3 py-2 border max-w-xs break-words text-gray-700">
-                                    <?= htmlspecialchars($entry['details'] ?? '—') ?>
-                                </td>
-
-                                <!-- Target Area (ONLY FOR OFFERS) -->
-                                <td class="px-3 py-2 border target-area-col hidden">
-                                    <?php if (strtolower($entry['entry_type']) === 'offer'): ?>
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-xs">
-                                            <?= htmlspecialchars(ucfirst($entry['target_area'])) ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-
-                                <!-- Location -->
-                                <td class="px-3 py-2 border text-xs text-gray-600">
-                                    <?= htmlspecialchars($entry['barangay_name'] ?? '') ?><br>
-                                    <?= htmlspecialchars($entry['city_name'] ?? '') ?><br>
-                                    <?= htmlspecialchars($entry['province_name'] ?? '') ?>
-                                </td>
-
-                                <!-- Date -->
-                                <td class="px-3 py-2 border text-gray-500">
-                                    <?= date("Y-m-d", strtotime($entry['created_at'])) ?>
-                                </td>
-
-                            </tr>
-                            <?php endforeach; ?>
-
-                    </tbody>
-                </table>
-
-                <?php if ($totalPages > 1): ?>
-                    <div class="flex justify-center items-center gap-2 mt-6 text-sm">
-
-                        <!-- Prev -->
-                        <a href="?page=<?= max(1, $page - 1) ?>"
-                        class="px-3 py-1 border rounded
-                        <?= $page <= 1 ? 'text-gray-400 pointer-events-none' : 'hover:bg-gray-100' ?>">
-                            Prev
-                        </a>
-
-                        <!-- Page numbers -->
-                        <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                            <a href="?page=<?= $i ?>"
-                            class="px-3 py-1 border rounded
-                            <?= $i == $page
-                                    ? 'bg-blue-500 text-white'
-                                    : 'hover:bg-gray-100' ?>">
-                                <?= $i ?>
-                            </a>
-                        <?php endfor; ?>
-
-                        <!-- Next -->
-                        <a href="?page=<?= min($totalPages, $page + 1) ?>"
-                        class="px-3 py-1 border rounded
-                        <?= $page >= $totalPages ? 'text-gray-400 pointer-events-none' : 'hover:bg-gray-100' ?>">
-                            Next
-                        </a>
-
-                    </div>
-                    <?php endif; ?>
-
+            <div id="donationTableContainer">
+                <!-- Table will be populated via AJAX here -->
+                <div class="text-gray-500 text-center py-10">Loading donation entries...</div>
             </div>
-
         </div>
-
-
     </div>
+
+
     
     </section>
     
@@ -956,6 +858,45 @@ document.addEventListener("DOMContentLoaded", () => {
             .forEach(el => el.classList.remove("hidden"));
     }
 });
+</script>
+
+<script>
+
+const filterType = document.getElementById('filterType');
+const filterReason = document.getElementById('filterReason');
+const donationTableContainer = document.getElementById('donationTableContainer');
+
+// Load entries via AJAX
+function loadDonationEntries(page = 1) {
+    const type = filterType.value;
+    const reason = filterReason.value;
+
+    fetch(`ajax_get_donations.php?page=${page}&type=${type}&reason=${reason}`)
+        .then(res => res.text())
+        .then(html => {
+            donationTableContainer.innerHTML = html;
+
+            // Add click events for pagination links inside the container
+            const pageLinks = donationTableContainer.querySelectorAll('.pagination-link');
+            pageLinks.forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const page = link.dataset.page;
+                    loadDonationEntries(page);
+                });
+            });
+        })
+        .catch(err => console.error(err));
+}
+
+// Load initial data
+loadDonationEntries();
+
+// Reload table when filters change
+filterType.addEventListener('change', () => loadDonationEntries());
+filterReason.addEventListener('change', () => loadDonationEntries());
+
+
 </script>
 
 
