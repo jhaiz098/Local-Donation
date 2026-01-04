@@ -943,7 +943,7 @@ document.getElementById("donationModalConfirm").addEventListener("click", () => 
         return;
     }
 
-    fetch("profile_confirmDonation.php", {
+    fetch("profile_confirmDonation2.php", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "donation_items=" + encodeURIComponent(JSON.stringify(donationItems))
