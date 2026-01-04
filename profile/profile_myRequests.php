@@ -73,14 +73,19 @@ $entryStmt->bind_param("i", $profileId);
 $entryStmt->execute();
 $entryResult = $entryStmt->get_result();
 
+$entryMap = []; // Prevent duplicates
+
 while ($entry = $entryResult->fetch_assoc()) {
-    $profile_id = $entry['profile_id'];
-    $profile_type = $entry['profile_type']; // The type of profile (individual, family, etc.)
+    $entry_id = $entry['entry_id'];
+
+    // Skip if we've already processed this entry
+    if (isset($entryMap[$entry_id])) continue;
+
+    $profile_type = $entry['profile_type'];
 
     // Initialize query for location data based on profile type
     $locationStmt = null;
 
-    // Choose the table based on profile type
     switch ($profile_type) {
         case 'individual':
             $locationStmt = $conn->prepare("SELECT region_id, province_id, city_id, barangay_id FROM profiles_individual WHERE profile_id = ?");
@@ -97,31 +102,20 @@ while ($entry = $entryResult->fetch_assoc()) {
     }
 
     if ($locationStmt) {
-        $locationStmt->bind_param("i", $profile_id);
+        $locationStmt->bind_param("i", $entry['profile_id']);
         $locationStmt->execute();
-        $locationResult = $locationStmt->get_result();
-        $locationData = $locationResult->fetch_assoc();
+        $locationData = $locationStmt->get_result()->fetch_assoc();
+        $locationStmt->close();
 
-                // Fetch region, province, city, and barangay names
-        $regionStmt = $conn->prepare("SELECT name FROM regions WHERE id = ?");
-        $regionStmt->bind_param("i", $locationData['region_id']);
-        $regionStmt->execute();
-        $region_name = $regionStmt->get_result()->fetch_assoc()['name'];
+        // Fetch region, province, city, barangay names
+        $region_name = $province_name = $city_name = $barangay_name = 'N/A';
 
-        $provinceStmt = $conn->prepare("SELECT name FROM provinces WHERE id = ?");
-        $provinceStmt->bind_param("i", $locationData['province_id']);
-        $provinceStmt->execute();
-        $province_name = $provinceStmt->get_result()->fetch_assoc()['name'];
-
-        $cityStmt = $conn->prepare("SELECT name FROM cities WHERE id = ?");
-        $cityStmt->bind_param("i", $locationData['city_id']);
-        $cityStmt->execute();
-        $city_name = $cityStmt->get_result()->fetch_assoc()['name'];
-
-        $barangayStmt = $conn->prepare("SELECT name FROM barangays WHERE id = ?");
-        $barangayStmt->bind_param("i", $locationData['barangay_id']);
-        $barangayStmt->execute();
-        $barangay_name = $barangayStmt->get_result()->fetch_assoc()['name'];
+        if ($locationData) {
+            $region_name = $conn->query("SELECT name FROM regions WHERE id=" . intval($locationData['region_id']))->fetch_assoc()['name'] ?? 'N/A';
+            $province_name = $conn->query("SELECT name FROM provinces WHERE id=" . intval($locationData['province_id']))->fetch_assoc()['name'] ?? 'N/A';
+            $city_name = $conn->query("SELECT name FROM cities WHERE id=" . intval($locationData['city_id']))->fetch_assoc()['name'] ?? 'N/A';
+            $barangay_name = $conn->query("SELECT name FROM barangays WHERE id=" . intval($locationData['barangay_id']))->fetch_assoc()['name'] ?? 'N/A';
+        }
 
         // Fetch items for this entry
         $itemsStmt = $conn->prepare("
@@ -130,7 +124,7 @@ while ($entry = $entryResult->fetch_assoc()) {
             JOIN items i ON dei.item_id = i.item_id
             WHERE dei.entry_id = ?
         ");
-        $itemsStmt->bind_param("i", $entry['entry_id']);
+        $itemsStmt->bind_param("i", $entry_id);
         $itemsStmt->execute();
         $itemsResult = $itemsStmt->get_result();
 
@@ -146,34 +140,36 @@ while ($entry = $entryResult->fetch_assoc()) {
         }
         $itemsStmt->close();
 
-
-        // Add location details and items to the entry data
-        $requests[] = [
-            "entry_id" => $entry['entry_id'],
+        // Add entry to map to prevent duplicates
+        $entryMap[$entry_id] = [
+            "entry_id" => $entry_id,
             "type" => ucfirst($entry['entry_type']),
             "details" => $entry['details'],
-            "reason_id" => $entry['reason_id'],   // <-- add this
-            "reason_name" => $entry['reason_name'], // optional
-            "items" => $entryItems, // Add items related to this entry
+            "reason_id" => $entry['reason_id'],
+            "reason_name" => $entry['reason_name'],
+            "items" => $entryItems,
             "target_area" => $entry['target_area'] ?? "philippines",
             "date" => date("Y-m-d", strtotime($entry['created_at'])),
             "profile_name" => $entry['profile_name'],
-            "profile_id" => isset($entry['profile_id']) ? $entry['profile_id'] : null,
-            "profile_type" => isset($entry['profile_type']) ? $entry['profile_type'] : null,
-
-            // Add location names
-            "region_name" => $region_name ?? 'N/A',
-            "province_name" => $province_name ?? 'N/A',
-            "city_name" => $city_name ?? 'N/A',
-            "barangay_name" => $barangay_name ?? 'N/A'
+            "profile_id" => $entry['profile_id'],
+            "profile_type" => $entry['profile_type'],
+            "region_name" => $region_name,
+            "province_name" => $province_name,
+            "city_name" => $city_name,
+            "barangay_name" => $barangay_name
         ];
     }
 }
+
+// Convert map to array for output
+$requests = array_values($entryMap);
+
 
 
 
 // Fetch all requests from other profiles for matching
 $otherRequests = [];
+$entryMap = []; // Prevent duplicates
 
 // Fetch donation entries
 $otherStmt = $conn->prepare("
@@ -186,6 +182,11 @@ $otherStmt->execute();
 $otherResult = $otherStmt->get_result();
 
 while ($entry = $otherResult->fetch_assoc()) {
+    $entry_id = $entry['entry_id'];
+
+    // Skip if we've already processed this entry
+    if (isset($entryMap[$entry_id])) continue;
+
     $profile_id = $entry['profile_id'];
     $profile_type = $entry['profile_type'];
 
@@ -206,82 +207,66 @@ while ($entry = $otherResult->fetch_assoc()) {
             break;
     }
 
+    $region_name = $province_name = $city_name = $barangay_name = 'N/A';
     if ($locationStmt) {
         $locationStmt->bind_param("i", $profile_id);
         $locationStmt->execute();
-        $locationResult = $locationStmt->get_result();
+        $locationData = $locationStmt->get_result()->fetch_assoc();
+        $locationStmt->close();
 
-        // Fetch location data
-        $locationData = $locationResult->fetch_assoc();
-        $region_id = $locationData['region_id'];
-        $province_id = $locationData['province_id'];
-        $city_id = $locationData['city_id'];
-        $barangay_id = $locationData['barangay_id'];
-
-        // Fetch region, province, city, and barangay names
-        $regionStmt = $conn->prepare("SELECT name FROM regions WHERE id = ?");
-        $regionStmt->bind_param("i", $region_id);
-        $regionStmt->execute();
-        $region_name = $regionStmt->get_result()->fetch_assoc()['name'];
-
-        $provinceStmt = $conn->prepare("SELECT name FROM provinces WHERE id = ?");
-        $provinceStmt->bind_param("i", $province_id);
-        $provinceStmt->execute();
-        $province_name = $provinceStmt->get_result()->fetch_assoc()['name'];
-
-        $cityStmt = $conn->prepare("SELECT name FROM cities WHERE id = ?");
-        $cityStmt->bind_param("i", $city_id);
-        $cityStmt->execute();
-        $city_name = $cityStmt->get_result()->fetch_assoc()['name'];
-
-        $barangayStmt = $conn->prepare("SELECT name FROM barangays WHERE id = ?");
-        $barangayStmt->bind_param("i", $barangay_id);
-        $barangayStmt->execute();
-        $barangay_name = $barangayStmt->get_result()->fetch_assoc()['name'];
-
-
-        // Fetch items for this entry
-        $itemsStmt = $conn->prepare("
-            SELECT dei.item_entry_id, i.item_id, i.item_name, dei.quantity, dei.unit_name
-            FROM donation_entry_items dei
-            JOIN items i ON dei.item_id = i.item_id
-            WHERE dei.entry_id = ?
-        ");
-        $itemsStmt->bind_param("i", $entry['entry_id']);
-        $itemsStmt->execute();
-        $itemsResult = $itemsStmt->get_result();
-
-        $entryItems = [];
-        while ($it = $itemsResult->fetch_assoc()) {
-            $entryItems[] = [
-                "item_entry_id" => $it['item_entry_id'],
-                "item_id" => $it['item_id'],
-                "name" => $it['item_name'],
-                "quantity" => $it['quantity'],
-                "unit" => $it['unit_name']
-            ];
+        if ($locationData) {
+            $region_name = $conn->query("SELECT name FROM regions WHERE id=" . intval($locationData['region_id']))->fetch_assoc()['name'] ?? 'N/A';
+            $province_name = $conn->query("SELECT name FROM provinces WHERE id=" . intval($locationData['province_id']))->fetch_assoc()['name'] ?? 'N/A';
+            $city_name = $conn->query("SELECT name FROM cities WHERE id=" . intval($locationData['city_id']))->fetch_assoc()['name'] ?? 'N/A';
+            $barangay_name = $conn->query("SELECT name FROM barangays WHERE id=" . intval($locationData['barangay_id']))->fetch_assoc()['name'] ?? 'N/A';
         }
-        $itemsStmt->close();
+    }
 
-        // Combine all the data
-        $otherRequests[] = [
-            "entry_id" => $entry['entry_id'],
-            "details" => $entry['details'],
-            "reason_id" => $entry['reason_id'],   // <-- add this
-            "reason_name" => $entry['reason_name'], // optional
-            "items" => $entryItems, // Add items related to this entry
-            "target_area" => $entry['target_area'] ?? "philippines",
-            "date" => date("Y-m-d", strtotime($entry['created_at'])),
-            "profile_name" => $entry['profile_name'],
-            "profile_id" => $entry['profile_id'],
-            "profile_type" => $entry['profile_type'],
-            "region_name" => $region_name,
-            "province_name" => $province_name,
-            "city_name" => $city_name,
-            "barangay_name" => $barangay_name
+    // Fetch items for this entry
+    $itemsStmt = $conn->prepare("
+        SELECT dei.item_entry_id, i.item_id, i.item_name, dei.quantity, dei.unit_name
+        FROM donation_entry_items dei
+        JOIN items i ON dei.item_id = i.item_id
+        WHERE dei.entry_id = ?
+    ");
+    $itemsStmt->bind_param("i", $entry_id);
+    $itemsStmt->execute();
+    $itemsResult = $itemsStmt->get_result();
+
+    $entryItems = [];
+    while ($it = $itemsResult->fetch_assoc()) {
+        $entryItems[] = [
+            "item_entry_id" => $it['item_entry_id'],
+            "item_id" => $it['item_id'],
+            "name" => $it['item_name'],
+            "quantity" => $it['quantity'],
+            "unit" => $it['unit_name']
         ];
     }
+    $itemsStmt->close();
+
+    // Add entry to map to prevent duplicates
+    $entryMap[$entry_id] = [
+        "entry_id" => $entry_id,
+        "details" => $entry['details'],
+        "reason_id" => $entry['reason_id'],
+        "reason_name" => $entry['reason_name'],
+        "items" => $entryItems,
+        "target_area" => $entry['target_area'] ?? "philippines",
+        "date" => date("Y-m-d", strtotime($entry['created_at'])),
+        "profile_name" => $entry['profile_name'],
+        "profile_id" => $profile_id,
+        "profile_type" => $profile_type,
+        "region_name" => $region_name,
+        "province_name" => $province_name,
+        "city_name" => $city_name,
+        "barangay_name" => $barangay_name
+    ];
 }
+
+// Convert map to array for output
+$otherRequests = array_values($entryMap);
+
 
 $otherStmt->close();
 
@@ -486,43 +471,104 @@ function renderRequests() {
         row.addEventListener("click", () => openModal(r));
     });
 
-    // --- Offers ---
-    myOffers.forEach((o, offIndex) => {
-        const row = document.createElement("div");
-        row.className = "grid grid-cols-[60px_2fr_1fr_150px_100px_100px] gap-2 p-2 rounded hover:bg-gray-50 border-b border-gray-100 items-start cursor-pointer text-sm";
-        row.dataset.profileId = o.profile_id;
+    const uniqueOffers = Object.values(
+        myOffers.reduce((acc, offer) => {
+            if (!acc[offer.entry_id]) {
+                acc[offer.entry_id] = {
+                    ...offer,
+                    items: []
+                };
+            }
 
-        const itemsText = (o.items && Array.isArray(o.items)) 
-            ? o.items.map(it => `<span class='inline-block bg-gray-200 px-1 py-0.5 rounded text-xs'>${it.name} x${it.quantity} ${it.unit || 'pcs'}</span>`).join(" ") 
-            : '';
+            if (offer.items && Array.isArray(offer.items)) {
+                acc[offer.entry_id].items.push(...offer.items);
+            }
 
-        row.addEventListener("click", (e) => {
-            if (e.target.closest(".donate-btn") || e.target.closest(".ml-16")) return;
-            openModal(o);
+            return acc;
+        }, {})
+    );
+    
+    uniqueOffers.forEach((o, offIndex) => {
+    // --- Deduplicate items ---
+    let itemsMap = {};
+    if (o.items && Array.isArray(o.items)) {
+        o.items.forEach(it => {
+            const key = it.item_id ?? `${it.name}-${it.unit}`;
+            if (!itemsMap[key]) {
+                itemsMap[key] = { ...it };
+            } else {
+                // Sum quantity if duplicate
+                itemsMap[key].quantity += it.quantity;
+            }
         });
+    }
+    const uniqueItems = Object.values(itemsMap);
 
-        row.innerHTML = `
-            <div class="font-medium text-gray-700">${offIndex + 1}</div>
-            <div class="text-gray-800 break-words">${o.details || "---"}</div>
-            <div class="text-gray-800 break-words">${o.reason_name}</div>
-            <div class="flex flex-wrap gap-1">${itemsText}</div>
-            <div class="text-gray-700">${o.target_area || 'philippines'}</div>
-            <div class="text-gray-500">${o.date}</div>
-        `;
-        offerTable.appendChild(row);
+    // --- Render offer row ---
+    const row = document.createElement("div");
+    row.className = "grid grid-cols-[60px_2fr_1fr_150px_100px_100px] gap-2 p-2 rounded hover:bg-gray-50 border-b border-gray-100 items-start cursor-pointer text-sm";
+    row.dataset.profileId = o.profile_id;
+
+    const itemsText = uniqueItems.length
+        ? uniqueItems.map(it => `<span class='inline-block bg-gray-200 px-1 py-0.5 rounded text-xs'>${it.name} x${it.quantity} ${it.unit || 'pcs'}</span>`).join(" ")
+        : '';
+
+    row.addEventListener("click", (e) => {
+        if (e.target.closest(".donate-btn") || e.target.closest(".ml-16")) return;
+        openModal(o);
+    });
+
+    row.innerHTML = `
+        <div class="font-medium text-gray-700">${offIndex + 1}</div>
+        <div class="text-gray-800 break-words">${o.details || "---"}</div>
+        <div class="text-gray-800 break-words">${o.reason_name}</div>
+        <div class="flex flex-wrap gap-1">${itemsText}</div>
+        <div class="text-gray-700">${o.target_area || 'philippines'}</div>
+        <div class="text-gray-500">${o.date}</div>
+    `;
+    offerTable.appendChild(row);
+
 
         
 
-        const matchingRequests = findMatchesForOffer(o);
+        const rawMatches = findMatchesForOffer(o);
 
-        const uniqueMatchingRequests = Object.values(
-            matchingRequests.reduce((acc, req) => {
-                if (!acc[req.entry_id]) {
-                    acc[req.entry_id] = req;
-                }
-                return acc;
-            }, {})
-        );
+        // Group by request entry_id
+        const groupedMatches = {};
+
+        rawMatches.forEach(m => {
+            if (!groupedMatches[m.entry_id]) {
+                groupedMatches[m.entry_id] = {
+                    entry_id: m.entry_id,
+                    profile_id: m.profile_id,
+                    profile_name: m.profile_name,
+                    profile_type: m.profile_type,
+                    details: m.details,
+                    reason_name: m.reason_name,
+                    date: m.date,
+                    items: {} // 👈 object for dedupe
+                };
+            }
+
+            if (m.items && Array.isArray(m.items)) {
+                m.items.forEach(it => {
+                    const key = it.item_id ?? `${it.name}-${it.unit}`;
+
+                    if (!groupedMatches[m.entry_id].items[key]) {
+                        groupedMatches[m.entry_id].items[key] = { ...it };
+                    } else {
+                        // Optional: sum quantities if same item appears twice
+                        groupedMatches[m.entry_id].items[key].quantity += it.quantity;
+                    }
+                });
+            }
+        });
+
+        // Convert items object → array
+        const uniqueMatchingRequests = Object.values(groupedMatches).map(r => ({
+            ...r,
+            items: Object.values(r.items)
+        }));
 
         if (uniqueMatchingRequests.length > 0) {
             const matchDiv = document.createElement("div");
@@ -556,6 +602,9 @@ function renderRequests() {
             offerTable.appendChild(expandedDiv);
         }
     });
+    
+    
+
 
     // Add event listeners to donation buttons after offers are rendered
     document.querySelectorAll('.donate-btn').forEach(button => {

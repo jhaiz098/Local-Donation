@@ -43,8 +43,8 @@ $sql = "
         i.item_name,
 
         r.profile_name AS requester_name,
-        r.profile_type AS profile_type,
-
+        r.profile_type AS requester_type,
+        
         de.entry_id
     FROM pending_donation_items pdi
     JOIN donation_entries de ON de.entry_id = pdi.entry_id
@@ -58,8 +58,6 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $profileId);
 $stmt->execute();
 $result = $stmt->get_result();
-?>
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -130,6 +128,7 @@ $result = $stmt->get_result();
                         <th class="p-3 w-32">Request ID</th>
                         <th class="p-3 w-40">Date</th>
                         <th class="p-3 w-32">Status</th>
+                        <th class="p-3 text-center w-28">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -147,7 +146,11 @@ $result = $stmt->get_result();
 
                             <td class="p-3 text-blue-700">
                                 <?= htmlspecialchars($row['requester_name']) ?>
+                                <span class="text-gray-500 text-xs">
+                                    (<?= htmlspecialchars($row['requester_type']) ?>)
+                                </span>
                             </td>
+
 
                             <td class="p-3">
                                 #<?= $row['entry_id'] ?>
@@ -162,6 +165,15 @@ $result = $stmt->get_result();
                                     Pending
                                 </span>
                             </td>
+
+                            <td class="p-3 text-center">
+                                <button 
+                                    class="px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 cancel-donation-btn"
+                                    data-pending-id="<?= $row['pending_item_id'] ?>">
+                                    Cancel
+                                </button>
+                            </td>
+
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -173,36 +185,27 @@ $result = $stmt->get_result();
 <!-- ACTION SCRIPT -->
 <script>
 document.addEventListener('click', function (e) {
+    if (!e.target.classList.contains('cancel-donation-btn')) return;
 
-    if (e.target.classList.contains('accept-btn')) {
-        processPending(e.target.dataset.id, 'accept');
-    }
+    const pendingId = e.target.dataset.pendingId;
 
-    if (e.target.classList.contains('reject-btn')) {
-        processPending(e.target.dataset.id, 'reject');
-    }
-});
+    if (!confirm('Cancel this pending donation?')) return;
 
-function processPending(id, action) {
-    if (!confirm(`Are you sure you want to ${action} this item?`)) return;
-
-    fetch('../ajax/process_pending_donation.php', {
+    fetch('cancel_pending_donation.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            pending_item_id: id,
-            action: action
-        })
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'pending_item_id=' + pendingId
     })
     .then(res => res.json())
     .then(data => {
         if (data.status === 'success') {
-            location.reload();
+            e.target.closest('tr').remove();
         } else {
-            alert(data.message || 'Action failed.');
+            alert(data.message || 'Failed to cancel donation.');
         }
     });
-}
+});
 </script>
+
 </body>
 </html>
