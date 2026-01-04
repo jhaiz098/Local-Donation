@@ -228,21 +228,39 @@ $reasons = $stmt->get_result();
                 <span class="text-blue-600 text-2xl">🤝</span>
                 <h3 class="text-xl font-semibold">Offers & Requests You May Be Interested In</h3>
             </div>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <!-- Reason Filter -->
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Filter by Request / Offer
+                    </label>
 
-            <!-- Reason Filter -->
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-                Filter by Reason
-            </label>
+                    <select class="w-full border rounded p-2 text-sm mb-5" name="reason_id">
+                        <option value="">All Donation Entries</option>
+                        <option value="offers">Offers</option>
+                        <option value="requests">Requests</option>
+                    </select>
+                </div>
 
-            <select class="w-full border rounded p-2 text-sm mb-2" name="reason_id">
-                <option value="">All Reasons</option>
+                <div>
+                    <!-- Reason Filter -->
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Filter by Reason
+                    </label>
 
-                <?php while ($row = $reasons->fetch_assoc()): ?>
-                    <option value="<?= htmlspecialchars($row['reason_id']) ?>">
-                        <?= htmlspecialchars($row['reason_name']) ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
+                    <select class="w-full border rounded p-2 text-sm mb-5" name="reason_id">
+                        <option value="">All Reasons</option>
+
+                        <?php while ($row = $reasons->fetch_assoc()): ?>
+                            <option value="<?= htmlspecialchars($row['reason_id']) ?>">
+                                <?= htmlspecialchars($row['reason_name']) ?>
+                            </option>
+                        <?php endwhile; ?>
+                    </select>
+                </div>
+            </div>
+            
 
 
             <p class="text-gray-600 text-sm">
