@@ -74,12 +74,14 @@ $entryStmt->execute();
 $entryResult = $entryStmt->get_result();
 
 $entryMap = []; // Prevent duplicates
+$entryIds = []; // Collect entry IDs for pending donations
 
 while ($entry = $entryResult->fetch_assoc()) {
     $entry_id = $entry['entry_id'];
 
     // Skip if we've already processed this entry
     if (isset($entryMap[$entry_id])) continue;
+    $entryIds[] = $entry_id;
 
     $profile_type = $entry['profile_type'];
 
@@ -156,8 +158,48 @@ while ($entry = $entryResult->fetch_assoc()) {
             "region_name" => $region_name,
             "province_name" => $province_name,
             "city_name" => $city_name,
-            "barangay_name" => $barangay_name
+            "barangay_name" => $barangay_name,
+            "pending" => [] // initialize pending array
         ];
+    }
+}
+
+// ===== Fetch pending donations for these entries =====
+if (!empty($entryIds)) {
+    $ids = implode(',', array_map('intval', $entryIds)); // safe integer list
+    $pendingResult = $conn->query("
+        SELECT pdi.*, i.item_name, i.item_id, p.profile_name AS donor_name, p.profile_type AS donor_type
+        FROM pending_donation_items pdi
+        JOIN items i ON pdi.item_id = i.item_id
+        LEFT JOIN profiles p ON p.profile_id = pdi.donor_profile_id
+        WHERE pdi.entry_id IN ($ids)
+    ");
+
+    $pendingMap = [];
+    while ($pd = $pendingResult->fetch_assoc()) {
+        $entry_id = $pd['entry_id'];
+        if (!isset($pendingMap[$entry_id])) $pendingMap[$entry_id] = [];
+
+        $pendingMap[$entry_id][] = [
+            "pending_id" => $pd['pending_id'],
+            "donor_profile_id" => $pd['donor_profile_id'],
+            "donor_name" => $pd['donor_name'] ?? "Donor #{$pd['donor_profile_id']}",
+            "donor_type" => $pd['donor_type'] ?? "N/A",
+            "items" => [
+                [
+                    "item_id" => $pd['item_id'],
+                    "name" => $pd['item_name'] ?? "Item",
+                    "quantity" => $pd['quantity'],
+                    "unit" => $pd['unit_name'] ?? "pcs"
+                ]
+            ],
+            "date" => date("Y-m-d", strtotime($pd['created_at'] ?? $pd['created_at']))
+        ];
+    }
+
+    // Attach pending donations to requests
+    foreach ($entryMap as $eid => &$req) {
+        $req['pending'] = $pendingMap[$eid] ?? [];
     }
 }
 
@@ -478,7 +520,6 @@ function renderRequests() {
             const pendingToggle = document.createElement("div");
             pendingToggle.className = "ml-16 mt-1 text-blue-600 text-sm font-semibold cursor-pointer";
             pendingToggle.innerText = `View ${r.pending.length} Pending Donation${r.pending.length > 1 ? 's' : ''}`;
-            
             pendingToggle.addEventListener("click", () => pendingDiv.classList.toggle("hidden"));
 
             r.pending.forEach((p, i) => {
@@ -494,7 +535,7 @@ function renderRequests() {
                 const uniqueItems = Object.values(itemsMap);
 
                 const pRow = document.createElement("div");
-                pRow.className = "grid grid-cols-[60px_2fr_2fr_150px_100px] gap-1 p-1 border-b border-gray-100 items-center text-xs";
+                pRow.className = "grid grid-cols-[60px_3fr_2fr_100px_100px] gap-1 p-1 border-b border-gray-100 items-center text-xs";
                 pRow.innerHTML = `
                     <div class="text-gray-700">${i + 1}</div>
                     <div class="text-blue-700"><a href="#" class="profile-link" data-profile-id="${p.donor_profile_id}">${p.donor_name} (${p.donor_type})</a></div>
@@ -502,7 +543,10 @@ function renderRequests() {
                         ${uniqueItems.map(it => `<span class='inline-block bg-gray-100 px-1 py-0.5 rounded text-xs'>${it.name} x${it.quantity} ${it.unit || 'pcs'}</span>`).join(' ')}
                     </div>
                     <div class="text-gray-500">${p.date}</div>
-                    <div><button class="px-2 py-0.5 bg-red-500 text-white rounded cancel-btn" data-pending-id="${p.pending_id}">Cancel</button></div>
+                    <div class="flex gap-1">
+                        <button class="px-2 py-0.5 bg-green-500 text-white rounded confirm-btn" data-pending-id="${p.pending_id}">Confirm Delivery</button>
+                        <button class="px-2 py-0.5 bg-red-500 text-white rounded reject-btn" data-pending-id="${p.pending_id}">Reject</button>
+                    </div>
                 `;
                 pendingDiv.appendChild(pRow);
             });
@@ -511,6 +555,41 @@ function renderRequests() {
             requestTable.appendChild(pendingDiv);
         }
     });
+
+    requestTable.addEventListener("click", function (e) {
+
+    // CONFIRM DELIVERY → mark as received, then vanish
+    if (e.target.classList.contains("confirm-btn")) {
+        e.stopPropagation();
+
+        const pendingId = e.target.dataset.pendingId;
+
+        if (!confirm("Mark this donation as RECEIVED?\n\nThis action cannot be undone.")) {
+            return;
+        }
+
+        confirmDelivery(pendingId);
+        return;
+    }
+
+    // REJECT DONATION → just remove, no return
+    if (e.target.classList.contains("reject-btn")) {
+        e.stopPropagation();
+
+        const pendingId = e.target.dataset.pendingId;
+
+        if (!confirm("Reject this donation?\n\nIt will be removed permanently.")) {
+            return;
+        }
+
+        rejectDonation(pendingId);
+        return;
+    }
+
+});
+
+
+
 
     const uniqueOffers = Object.values(
         myOffers.reduce((acc, offer) => {

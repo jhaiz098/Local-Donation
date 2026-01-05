@@ -56,7 +56,7 @@ try {
         $stmt->execute();
         $stmt->close();
 
-        // --- Deduct quantity from donor offer ---
+        // --- Deduct quantity from donor offer only ---
         if ($offerEntryId > 0 && $offer_item_entry_id > 0) {
             $stmt = $conn->prepare("
                 UPDATE donation_entry_items
@@ -77,32 +77,14 @@ try {
             $stmt->close();
         }
 
-        // --- Deduct quantity from request entry ---
-        if ($request_item_entry_id > 0) {
-            $stmt = $conn->prepare("
-                UPDATE donation_entry_items
-                SET quantity = quantity - ?
-                WHERE entry_id = ? AND item_entry_id = ?
-            ");
-            $stmt->bind_param("iii", $quantity, $requestEntryId, $request_item_entry_id);
-            $stmt->execute();
-            $stmt->close();
-
-            // Remove item if quantity <= 0
-            $stmt = $conn->prepare("
-                DELETE FROM donation_entry_items
-                WHERE entry_id = ? AND item_entry_id = ? AND quantity <= 0
-            ");
-            $stmt->bind_param("ii", $requestEntryId, $request_item_entry_id);
-            $stmt->execute();
-            $stmt->close();
-        }
+        // --- Do NOT deduct from recipient for now ---
+        // if ($request_item_entry_id > 0) { ... }  <-- removed
     }
 
     $conn->commit();
     echo json_encode([
         'status' => 'success',
-        'message' => 'Pending donation created and quantities deducted.'
+        'message' => 'Pending donation created and donor quantities deducted.'
     ]);
 
 } catch (Exception $e) {
