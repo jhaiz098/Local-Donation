@@ -181,7 +181,7 @@ if (!empty($entryIds)) {
         if (!isset($pendingMap[$entry_id])) $pendingMap[$entry_id] = [];
 
         $pendingMap[$entry_id][] = [
-            "pending_id" => $pd['pending_id'],
+            "pending_id" => $pd['pending_item_id'],
             "donor_profile_id" => $pd['donor_profile_id'],
             "donor_name" => $pd['donor_name'] ?? "Donor #{$pd['donor_profile_id']}",
             "donor_type" => $pd['donor_type'] ?? "N/A",
@@ -480,8 +480,8 @@ const predefinedItems = <?= $itemsJson ?>;
 const requestTable = document.getElementById("requestTable");
 const offerTable = document.getElementById("offerTable");
 
-console.log("Requests:", requests);
-console.log("Other Requests:", otherRequestsJS);
+// console.log("Requests:", requests);
+// console.log("Other Requests:", otherRequestsJS);
 
 function renderRequests() {
     requestTable.innerHTML = "";
@@ -510,8 +510,17 @@ function renderRequests() {
         requestTable.appendChild(row);
         reqNo++;
 
-        row.addEventListener("click", () => openModal(r));
+        row.addEventListener("click", (e) => {
+            if (
+                e.target.closest(".confirm-btn") ||
+                e.target.closest(".reject-btn") ||
+                e.target.closest(".profile-link")
+            ) return;
 
+            openModal(r);
+        });
+
+        console.log("Pending object:", r);
         // --- Pending Donations under request ---
         if (r.pending && r.pending.length > 0) {
             const pendingDiv = document.createElement("div");
@@ -535,7 +544,7 @@ function renderRequests() {
                 const uniqueItems = Object.values(itemsMap);
 
                 const pRow = document.createElement("div");
-                pRow.className = "grid grid-cols-[60px_3fr_2fr_100px_100px] gap-1 p-1 border-b border-gray-100 items-center text-xs";
+                pRow.className = "grid grid-cols-[60px_3fr_2fr_100px_80px_80px] gap-1 p-1 border-b border-gray-100 items-center text-xs";
                 pRow.innerHTML = `
                     <div class="text-gray-700">${i + 1}</div>
                     <div class="text-blue-700"><a href="#" class="profile-link" data-profile-id="${p.donor_profile_id}">${p.donor_name} (${p.donor_type})</a></div>
@@ -543,10 +552,18 @@ function renderRequests() {
                         ${uniqueItems.map(it => `<span class='inline-block bg-gray-100 px-1 py-0.5 rounded text-xs'>${it.name} x${it.quantity} ${it.unit || 'pcs'}</span>`).join(' ')}
                     </div>
                     <div class="text-gray-500">${p.date}</div>
-                    <div class="flex gap-1">
-                        <button class="px-2 py-0.5 bg-green-500 text-white rounded confirm-btn" data-pending-id="${p.pending_id}">Confirm Delivery</button>
-                        <button class="px-2 py-0.5 bg-red-500 text-white rounded reject-btn" data-pending-id="${p.pending_id}">Reject</button>
-                    </div>
+                    <button
+                        class="confirm-btn px-2 py-0.5 bg-green-600 text-white rounded"
+                        data-pending-id="${p.pending_id}">
+                        Confirm
+                    </button>
+
+                    <button
+                        class="reject-btn px-2 py-0.5 bg-red-600 text-white rounded"
+                        data-pending-id="${p.pending_id}">
+                        Reject
+                    </button>
+
                 `;
                 pendingDiv.appendChild(pRow);
             });
@@ -558,13 +575,14 @@ function renderRequests() {
 
     requestTable.addEventListener("click", function (e) {
 
-    // CONFIRM DELIVERY → mark as received, then vanish
-    if (e.target.classList.contains("confirm-btn")) {
+    // CONFIRM
+    const confirmBtn = e.target.closest(".confirm-btn");
+    if (confirmBtn) {
         e.stopPropagation();
+        const pendingId = confirmBtn.dataset.pendingId;
 
-        const pendingId = e.target.dataset.pendingId;
-
-        if (!confirm("Mark this donation as RECEIVED?\n\nThis action cannot be undone.")) {
+        if (!pendingId) {
+            alert("No pending ID found");
             return;
         }
 
@@ -572,21 +590,83 @@ function renderRequests() {
         return;
     }
 
-    // REJECT DONATION → just remove, no return
-    if (e.target.classList.contains("reject-btn")) {
+    // REJECT
+    const rejectBtn = e.target.closest(".reject-btn");
+    if (rejectBtn) {
         e.stopPropagation();
+        const pendingId = rejectBtn.dataset.pendingId;
 
-        const pendingId = e.target.dataset.pendingId;
-
-        if (!confirm("Reject this donation?\n\nIt will be removed permanently.")) {
+        if (!pendingId) {
+            alert("No pending ID found");
             return;
         }
 
         rejectDonation(pendingId);
         return;
     }
-
 });
+
+
+    function confirmDelivery(pendingId) {
+    if (!pendingId) return;
+    alert(pendingId);
+
+    if (!confirm("Mark this donation as RECEIVED?\n\nThis action cannot be undone.")) return;
+
+    fetch("confirm_delivery.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `pending_id=${encodeURIComponent(pendingId)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("Donation marked as received.");
+            // Option 1: Reload the page
+            location.reload();
+
+            // Option 2: If you want to keep dynamic refresh without full reload
+            // renderRequests(); 
+        } else {
+            alert(data.message || "Failed to confirm delivery.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server error while confirming delivery.");
+    });
+}
+
+function rejectDonation(pendingId) {
+    if (!pendingId) return;
+
+    if (!confirm("Reject this donation?\n\nIt will be removed permanently.")) return;
+
+    fetch("reject_donation.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `pending_id=${encodeURIComponent(pendingId)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("Donation rejected.");
+            // Option 1: Reload the page
+            location.reload();
+
+            // Option 2: Dynamic refresh
+            // renderRequests();
+        } else {
+            alert(data.message || "Failed to reject donation.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Server error while rejecting donation.");
+    });
+}
+
+
 
 
 
@@ -737,6 +817,37 @@ function renderRequests() {
 
 renderRequests();
 
+// requestTable.addEventListener("click", function (e) {
+
+//         // CONFIRM DELIVERY → mark as received, then vanish
+//         if (e.target.classList.contains("confirm-btn")) {
+//             e.stopPropagation();
+
+//             const pendingId = e.target.dataset.pendingId;
+
+//             if (!confirm("Mark this donation as RECEIVED?\n\nThis action cannot be undone.")) {
+//                 return;
+//             }
+
+//             confirmDelivery(pendingId);
+//             return;
+//         }
+
+//         // REJECT DONATION → just remove, no return
+//         if (e.target.classList.contains("reject-btn")) {
+//             e.stopPropagation();
+
+//             const pendingId = e.target.dataset.pendingId;
+
+//             if (!confirm("Reject this donation?\n\nIt will be removed permanently.")) {
+//                 return;
+//             }
+
+//             rejectDonation(pendingId);
+//             return;
+//         }
+
+//     });
 
 // ===== MODAL =====
 const modal = document.createElement("div");
@@ -1106,7 +1217,7 @@ document.getElementById("donationModalConfirm").addEventListener("click", () => 
     })
     .filter(x => x !== null);
 
-    console.log(JSON.stringify(donationItems));
+    // console.log(JSON.stringify(donationItems));
 
     if (!donationItems.length) {
         alert("Please enter a donation quantity.");
@@ -1233,9 +1344,9 @@ function isItemsMatch(requestItems, offerItems) {
 
     return requestItems.some(requestItem => {
         const matchingOfferItem = offerItems.find(offerItem => {
-            console.log(
-                Number(offerItem.item_id) === Number(requestItem.item_id)
-            );
+            // console.log(
+            //     Number(offerItem.item_id) === Number(requestItem.item_id)
+            // );
             return Number(offerItem.item_id) === Number(requestItem.item_id);
         });
 
