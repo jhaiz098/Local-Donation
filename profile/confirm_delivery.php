@@ -30,28 +30,25 @@ try {
     $recipientEntryId = intval($pendingData['recipient_entry_id']);
     $itemId = intval($pendingData['item_id']);
     $quantity = intval($pendingData['quantity']);
-    // $requestItemEntryId = intval($pendingData['request_item_entry_id'] ?? 0);
 
     // 2️⃣ Reduce quantity from recipient's request entry
-    // if ($requestItemEntryId > 0) {
-        $stmt = $conn->prepare("
-            UPDATE donation_entry_items
-            SET quantity = quantity - ?
-            WHERE entry_id = ? AND item_id = ?
-        ");
-        $stmt->bind_param("iii", $quantity, $recipientEntryId, $itemId);
-        $stmt->execute();
-        $stmt->close();
+    $stmt = $conn->prepare("
+        UPDATE donation_entry_items
+        SET quantity = quantity - ?
+        WHERE entry_id = ? AND item_id = ?
+    ");
+    $stmt->bind_param("iii", $quantity, $recipientEntryId, $itemId);
+    $stmt->execute();
+    $stmt->close();
 
-        // Remove item if quantity <= 0
-        $stmt = $conn->prepare("
-            DELETE FROM donation_entry_items
-            WHERE entry_id = ? AND item_id = ? AND quantity <= 0
-        ");
-        $stmt->bind_param("ii", $recipientEntryId, $itemId);
-        $stmt->execute();
-        $stmt->close();
-    // }
+    // Remove item if quantity <= 0
+    $stmt = $conn->prepare("
+        DELETE FROM donation_entry_items
+        WHERE entry_id = ? AND item_id = ? AND quantity <= 0
+    ");
+    $stmt->bind_param("ii", $recipientEntryId, $itemId);
+    $stmt->execute();
+    $stmt->close();
 
     // 3️⃣ Delete the pending donation row
     $stmt = $conn->prepare("
@@ -61,6 +58,27 @@ try {
     $stmt->bind_param("i", $pendingId);
     $stmt->execute();
     $stmt->close();
+
+    // 4️⃣ Delete the donation entry if it has no more items
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) AS item_count
+        FROM donation_entry_items
+        WHERE entry_id = ?
+    ");
+    $stmt->bind_param("i", $recipientEntryId);
+    $stmt->execute();
+    $itemCount = $stmt->get_result()->fetch_assoc()['item_count'] ?? 0;
+    $stmt->close();
+
+    if ($itemCount == 0) {
+        $stmt = $conn->prepare("
+            DELETE FROM donation_entries
+            WHERE entry_id = ?
+        ");
+        $stmt->bind_param("i", $recipientEntryId);
+        $stmt->execute();
+        $stmt->close();
+    }
 
     $conn->commit();
 
