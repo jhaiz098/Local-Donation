@@ -11,6 +11,14 @@ $pendingId = intval($_POST['pending_id']);
 
 $conn->begin_transaction();
 
+// Function to insert activity log
+function logActivity($conn, $profileId, $description, $displayText) {
+    $stmt = $conn->prepare("INSERT INTO activities (profile_id, description, display_text) VALUES (?, ?, ?)");
+    $stmt->bind_param("iss", $profileId, $description, $displayText);
+    $stmt->execute();
+    $stmt->close();
+}
+
 try {
     // 1️⃣ Get pending donation details
     $stmt = $conn->prepare("
