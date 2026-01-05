@@ -609,7 +609,7 @@ function renderRequests() {
 
     function confirmDelivery(pendingId) {
     if (!pendingId) return;
-    alert(pendingId);
+    // alert(pendingId);
 
     if (!confirm("Mark this donation as RECEIVED?\n\nThis action cannot be undone.")) return;
 
